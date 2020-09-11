@@ -1,0 +1,23 @@
+# macOS system files
+.DS_Store
+
+# Ignore node_modules
+node_modules
+web/reactjs/public
+
+# Ignore build packages
+build/native
+
+# Ignore tmp director
+tmp/
+
+# VS Code
+.vscode
+
+package/
+
+dbfiles/
+
+.$*.drawio.bkp
+
+.envrc

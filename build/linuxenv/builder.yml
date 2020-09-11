@@ -1,0 +1,13 @@
+version: '3.7'
+
+services:
+
+  linuxenv:
+    build:
+      context: ../../
+      dockerfile: ./build/linuxenv/linuxenv.dockerfile
+      args:
+        OS_VER: ${OS_VER}
+        USER_NAME: ${USER_NAME}
+    image: ${LINUXDT_IMAGE:-paulwizviz/linuxdt:current}
+    

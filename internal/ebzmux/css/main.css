@@ -1,0 +1,16 @@
+header {
+   overflow: hidden;
+   padding: 10px;
+   background-color: #b5a5a5;
+}
+
+main {
+  background-color: #ddd;
+  padding: 10px;
+  height: 200px; 
+}
+
+footer {
+  background-color: #f1f1f1;
+  padding: 10px;
+}
