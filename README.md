@@ -1,49 +1,35 @@
 ![build](https://github.com/paulwizviz/go-web/workflows/build/badge.svg)
-
 # Overview
 
-Use this template to scaffold a project for creating macOS, Linux and Windows native app or Docker base app incorporating a Web-based frontend (e.g. ReactJS, Vue, etc) with a web and RESTFul server.
+This educational project intended to demonstrate software engineering principles applicable to building mission-critical solutions. This project encompasses a range of technologies and paradigms:
 
-## How do I scaffold a project from this template?
+* Go and ReactJS
+* Databases
+* Application Programming Interfaces (API)
+* Container
+* Continuous Integration and Continuous Delivery (CI/CD)
+* Data modelling and algorithm
+* and many more.
 
-At the top this page, you should see a green coloured button named `Use this template`. Click on the button and follow the instructions from Github.
+The project will showcase an operational solution for extracting data from sources to deliver via APIs supporting third-party application developments and a frontend.
 
-## What do I get out-of-the-box when I create a scaffold?
+This project will also demonstrate lean and agile principles throughout the project lifecycle. Thus this is a continuously evolving project.
 
-You'll get the following:
+This project will broadly use the UK National Lottery draws as the data source for processing. However, it is necessary to emphasise that the principal purpose of this project is **not** to deliver a solution to help a user better predict the lottery win. If the result generated a winning lottery, it is purely coincidental.
 
-* A ReactJS-based skeleton sub-project.
+The project has elected to use the lottery draws as it offered an opportunity to produce code from analytical techniques used to process data.
 
-* A layout based on [Standard Go Project Layout](https://github.com/golang-standards/project-layout)
+## Disclaimer
 
-* A skeleton Go source code to generate webserver and RESTful server.
+This project uses mission-critical principles where practicable. However, it is not for any mission-critical setting. The project's author(s) is not liable for any consequences for its use beyond this project setting.
 
-* Docker based build scripts to help you create native (macOS, Linux and Windows) app or Docker image app.
+## Copyright notice
 
-* A locally deployable development environment to help you see the interactions between your web source code and Go RESTFul API
+Unless otherwise specified, the copyright of this project is assigned as follows.
 
-## Prerequisite
+Copyright 2022 Paul Sitoh
 
-In order to build apps based on this template, you **must** install Docker and Docker compose.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
-You should also install the following items to help you edit source codes:
+http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-* [Go toolkit version 1.11 onwards](https://blog.golang.org/)
-
-* Node
-
-**NOTE:** These toolkits are not use to build your projects.
-
-## How do I extend/modify my scaffold?
-
-Please refer to the [architecture docs](./docs/Arch.md)
-
-## How do I build my project?
-
-Please refer to the [build doc](./docs/Build.md).
-
-## How do I see my projects in action?
-
-Please refer to [running the app doc](./docs/Run.md).
-
- 
