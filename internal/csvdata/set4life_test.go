@@ -22,8 +22,10 @@ func TestProcessS4LCVS(t *testing.T) {
 16-Jan-2023,36,10,23,40,32,10,SFL1,Excalibur 5,401`),
 			expected: []Set4LifeDraw{
 				{
-					LineNo: 2,
-					Err:    nil,
+					Log: map[string]string{
+						CSVLogKeyLineNo: "2",
+					},
+					Err: nil,
 					Item: struct {
 						DrawDate  time.Time
 						DayOfWeek time.Weekday
@@ -57,8 +59,10 @@ func TestProcessS4LCVS(t *testing.T) {
 					},
 				},
 				{
-					LineNo: 2,
-					Err:    nil,
+					Log: map[string]string{
+						CSVLogKeyLineNo: "3",
+					},
+					Err: nil,
 					Item: struct {
 						DrawDate  time.Time
 						DayOfWeek time.Weekday
@@ -101,7 +105,7 @@ func TestProcessS4LCVS(t *testing.T) {
 		idx := 0
 		for s := range sig {
 			if assert.True(t, errors.Is(s.Err, tc.expected[idx].Err), fmt.Sprintf("Case: %d Description: %s", i, tc.description)) {
-				assert.Equal(t, tc.expected[idx].LineNo, s.LineNo, fmt.Sprintf("Case: %d Description: %s", i, tc.description))
+				assert.Equal(t, tc.expected[idx].Log, s.Log, fmt.Sprintf("Case: %d Description: %s", i, tc.description))
 				assert.Equal(t, tc.expected[idx].Item, s.Item, fmt.Sprintf("Case: %d Description: %s", i, tc.description))
 			}
 			idx++

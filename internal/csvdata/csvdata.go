@@ -22,3 +22,8 @@ var (
 	ErrInvalidMonth       = errors.New("invalid month")
 	ErrInvalidDrawDigit   = errors.New("invalid draw digit")
 )
+
+// Logging key
+const (
+	CSVLogKeyLineNo = "CSV line no"
+)

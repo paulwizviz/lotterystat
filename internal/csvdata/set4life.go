@@ -9,9 +9,9 @@ import (
 )
 
 type Set4LifeDraw struct {
-	LineNo uint64
-	Err    error
-	Item   struct {
+	Log  map[string]string
+	Err  error
+	Item struct {
 		DrawDate  time.Time
 		DayOfWeek time.Weekday
 		Ball1     uint8
@@ -31,10 +31,13 @@ func ProcessS4LCVS(r io.Reader) chan Set4LifeDraw {
 	go func() {
 		cr := csv.NewReader(r)
 		cr.Read() // remove titles
-		ln := 2
+		ln := 1
 		for {
+			ln++
 			s4ld := Set4LifeDraw{}
-			s4ld.LineNo = uint64(ln)
+			s4ld.Log = map[string]string{
+				CSVLogKeyLineNo: fmt.Sprintf("%d", ln),
+			}
 			rec, err := cr.Read()
 			if err == io.EOF {
 				break

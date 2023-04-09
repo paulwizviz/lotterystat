@@ -24,8 +24,10 @@ func TestProcessEuroCSV(t *testing.T) {
 31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`),
 			expected: []EuroDraw{
 				{
-					LineNo: 2,
-					Err:    nil,
+					Log: map[string]string{
+						CSVLogKeyLineNo: "2",
+					},
+					Err: nil,
 					Item: struct {
 						DrawDate   time.Time
 						DayOfWeek  time.Weekday
@@ -61,8 +63,10 @@ func TestProcessEuroCSV(t *testing.T) {
 					},
 				},
 				{
-					LineNo: 2,
-					Err:    nil,
+					Log: map[string]string{
+						CSVLogKeyLineNo: "3",
+					},
+					Err: nil,
 					Item: struct {
 						DrawDate   time.Time
 						DayOfWeek  time.Weekday
@@ -106,8 +110,10 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`),
 			expected: []EuroDraw{
 				{
-					LineNo: 2,
-					Err:    ErrInvalidNumFmt,
+					Log: map[string]string{
+						CSVLogKeyLineNo: "2",
+					},
+					Err: ErrInvalidNumFmt,
 					Item: struct {
 						DrawDate   time.Time
 						DayOfWeek  time.Weekday
@@ -131,8 +137,10 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 					},
 				},
 				{
-					LineNo: 2,
-					Err:    nil,
+					Log: map[string]string{
+						CSVLogKeyLineNo: "3",
+					},
+					Err: nil,
 					Item: struct {
 						DrawDate   time.Time
 						DayOfWeek  time.Weekday
@@ -176,8 +184,10 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`),
 			expected: []EuroDraw{
 				{
-					LineNo: 2,
-					Err:    ErrInvalidDrawDigit,
+					Log: map[string]string{
+						CSVLogKeyLineNo: "2",
+					},
+					Err: ErrInvalidDrawDigit,
 					Item: struct {
 						DrawDate   time.Time
 						DayOfWeek  time.Weekday
@@ -201,8 +211,10 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 					},
 				},
 				{
-					LineNo: 2,
-					Err:    nil,
+					Log: map[string]string{
+						CSVLogKeyLineNo: "3",
+					},
+					Err: nil,
 					Item: struct {
 						DrawDate   time.Time
 						DayOfWeek  time.Weekday
@@ -246,8 +258,10 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`),
 			expected: []EuroDraw{
 				{
-					LineNo: 2,
-					Err:    ErrInvalidDrawDigit,
+					Log: map[string]string{
+						CSVLogKeyLineNo: "2",
+					},
+					Err: ErrInvalidDrawDigit,
 					Item: struct {
 						DrawDate   time.Time
 						DayOfWeek  time.Weekday
@@ -271,8 +285,10 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 					},
 				},
 				{
-					LineNo: 2,
-					Err:    nil,
+					Log: map[string]string{
+						CSVLogKeyLineNo: "3",
+					},
+					Err: nil,
 					Item: struct {
 						DrawDate   time.Time
 						DayOfWeek  time.Weekday
@@ -316,8 +332,10 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`),
 			expected: []EuroDraw{
 				{
-					LineNo: 2,
-					Err:    ErrInvalidDrawDigit,
+					Log: map[string]string{
+						CSVLogKeyLineNo: "2",
+					},
+					Err: ErrInvalidDrawDigit,
 					Item: struct {
 						DrawDate   time.Time
 						DayOfWeek  time.Weekday
@@ -341,8 +359,10 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 					},
 				},
 				{
-					LineNo: 2,
-					Err:    nil,
+					Log: map[string]string{
+						CSVLogKeyLineNo: "3",
+					},
+					Err: nil,
 					Item: struct {
 						DrawDate   time.Time
 						DayOfWeek  time.Weekday
@@ -386,8 +406,10 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`),
 			expected: []EuroDraw{
 				{
-					LineNo: 2,
-					Err:    ErrInvalidDrawDigit,
+					Log: map[string]string{
+						CSVLogKeyLineNo: "2",
+					},
+					Err: ErrInvalidDrawDigit,
 					Item: struct {
 						DrawDate   time.Time
 						DayOfWeek  time.Weekday
@@ -411,8 +433,10 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 					},
 				},
 				{
-					LineNo: 2,
-					Err:    nil,
+					Log: map[string]string{
+						CSVLogKeyLineNo: "3",
+					},
+					Err: nil,
 					Item: struct {
 						DrawDate   time.Time
 						DayOfWeek  time.Weekday
@@ -456,8 +480,10 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`),
 			expected: []EuroDraw{
 				{
-					LineNo: 2,
-					Err:    ErrInvalidDrawDigit,
+					Log: map[string]string{
+						CSVLogKeyLineNo: "2",
+					},
+					Err: ErrInvalidDrawDigit,
 					Item: struct {
 						DrawDate   time.Time
 						DayOfWeek  time.Weekday
@@ -481,8 +507,10 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 					},
 				},
 				{
-					LineNo: 2,
-					Err:    nil,
+					Log: map[string]string{
+						CSVLogKeyLineNo: "3",
+					},
+					Err: nil,
 					Item: struct {
 						DrawDate   time.Time
 						DayOfWeek  time.Weekday
@@ -526,8 +554,10 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`),
 			expected: []EuroDraw{
 				{
-					LineNo: 2,
-					Err:    ErrInvalidDrawDigit,
+					Log: map[string]string{
+						CSVLogKeyLineNo: "2",
+					},
+					Err: ErrInvalidDrawDigit,
 					Item: struct {
 						DrawDate   time.Time
 						DayOfWeek  time.Weekday
@@ -551,8 +581,10 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 					},
 				},
 				{
-					LineNo: 2,
-					Err:    nil,
+					Log: map[string]string{
+						CSVLogKeyLineNo: "3",
+					},
+					Err: nil,
 					Item: struct {
 						DrawDate   time.Time
 						DayOfWeek  time.Weekday
@@ -596,8 +628,10 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`),
 			expected: []EuroDraw{
 				{
-					LineNo: 2,
-					Err:    ErrInvalidDrawDigit,
+					Log: map[string]string{
+						CSVLogKeyLineNo: "2",
+					},
+					Err: ErrInvalidDrawDigit,
 					Item: struct {
 						DrawDate   time.Time
 						DayOfWeek  time.Weekday
@@ -621,8 +655,10 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 					},
 				},
 				{
-					LineNo: 2,
-					Err:    nil,
+					Log: map[string]string{
+						CSVLogKeyLineNo: "3",
+					},
+					Err: nil,
 					Item: struct {
 						DrawDate   time.Time
 						DayOfWeek  time.Weekday
@@ -667,7 +703,7 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 		idx := 0
 		for s := range sig {
 			if assert.True(t, errors.Is(s.Err, tc.expected[idx].Err), fmt.Sprintf("Case: %d.1 Description: %s", i, tc.description)) {
-				assert.Equal(t, s.LineNo, tc.expected[idx].LineNo, fmt.Sprintf("Case: %d.1 Description: %s", i, tc.description))
+				assert.Equal(t, s.Log, tc.expected[idx].Log, fmt.Sprintf("Case: %d.1 Description: %s", i, tc.description))
 				assert.Equal(t, s.Item, tc.expected[idx].Item, fmt.Sprintf("Case: %d.1 Description: %s", i, tc.description))
 			}
 			idx++

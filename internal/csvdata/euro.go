@@ -10,9 +10,9 @@ import (
 
 // Euro is structure representing a draw of National Lottery Euromillion
 type EuroDraw struct {
-	LineNo uint64
-	Err    error
-	Item   struct {
+	Log  map[string]string
+	Err  error
+	Item struct {
 		DrawDate   time.Time
 		DayOfWeek  time.Weekday
 		Ball1      uint8
@@ -33,10 +33,13 @@ func ProcessEuroCVS(r io.Reader) chan EuroDraw {
 	go func() {
 		cr := csv.NewReader(r)
 		cr.Read() // remove titles
-		ln := 2
+		ln := 1
 		for {
+			ln++
 			ecs := EuroDraw{}
-			ecs.LineNo = uint64(ln)
+			ecs.Log = map[string]string{
+				CSVLogKeyLineNo: fmt.Sprintf("%d", ln),
+			}
 			rec, err := cr.Read()
 			if err == io.EOF {
 				break
