@@ -1,8 +1,8 @@
-name: build
-on:
-  pull_request:
-    branches:
-      - master
+# name: build
+# on:
+#   pull_request:
+#     branches:
+#       - master
 # jobs:
 #   build:
 #     runs-on: ubuntu-18.04
