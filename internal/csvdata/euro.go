@@ -28,7 +28,7 @@ type EuroDraw struct {
 	}
 }
 
-func ProcessEuroCVS(r io.Reader) chan EuroDraw {
+func ProcessEuroCVS(r io.Reader) <-chan EuroDraw {
 	c := make(chan EuroDraw)
 	go func() {
 		cr := csv.NewReader(r)

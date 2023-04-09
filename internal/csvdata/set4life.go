@@ -26,7 +26,7 @@ type Set4LifeDraw struct {
 	}
 }
 
-func ProcessS4LCVS(r io.Reader) chan Set4LifeDraw {
+func ProcessS4LCVS(r io.Reader) <-chan Set4LifeDraw {
 	c := make(chan Set4LifeDraw)
 	go func() {
 		cr := csv.NewReader(r)
