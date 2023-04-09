@@ -1,7 +1,7 @@
 ![build](https://github.com/paulwizviz/go-web/workflows/build/badge.svg)
 # Overview
 
-This educational project intended to demonstrate software engineering principles applicable to building mission-critical solutions. This project encompasses a range of technologies and paradigms:
+This educational project intended to demonstrate software engineering principles and the agile methodology applicable to building mission-critical solutions. This project encompasses a range of technologies and paradigms:
 
 * Go and ReactJS
 * Databases
@@ -11,17 +11,19 @@ This educational project intended to demonstrate software engineering principles
 * Data modelling and algorithm
 * and many more.
 
-The project will showcase an operational solution for extracting data from sources to deliver via APIs supporting third-party application developments and a frontend.
-
-This project will also demonstrate lean and agile principles throughout the project lifecycle. Thus this is a continuously evolving project.
-
-This project will broadly use the UK National Lottery draws as the data source for processing. However, it is necessary to emphasise that the principal purpose of this project is **not** to deliver a solution to help a user better predict the lottery win. If the result generated a winning lottery, it is purely coincidental.
+The project will showcase an operational solution for extracting data from sources to deliver via APIs supporting third-party application developments and a frontend. This project will use the UK National Lottery draws as the data source for processing. However, it is necessary to emphasise that the principal purpose of this project is **not** to deliver a solution to help a user better predict the lottery win. If the result generated a winning lottery, it is purely coincidental. If you are seeking a solution to accurately predict lottery winnings, please refer to other solutions.
 
 The project has elected to use the lottery draws as it offered an opportunity to produce code from analytical techniques used to process data.
+
+## Table of content
+
+* [Context](./docs/context.md) -- This section describes the requirements, design decisions and lifecycle management methodologies behind the project
 
 ## Disclaimer
 
 This project uses mission-critical principles where practicable. However, it is not for any mission-critical setting. The project's author(s) is not liable for any consequences for its use beyond this project setting.
+
+This is a evolving project and is subject to changes without notification.
 
 ## Copyright notice
 
