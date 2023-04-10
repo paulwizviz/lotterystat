@@ -15,33 +15,20 @@ import (
 func TestProcessEuroCSV(t *testing.T) {
 	testcases := []struct {
 		input       []byte
-		expected    []EuroDraw
+		expected    []EuroDrawSig
 		description string
 	}{
 		{
 			input: []byte(`DrawDate,Ball 1,Ball 2,Ball 3,Ball 4,Ball 5,Lucky Star 1,Lucky Star 2,UK Millionaire Maker,European Millionaire Maker,DrawNumber
 04-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`),
-			expected: []EuroDraw{
+			expected: []EuroDrawSig{
 				{
 					Log: map[string]string{
 						CSVLogKeyLineNo: "2",
 					},
 					Err: nil,
-					Item: struct {
-						DrawDate   time.Time
-						DayOfWeek  time.Weekday
-						Ball1      uint8
-						Ball2      uint8
-						Ball3      uint8
-						Ball4      uint8
-						Ball5      uint8
-						LS1        uint8
-						LS2        uint8
-						UKMarker   string
-						EuroMarker string
-						DrawNo     uint64
-					}{
+					Item: EuroDraw{
 						DrawDate: func() time.Time {
 							dt, _ := parseDateTime("04-Apr-2023")
 							return dt
@@ -67,20 +54,7 @@ func TestProcessEuroCSV(t *testing.T) {
 						CSVLogKeyLineNo: "3",
 					},
 					Err: nil,
-					Item: struct {
-						DrawDate   time.Time
-						DayOfWeek  time.Weekday
-						Ball1      uint8
-						Ball2      uint8
-						Ball3      uint8
-						Ball4      uint8
-						Ball5      uint8
-						LS1        uint8
-						LS2        uint8
-						UKMarker   string
-						EuroMarker string
-						DrawNo     uint64
-					}{
+					Item: EuroDraw{
 						DrawDate: func() time.Time {
 							dt, _ := parseDateTime("31-Mar-2023")
 							return dt
@@ -108,26 +82,13 @@ func TestProcessEuroCSV(t *testing.T) {
 			input: []byte(`DrawDate,Ball 1,Ball 2,Ball 3,Ball 4,Ball 5,Lucky Star 1,Lucky Star 2,UK Millionaire Maker,European Millionaire Maker,DrawNumber
 a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`),
-			expected: []EuroDraw{
+			expected: []EuroDrawSig{
 				{
 					Log: map[string]string{
 						CSVLogKeyLineNo: "2",
 					},
 					Err: ErrInvalidNumFmt,
-					Item: struct {
-						DrawDate   time.Time
-						DayOfWeek  time.Weekday
-						Ball1      uint8
-						Ball2      uint8
-						Ball3      uint8
-						Ball4      uint8
-						Ball5      uint8
-						LS1        uint8
-						LS2        uint8
-						UKMarker   string
-						EuroMarker string
-						DrawNo     uint64
-					}{
+					Item: EuroDraw{
 						DrawDate: func() time.Time {
 							return time.Time{}
 						}(),
@@ -141,20 +102,7 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 						CSVLogKeyLineNo: "3",
 					},
 					Err: nil,
-					Item: struct {
-						DrawDate   time.Time
-						DayOfWeek  time.Weekday
-						Ball1      uint8
-						Ball2      uint8
-						Ball3      uint8
-						Ball4      uint8
-						Ball5      uint8
-						LS1        uint8
-						LS2        uint8
-						UKMarker   string
-						EuroMarker string
-						DrawNo     uint64
-					}{
+					Item: EuroDraw{
 						DrawDate: func() time.Time {
 							dt, _ := parseDateTime("31-Mar-2023")
 							return dt
@@ -182,26 +130,13 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 			input: []byte(`DrawDate,Ball 1,Ball 2,Ball 3,Ball 4,Ball 5,Lucky Star 1,Lucky Star 2,UK Millionaire Maker,European Millionaire Maker,DrawNumber
 04-Apr-2023,a,16,31,33,50,3,8,"XCRG53171","",1621
 31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`),
-			expected: []EuroDraw{
+			expected: []EuroDrawSig{
 				{
 					Log: map[string]string{
 						CSVLogKeyLineNo: "2",
 					},
 					Err: ErrInvalidDrawDigit,
-					Item: struct {
-						DrawDate   time.Time
-						DayOfWeek  time.Weekday
-						Ball1      uint8
-						Ball2      uint8
-						Ball3      uint8
-						Ball4      uint8
-						Ball5      uint8
-						LS1        uint8
-						LS2        uint8
-						UKMarker   string
-						EuroMarker string
-						DrawNo     uint64
-					}{
+					Item: EuroDraw{
 						DrawDate: func() time.Time {
 							return time.Time{}
 						}(),
@@ -215,20 +150,7 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 						CSVLogKeyLineNo: "3",
 					},
 					Err: nil,
-					Item: struct {
-						DrawDate   time.Time
-						DayOfWeek  time.Weekday
-						Ball1      uint8
-						Ball2      uint8
-						Ball3      uint8
-						Ball4      uint8
-						Ball5      uint8
-						LS1        uint8
-						LS2        uint8
-						UKMarker   string
-						EuroMarker string
-						DrawNo     uint64
-					}{
+					Item: EuroDraw{
 						DrawDate: func() time.Time {
 							dt, _ := parseDateTime("31-Mar-2023")
 							return dt
@@ -256,26 +178,13 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 			input: []byte(`DrawDate,Ball 1,Ball 2,Ball 3,Ball 4,Ball 5,Lucky Star 1,Lucky Star 2,UK Millionaire Maker,European Millionaire Maker,DrawNumber
 04-Apr-2023,10,a,31,33,50,3,8,"XCRG53171","",1621
 31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`),
-			expected: []EuroDraw{
+			expected: []EuroDrawSig{
 				{
 					Log: map[string]string{
 						CSVLogKeyLineNo: "2",
 					},
 					Err: ErrInvalidDrawDigit,
-					Item: struct {
-						DrawDate   time.Time
-						DayOfWeek  time.Weekday
-						Ball1      uint8
-						Ball2      uint8
-						Ball3      uint8
-						Ball4      uint8
-						Ball5      uint8
-						LS1        uint8
-						LS2        uint8
-						UKMarker   string
-						EuroMarker string
-						DrawNo     uint64
-					}{
+					Item: EuroDraw{
 						DrawDate: func() time.Time {
 							return time.Time{}
 						}(),
@@ -289,20 +198,7 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 						CSVLogKeyLineNo: "3",
 					},
 					Err: nil,
-					Item: struct {
-						DrawDate   time.Time
-						DayOfWeek  time.Weekday
-						Ball1      uint8
-						Ball2      uint8
-						Ball3      uint8
-						Ball4      uint8
-						Ball5      uint8
-						LS1        uint8
-						LS2        uint8
-						UKMarker   string
-						EuroMarker string
-						DrawNo     uint64
-					}{
+					Item: EuroDraw{
 						DrawDate: func() time.Time {
 							dt, _ := parseDateTime("31-Mar-2023")
 							return dt
@@ -330,26 +226,13 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 			input: []byte(`DrawDate,Ball 1,Ball 2,Ball 3,Ball 4,Ball 5,Lucky Star 1,Lucky Star 2,UK Millionaire Maker,European Millionaire Maker,DrawNumber
 04-Apr-2023,10,16,a,33,50,3,8,"XCRG53171","",1621
 31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`),
-			expected: []EuroDraw{
+			expected: []EuroDrawSig{
 				{
 					Log: map[string]string{
 						CSVLogKeyLineNo: "2",
 					},
 					Err: ErrInvalidDrawDigit,
-					Item: struct {
-						DrawDate   time.Time
-						DayOfWeek  time.Weekday
-						Ball1      uint8
-						Ball2      uint8
-						Ball3      uint8
-						Ball4      uint8
-						Ball5      uint8
-						LS1        uint8
-						LS2        uint8
-						UKMarker   string
-						EuroMarker string
-						DrawNo     uint64
-					}{
+					Item: EuroDraw{
 						DrawDate: func() time.Time {
 							return time.Time{}
 						}(),
@@ -363,20 +246,7 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 						CSVLogKeyLineNo: "3",
 					},
 					Err: nil,
-					Item: struct {
-						DrawDate   time.Time
-						DayOfWeek  time.Weekday
-						Ball1      uint8
-						Ball2      uint8
-						Ball3      uint8
-						Ball4      uint8
-						Ball5      uint8
-						LS1        uint8
-						LS2        uint8
-						UKMarker   string
-						EuroMarker string
-						DrawNo     uint64
-					}{
+					Item: EuroDraw{
 						DrawDate: func() time.Time {
 							dt, _ := parseDateTime("31-Mar-2023")
 							return dt
@@ -404,26 +274,13 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 			input: []byte(`DrawDate,Ball 1,Ball 2,Ball 3,Ball 4,Ball 5,Lucky Star 1,Lucky Star 2,UK Millionaire Maker,European Millionaire Maker,DrawNumber
 04-Apr-2023,10,16,10,a,50,3,8,"XCRG53171","",1621
 31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`),
-			expected: []EuroDraw{
+			expected: []EuroDrawSig{
 				{
 					Log: map[string]string{
 						CSVLogKeyLineNo: "2",
 					},
 					Err: ErrInvalidDrawDigit,
-					Item: struct {
-						DrawDate   time.Time
-						DayOfWeek  time.Weekday
-						Ball1      uint8
-						Ball2      uint8
-						Ball3      uint8
-						Ball4      uint8
-						Ball5      uint8
-						LS1        uint8
-						LS2        uint8
-						UKMarker   string
-						EuroMarker string
-						DrawNo     uint64
-					}{
+					Item: EuroDraw{
 						DrawDate: func() time.Time {
 							return time.Time{}
 						}(),
@@ -437,20 +294,7 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 						CSVLogKeyLineNo: "3",
 					},
 					Err: nil,
-					Item: struct {
-						DrawDate   time.Time
-						DayOfWeek  time.Weekday
-						Ball1      uint8
-						Ball2      uint8
-						Ball3      uint8
-						Ball4      uint8
-						Ball5      uint8
-						LS1        uint8
-						LS2        uint8
-						UKMarker   string
-						EuroMarker string
-						DrawNo     uint64
-					}{
+					Item: EuroDraw{
 						DrawDate: func() time.Time {
 							dt, _ := parseDateTime("31-Mar-2023")
 							return dt
@@ -478,26 +322,13 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 			input: []byte(`DrawDate,Ball 1,Ball 2,Ball 3,Ball 4,Ball 5,Lucky Star 1,Lucky Star 2,UK Millionaire Maker,European Millionaire Maker,DrawNumber
 04-Apr-2023,10,16,10,1,a,3,8,"XCRG53171","",1621
 31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`),
-			expected: []EuroDraw{
+			expected: []EuroDrawSig{
 				{
 					Log: map[string]string{
 						CSVLogKeyLineNo: "2",
 					},
 					Err: ErrInvalidDrawDigit,
-					Item: struct {
-						DrawDate   time.Time
-						DayOfWeek  time.Weekday
-						Ball1      uint8
-						Ball2      uint8
-						Ball3      uint8
-						Ball4      uint8
-						Ball5      uint8
-						LS1        uint8
-						LS2        uint8
-						UKMarker   string
-						EuroMarker string
-						DrawNo     uint64
-					}{
+					Item: EuroDraw{
 						DrawDate: func() time.Time {
 							return time.Time{}
 						}(),
@@ -511,20 +342,7 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 						CSVLogKeyLineNo: "3",
 					},
 					Err: nil,
-					Item: struct {
-						DrawDate   time.Time
-						DayOfWeek  time.Weekday
-						Ball1      uint8
-						Ball2      uint8
-						Ball3      uint8
-						Ball4      uint8
-						Ball5      uint8
-						LS1        uint8
-						LS2        uint8
-						UKMarker   string
-						EuroMarker string
-						DrawNo     uint64
-					}{
+					Item: EuroDraw{
 						DrawDate: func() time.Time {
 							dt, _ := parseDateTime("31-Mar-2023")
 							return dt
@@ -552,26 +370,13 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 			input: []byte(`DrawDate,Ball 1,Ball 2,Ball 3,Ball 4,Ball 5,Lucky Star 1,Lucky Star 2,UK Millionaire Maker,European Millionaire Maker,DrawNumber
 04-Apr-2023,10,16,10,1,1,a,8,"XCRG53171","",1621
 31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`),
-			expected: []EuroDraw{
+			expected: []EuroDrawSig{
 				{
 					Log: map[string]string{
 						CSVLogKeyLineNo: "2",
 					},
 					Err: ErrInvalidDrawDigit,
-					Item: struct {
-						DrawDate   time.Time
-						DayOfWeek  time.Weekday
-						Ball1      uint8
-						Ball2      uint8
-						Ball3      uint8
-						Ball4      uint8
-						Ball5      uint8
-						LS1        uint8
-						LS2        uint8
-						UKMarker   string
-						EuroMarker string
-						DrawNo     uint64
-					}{
+					Item: EuroDraw{
 						DrawDate: func() time.Time {
 							return time.Time{}
 						}(),
@@ -585,20 +390,7 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 						CSVLogKeyLineNo: "3",
 					},
 					Err: nil,
-					Item: struct {
-						DrawDate   time.Time
-						DayOfWeek  time.Weekday
-						Ball1      uint8
-						Ball2      uint8
-						Ball3      uint8
-						Ball4      uint8
-						Ball5      uint8
-						LS1        uint8
-						LS2        uint8
-						UKMarker   string
-						EuroMarker string
-						DrawNo     uint64
-					}{
+					Item: EuroDraw{
 						DrawDate: func() time.Time {
 							dt, _ := parseDateTime("31-Mar-2023")
 							return dt
@@ -626,26 +418,13 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 			input: []byte(`DrawDate,Ball 1,Ball 2,Ball 3,Ball 4,Ball 5,Lucky Star 1,Lucky Star 2,UK Millionaire Maker,European Millionaire Maker,DrawNumber
 04-Apr-2023,10,16,10,1,1,1,a,"XCRG53171","",1621
 31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`),
-			expected: []EuroDraw{
+			expected: []EuroDrawSig{
 				{
 					Log: map[string]string{
 						CSVLogKeyLineNo: "2",
 					},
 					Err: ErrInvalidDrawDigit,
-					Item: struct {
-						DrawDate   time.Time
-						DayOfWeek  time.Weekday
-						Ball1      uint8
-						Ball2      uint8
-						Ball3      uint8
-						Ball4      uint8
-						Ball5      uint8
-						LS1        uint8
-						LS2        uint8
-						UKMarker   string
-						EuroMarker string
-						DrawNo     uint64
-					}{
+					Item: EuroDraw{
 						DrawDate: func() time.Time {
 							return time.Time{}
 						}(),
@@ -659,20 +438,7 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 						CSVLogKeyLineNo: "3",
 					},
 					Err: nil,
-					Item: struct {
-						DrawDate   time.Time
-						DayOfWeek  time.Weekday
-						Ball1      uint8
-						Ball2      uint8
-						Ball3      uint8
-						Ball4      uint8
-						Ball5      uint8
-						LS1        uint8
-						LS2        uint8
-						UKMarker   string
-						EuroMarker string
-						DrawNo     uint64
-					}{
+					Item: EuroDraw{
 						DrawDate: func() time.Time {
 							dt, _ := parseDateTime("31-Mar-2023")
 							return dt
@@ -708,5 +474,36 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 			}
 			idx++
 		}
+	}
+}
+
+func TestEuroDrawSQLiteTags(t *testing.T) {
+	testcases := []struct {
+		input       EuroDraw
+		expected    map[string]string
+		description string
+	}{
+		{
+			input: EuroDraw{},
+			expected: map[string]string{
+				"DrawDate":   "draw_date,INTEGER",
+				"DayOfWeek":  "day_of_week,INTEGER",
+				"Ball1":      "ball1,INTEGER",
+				"Ball2":      "ball2,INTEGER",
+				"Ball3":      "ball3,INTEGER",
+				"Ball4":      "ball4,INTEGER",
+				"Ball5":      "ball5,INTEGER",
+				"LS1":        "ls1,INTEGER",
+				"LS2":        "ls2,INTEGER",
+				"UKMarker":   "uk_marker,TEXT",
+				"EuroMarker": "euro_marker,TEXT",
+				"DrawNo":     "draw_no,INTEGER",
+			},
+			description: "Valid tags",
+		},
+	}
+	for i, tc := range testcases {
+		actual := tc.input.SQLiteTags()
+		assert.Equal(t, tc.expected, actual, fmt.Sprintf("Case: %d Description: %s", i, tc.description))
 	}
 }

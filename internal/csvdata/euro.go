@@ -8,35 +8,41 @@ import (
 	"time"
 )
 
-// Euro is structure representing a draw of National Lottery Euromillion
 type EuroDraw struct {
-	Log  map[string]string
-	Err  error
-	Item struct {
-		DrawDate   time.Time
-		DayOfWeek  time.Weekday
-		Ball1      uint8
-		Ball2      uint8
-		Ball3      uint8
-		Ball4      uint8
-		Ball5      uint8
-		LS1        uint8
-		LS2        uint8
-		UKMarker   string
-		EuroMarker string
-		DrawNo     uint64
-	}
+	DrawDate   time.Time    `json:"draw_date" sqlite:"draw_date,INTEGER"`
+	DayOfWeek  time.Weekday `json:"day_of_week" sqlite:"day_of_week,INTEGER"`
+	Ball1      uint8        `json:"ball1" sqlite:"ball1,INTEGER"`
+	Ball2      uint8        `json:"ball2" sqlite:"ball2,INTEGER"`
+	Ball3      uint8        `json:"ball3" sqlite:"ball3,INTEGER"`
+	Ball4      uint8        `json:"ball4" sqlite:"ball4,INTEGER"`
+	Ball5      uint8        `json:"ball5" sqlite:"ball5,INTEGER"`
+	LS1        uint8        `json:"ls1" sqlite:"ls1,INTEGER"`
+	LS2        uint8        `json:"ls2" sqlite:"ls2,INTEGER"`
+	UKMarker   string       `json:"uk_marker" sqlite:"uk_marker,TEXT"`
+	EuroMarker string       `json:"euro_marker" sqlite:"euro_marker,TEXT"`
+	DrawNo     uint64       `json:"draw_no" sqlite:"draw_no,INTEGER"`
 }
 
-func ProcessEuroCVS(r io.Reader) <-chan EuroDraw {
-	c := make(chan EuroDraw)
+func (e *EuroDraw) SQLiteTags() map[string]string {
+	return sqliteTags(e)
+}
+
+// Euro is structure representing a draw of National Lottery Euromillion
+type EuroDrawSig struct {
+	Log  map[string]string
+	Err  error
+	Item EuroDraw
+}
+
+func ProcessEuroCVS(r io.Reader) <-chan EuroDrawSig {
+	c := make(chan EuroDrawSig)
 	go func() {
 		cr := csv.NewReader(r)
 		cr.Read() // remove titles
 		ln := 1
 		for {
 			ln++
-			ecs := EuroDraw{}
+			ecs := EuroDrawSig{}
 			ecs.Log = map[string]string{
 				CSVLogKeyLineNo: fmt.Sprintf("%d", ln),
 			}
@@ -103,20 +109,7 @@ func ProcessEuroCVS(r io.Reader) <-chan EuroDraw {
 				c <- ecs
 				continue
 			}
-			ecs.Item = struct {
-				DrawDate   time.Time
-				DayOfWeek  time.Weekday
-				Ball1      uint8
-				Ball2      uint8
-				Ball3      uint8
-				Ball4      uint8
-				Ball5      uint8
-				LS1        uint8
-				LS2        uint8
-				UKMarker   string
-				EuroMarker string
-				DrawNo     uint64
-			}{
+			ecs.Item = EuroDraw{
 				DrawDate:   drawDate,
 				DayOfWeek:  drawDate.Weekday(),
 				Ball1:      uint8(b1),
