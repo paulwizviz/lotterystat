@@ -27,3 +27,10 @@ var (
 const (
 	CSVLogKeyLineNo = "CSV line no"
 )
+
+// Struct tag represents Go struct tag information obtained from
+// reflection of a struct
+type StructTag struct {
+	FieldName string
+	Tag       string
+}

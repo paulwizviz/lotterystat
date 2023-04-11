@@ -23,7 +23,7 @@ type EuroDraw struct {
 	DrawNo     uint64       `json:"draw_no" sqlite:"draw_no,INTEGER"`
 }
 
-func (e *EuroDraw) SQLiteTags() map[string]string {
+func (e *EuroDraw) SQLiteTags() []StructTag {
 	return sqliteTags(e)
 }
 

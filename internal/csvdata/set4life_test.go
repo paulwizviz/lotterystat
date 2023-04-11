@@ -92,23 +92,56 @@ func TestProcessS4LCVS(t *testing.T) {
 func TestS4LDrawSQLiteTags(t *testing.T) {
 	testcases := []struct {
 		input       Set4LifeDraw
-		expected    map[string]string
+		expected    []StructTag
 		description string
 	}{
 		{
 			input: Set4LifeDraw{},
-			expected: map[string]string{
-				"DrawDate":  "draw_date,INTEGER",
-				"DayOfWeek": "day_of_week,INTEGER",
-				"Ball1":     "ball1,INTEGER",
-				"Ball2":     "ball2,INTEGER",
-				"Ball3":     "ball3,INTEGER",
-				"Ball4":     "ball4,INTEGER",
-				"Ball5":     "ball5,INTEGER",
-				"LifeBall":  "life_ball,INTEGER",
-				"BallSet":   "ball_set,TEXT",
-				"Machine":   "machine,TEXT",
-				"DrawNo":    "draw_no,TEXT",
+			expected: []StructTag{
+				{
+					FieldName: "DrawDate",
+					Tag:       "draw_date,INTEGER",
+				},
+				{
+					FieldName: "DayOfWeek",
+					Tag:       "day_of_week,INTEGER",
+				},
+				{
+					FieldName: "Ball1",
+					Tag:       "ball1,INTEGER",
+				},
+				{
+					FieldName: "Ball2",
+					Tag:       "ball2,INTEGER",
+				},
+				{
+					FieldName: "Ball3",
+					Tag:       "ball3,INTEGER",
+				},
+				{
+					FieldName: "Ball4",
+					Tag:       "ball4,INTEGER",
+				},
+				{
+					FieldName: "Ball5",
+					Tag:       "ball5,INTEGER",
+				},
+				{
+					FieldName: "LifeBall",
+					Tag:       "life_ball,INTEGER",
+				},
+				{
+					FieldName: "BallSet",
+					Tag:       "ball_set,TEXT",
+				},
+				{
+					FieldName: "Machine",
+					Tag:       "machine,TEXT",
+				},
+				{
+					FieldName: "DrawNo",
+					Tag:       "draw_no,TEXT",
+				},
 			},
 			description: "Valid tags",
 		},

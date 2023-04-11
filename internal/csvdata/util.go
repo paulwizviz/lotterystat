@@ -102,19 +102,21 @@ type drawTypeConstraint interface {
 	EuroDraw | Set4LifeDraw
 }
 
-func sqliteTags[T drawTypeConstraint](typ *T) map[string]string {
+func sqliteTags[T drawTypeConstraint](typ *T) []StructTag {
 	ev := reflect.Indirect(reflect.ValueOf(typ))
-	tags := make(map[string]string)
+	tags := []StructTag{}
 	for i := 0; i < ev.Type().NumField(); i++ {
-		fn := ev.Type().Field(i).Name
-		tag := ev.Type().Field(i).Tag
-		tItems := strings.Split(string(tag), " ")
-		for _, ti := range tItems {
-			if strings.Contains(ti, "sqlite") {
-				si := strings.Split(ti, ":")
-				tags[fn] = si[1][1 : len(si[1])-1]
+		tag := StructTag{}
+		tag.FieldName = ev.Type().Field(i).Name
+		t := ev.Type().Field(i).Tag
+		tElems := strings.Split(string(t), " ")
+		for _, tElem := range tElems {
+			if strings.Contains(tElem, "sqlite") {
+				sElems := strings.Split(tElem, ":")
+				tag.Tag = sElems[1][1 : len(sElems[1])-1]
 			}
 		}
+		tags = append(tags, tag)
 	}
 	return tags
 }

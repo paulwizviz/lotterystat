@@ -22,7 +22,7 @@ type Set4LifeDraw struct {
 	DrawNo    uint64       `json:"draw_no" sqlite:"draw_no,TEXT"`
 }
 
-func (s *Set4LifeDraw) SQLiteTags() map[string]string {
+func (s *Set4LifeDraw) SQLiteTags() []StructTag {
 	return sqliteTags(s)
 }
 

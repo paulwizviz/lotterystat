@@ -480,24 +480,59 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 func TestEuroDrawSQLiteTags(t *testing.T) {
 	testcases := []struct {
 		input       EuroDraw
-		expected    map[string]string
+		expected    []StructTag
 		description string
 	}{
 		{
 			input: EuroDraw{},
-			expected: map[string]string{
-				"DrawDate":   "draw_date,INTEGER",
-				"DayOfWeek":  "day_of_week,INTEGER",
-				"Ball1":      "ball1,INTEGER",
-				"Ball2":      "ball2,INTEGER",
-				"Ball3":      "ball3,INTEGER",
-				"Ball4":      "ball4,INTEGER",
-				"Ball5":      "ball5,INTEGER",
-				"LS1":        "ls1,INTEGER",
-				"LS2":        "ls2,INTEGER",
-				"UKMarker":   "uk_marker,TEXT",
-				"EuroMarker": "euro_marker,TEXT",
-				"DrawNo":     "draw_no,INTEGER",
+			expected: []StructTag{
+				{
+					FieldName: "DrawDate",
+					Tag:       "draw_date,INTEGER",
+				},
+				{
+					FieldName: "DayOfWeek",
+					Tag:       "day_of_week,INTEGER",
+				},
+				{
+					FieldName: "Ball1",
+					Tag:       "ball1,INTEGER",
+				},
+				{
+					FieldName: "Ball2",
+					Tag:       "ball2,INTEGER",
+				},
+				{
+					FieldName: "Ball3",
+					Tag:       "ball3,INTEGER",
+				},
+				{
+					FieldName: "Ball4",
+					Tag:       "ball4,INTEGER",
+				},
+				{
+					FieldName: "Ball5",
+					Tag:       "ball5,INTEGER",
+				},
+				{
+					FieldName: "LS1",
+					Tag:       "ls1,INTEGER",
+				},
+				{
+					FieldName: "LS2",
+					Tag:       "ls2,INTEGER",
+				},
+				{
+					FieldName: "UKMarker",
+					Tag:       "uk_marker,TEXT",
+				},
+				{
+					FieldName: "EuroMarker",
+					Tag:       "euro_marker,TEXT",
+				}, {
+					FieldName: "DrawNo",
+					Tag:       "draw_no,INTEGER",
+				},
 			},
 			description: "Valid tags",
 		},
