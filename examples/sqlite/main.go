@@ -2,13 +2,15 @@ package main
 
 import (
 	"database/sql"
+	"errors"
+	"fmt"
 	"log"
 	"os"
 	"path"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/paulwizviz/lotterystat/internal/csvdata"
-	"github.com/paulwizviz/lotterystat/internal/dbutil/sqldb"
 )
 
 func main() {
@@ -28,37 +30,43 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer db.Close()
 
-	err = sqldb.TblCreateHdl[csvdata.EuroDraw](db, csvdata.EuroDraw{}, sqldb.SQLiteCreateEuroDrawTbl)
+	err = csvdata.TblCreateHdl[csvdata.EuroDraw](db, csvdata.EuroDraw{}, csvdata.SQLiteCreateEuroDrawTbl)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// stmt, err := db.Prepare("CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY, firstname TEXT, lastname TEXT)")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// stmt.Exec()
+	eds, err := csvdata.TblReadHdl(db, csvdata.SQLiteReadEuroDrawTbl)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	// _, err = db.Query("SELECT * FROM test")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	lastDrwNo := len(eds) - 1
 
-	// stmt, err = db.Prepare("INSERT INTO people (firstname, lastname) VALUES (?, ?)")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// stmt.Exec("Nic", "Raboy")
-	// rows, err := db.Query("SELECT id, firstname, lastname FROM people")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// var id int
-	// var firstname string
-	// var lastname string
-	// for rows.Next() {
-	// 	rows.Scan(&id, &firstname, &lastname)
-	// 	fmt.Println(strconv.Itoa(id) + ": " + firstname + " " + lastname)
-	// }
+	ed := csvdata.EuroDraw{
+		DrawDate:   time.Now(),
+		DayOfWeek:  time.Friday,
+		Ball1:      0,
+		Ball2:      1,
+		Ball3:      3,
+		Ball4:      4,
+		Ball5:      5,
+		LS1:        1,
+		LS2:        2,
+		UKMarker:   "abc",
+		EuroMarker: "efg",
+		DrawNo:     uint64(lastDrwNo + 1),
+	}
+
+	err = csvdata.TblWriterHdl(db, ed, csvdata.SQLiteWriteEuroDrawTbl)
+	if errors.Is(csvdata.ErrDuplicateEntry, errors.Unwrap(err)) {
+		log.Fatal(err)
+	}
+
+	eds, err = csvdata.TblReadHdl(db, csvdata.SQLiteReadEuroDrawTbl)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(eds)
 }

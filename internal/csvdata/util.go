@@ -98,11 +98,7 @@ func parseDateTime(dt string) (time.Time, error) {
 	return tm, nil
 }
 
-type drawTypeConstraint interface {
-	EuroDraw | Set4LifeDraw
-}
-
-func sqliteTags[T drawTypeConstraint](typ *T) []StructTag {
+func sqliteTags[T DrawType](typ *T) []StructTag {
 	ev := reflect.Indirect(reflect.ValueOf(typ))
 	tags := []StructTag{}
 	for i := 0; i < ev.Type().NumField(); i++ {

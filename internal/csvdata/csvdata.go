@@ -12,7 +12,7 @@ const (
 	Set4LifeURL = "https://www.national-lottery.co.uk/results/set-for-life/draw-history/csv"
 )
 
-// Error types
+// CSV Processing Errors
 var (
 	ErrCSVURL             = errors.New("unable to access url")
 	ErrResponseBody       = errors.New("unable to extract response body")
@@ -21,6 +21,12 @@ var (
 	ErrInvalidDaysInMonth = errors.New("invalid days in a month")
 	ErrInvalidMonth       = errors.New("invalid month")
 	ErrInvalidDrawDigit   = errors.New("invalid draw digit")
+)
+
+// DB related errors
+var (
+	ErrUnableToCreateTable = errors.New("unable to create table")
+	ErrDuplicateEntry      = errors.New("duplicate data entry")
 )
 
 // Logging key
@@ -33,4 +39,9 @@ const (
 type StructTag struct {
 	FieldName string
 	Tag       string
+}
+
+// DrawType represents a collection of type constraints
+type DrawType interface {
+	EuroDraw | Set4LifeDraw
 }
