@@ -131,7 +131,7 @@ func createTbl(db *sql.DB, tblName string, tags []StructTag) error {
 	stmtStr = fmt.Sprintf(`%s )`, stmtStr)
 	stmt, err := db.Prepare(stmtStr)
 	if err != nil {
-		return fmt.Errorf("sqlite error %w-%w", err, ErrUnableToCreateTable)
+		return fmt.Errorf("%s-%w", err.Error(), ErrUnableToCreateTable)
 	}
 	defer stmt.Close()
 	stmt.Exec()
@@ -171,7 +171,7 @@ func insertIntoTbl(db *sql.DB, tblName string, elem reflect.Value, tags []Struct
 	defer stmt.Close()
 	_, err = stmt.Exec()
 	if err != nil {
-		return fmt.Errorf("duplicate error - %s %w", err.Error(), ErrDuplicateEntry)
+		return fmt.Errorf("%s %w", err.Error(), ErrDuplicateEntry)
 	}
 
 	return nil
