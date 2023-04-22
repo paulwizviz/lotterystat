@@ -12,14 +12,15 @@ This is an **educational** project demonstrating software engineering principles
 * Data modelling and algorithm
 * and many more.
 
-The project will showcase an operational solution for extracting data from sources to deliver via APIs supporting third-party application developments and a frontend. This project uses UK National Lottery draws as the data source for processing. However, it is necessary to emphasise that the principal purpose of this project is **not** to deliver a solution to help a user better predict the lottery win. If the result generated a winning lottery, it is purely coincidental. If you are seeking a solution to accurately predict lottery winnings, please refer to other solutions.
+The objective of this project is to showcase an operational solution that implements data modelling, statistical analysis techniques, data processing techniques and techniques to displaying data to end users.
 
-The project has elected to use the lottery draws as it offered an opportunity to produce code from analytical techniques used to process data.
+This project uses UK National Lottery draws data source as a case study. However, it is necessary to emphasise the objective of this project is **not** to deliver a solution to predict lottery wins. If the result generated a winning lottery, it is purely coincidental. If you are seeking a solution to accurately predict lottery winnings, please refer to other projects.
 
 ## Table of content
 
 * [Context](./docs/context.md) -- This section describes the requirements, design decisions and lifecycle management methodologies behind the project
-* [Architecture](./docs/arch.md) -- This section describes the layout of the project and code organisations 
+* [Architecture](./docs/arch.md) -- This section describes the layout of the project and code organisations
+* [Tools](./docs/tools.md) -- This section lists tools used in this project to support development effort
 
 ## Disclaimer
 
@@ -31,7 +32,7 @@ This is a evolving project and is subject to changes without notification.
 
 Unless otherwise specified, the copyright of this project is assigned as follows.
 
-Copyright 2022 Paul Sitoh
+Copyright 2023 Paul Sitoh
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
