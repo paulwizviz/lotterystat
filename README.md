@@ -4,6 +4,7 @@
 This is an **educational** project demonstrating software engineering principles and the agile methodology applicable to building mission-critical solutions. This project encompasses a range of technologies and paradigms:
 
 * Go and ReactJS
+* Concurrency
 * Databases
 * Application Programming Interfaces (API)
 * Container
@@ -18,6 +19,7 @@ The project has elected to use the lottery draws as it offered an opportunity to
 ## Table of content
 
 * [Context](./docs/context.md) -- This section describes the requirements, design decisions and lifecycle management methodologies behind the project
+* [Architecture](./docs/arch.md) -- This section describes the layout of the project and code organisations 
 
 ## Disclaimer
 

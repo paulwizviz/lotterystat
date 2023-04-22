@@ -10,3 +10,5 @@ build/native
 
 # Ignore tmp director
 tmp/
+
+build/ebenezer/package
