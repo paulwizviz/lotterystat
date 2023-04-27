@@ -1,34 +1,54 @@
 # Context
 
-This section provides the context behind the project. This include:
+This section describes the use case, the architecture philosophy, and development methodology guiding this project's development lifecycle.
 
-* Project requirements
-* Design decisions
-* Quality considerations
-* Project tracking
+## Use Cases
 
-## Project requirements
+The following use cases are the target market segment for this project:
 
-This project objectives are to deliver:
-
-* an macOS, Linux and Windows application (Codename **ebenezer**) 
+* a macOS, Linux and Windows based native application (Codename **ebenezer**) 
 * an RESTFul and GraphQL based API enabling third parties to build apps against it (Codename **richie**) 
 
-## Design decisions
+### Ebenezer
 
-The design decisions influencing the architecture and deliverables of this project are guided by these methodologies:
+For this use case, this project is delivering in two forms:
 
-* Design thinking and lean methodology
-* Microservices implementation methodology, where appropriate
+* a command line interface (cli) application
+* an application with a graphical user interface
+
+<u>Command line interface application</u>
+
+The cli version of the app is intended for used by personas that has the technical know how to interact with the application via Linux like (and windows equivalent) shell. The project has identified the following personas as representative of the application's target market segment:
+
+* Alice - A Mac user
+* Bob - A Linux user
+* Charlotte - A Windows user
+
+All personas have advance knowledge in working with command line applications
+
+<u>Graphical User Interface application</u>
+
+Details to be presented later.
+
+### Richie ###
+
+Details to be presented later
+
+## Architectural Decisions
+
+The decisions influencing the architecture and deliverables of this project are guided by these methodologies:
+
+* [Design thinking](https://www.interaction-design.org/literature/topics/design-thinking)
 * The [go standard project layout](https://github.com/golang-standards/project-layout) for source code architecture (see also the blog [Design the architecture, name the components, document the details](https://paulwizviz.github.io/go/2022/12/23/go-proverb-architecture.html))
 
-## Quality considerations
+## Quality Considerations
 
 This project is predominantly Go based. The principle as outlined in the official Go coding convention [Effective Go](https://go.dev/doc/effective_go) is used to ensure consistencies in the source code architecture.
 
 The Test Driven Development methodology is also used in this project.
 
-## Project tracking
+## Project Lifecycle Management
 
-The project uses the kanban agile methodology to manage the development lifecycle. Please refer to [Pivotal tracker](https://www.pivotaltracker.com/n/projects/2639054) for tracking.
+The project's development is based on the [lean startup methodology](https://theleanstartup.com/principles). To compliment lean startup, the project uses the kanban agile methodology. 
 
+[Pivotal tracker](https://www.pivotaltracker.com/n/projects/2639054) is used to track the lifecycle the project.
