@@ -16,7 +16,7 @@ For this use case, this project is delivering in two forms:
 * a command line interface (cli) application
 * an application with a graphical user interface
 
-<u>Command line interface application</u>
+<ins>Command line interface application</ins>
 
 The cli version of the app is intended for used by personas that has the technical know how to interact with the application via Linux like (and windows equivalent) shell. The project has identified the following personas as representative of the application's target market segment:
 
@@ -26,7 +26,7 @@ The cli version of the app is intended for used by personas that has the technic
 
 All personas have advance knowledge in working with command line applications
 
-<u>Graphical User Interface application</u>
+<ins>Graphical User Interface application</ins>
 
 Details to be presented later.
 
