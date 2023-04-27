@@ -176,3 +176,22 @@ func insertIntoTbl(db *sql.DB, tblName string, elem reflect.Value, tags []Struct
 
 	return nil
 }
+
+func sqliteTags[T DrawType](typ *T) []StructTag {
+	ev := reflect.Indirect(reflect.ValueOf(typ))
+	tags := []StructTag{}
+	for i := 0; i < ev.Type().NumField(); i++ {
+		tag := StructTag{}
+		tag.FieldName = ev.Type().Field(i).Name
+		t := ev.Type().Field(i).Tag
+		tElems := strings.Split(string(t), " ")
+		for _, tElem := range tElems {
+			if strings.Contains(tElem, "sqlite") {
+				sElems := strings.Split(tElem, ":")
+				tag.Tag = sElems[1][1 : len(sElems[1])-1]
+			}
+		}
+		tags = append(tags, tag)
+	}
+	return tags
+}
