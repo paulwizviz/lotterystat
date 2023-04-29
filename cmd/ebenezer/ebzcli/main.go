@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"github.com/paulwizviz/lotterystat/internal/ebzcli"
+)
 
 func main() {
-	fmt.Println("hello ebzcli")
+	ebzcli.Execute()
 }
