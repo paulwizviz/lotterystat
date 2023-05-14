@@ -1,3 +1,4 @@
+// Package config implements application configuration files
 package config
 
 import (
@@ -13,26 +14,24 @@ import (
 const (
 	SQLitePathKey = "sqlite.path"
 	SQLiteFileKey = "sqlite.file"
+
+	SettingFileName = "settings"
+	SettingFileType = "yaml"
 )
 
 var (
 	ErrConfig = errors.New("config err")
 )
 
-// CreateIfNotExist config files if not exists
-func CreateIfNotExist() error {
+// Initialize config files if not exists
+func Initialize(configPath string) error {
 
-	configPath, err := Path()
-	if err != nil {
-		return err
-	}
-
-	err = createIfNotExistSettingDir(configPath)
+	err := createIfNotExistDir(configPath)
 	if errors.Is(err, ErrConfig) {
 		return err
 	}
 
-	err = createIfNotExistSetting(configPath)
+	err = createIfNotExistFile(configPath)
 	if errors.Is(err, ErrConfig) {
 		return err
 	}
@@ -62,20 +61,9 @@ func Path() (string, error) {
 	return dir, nil
 }
 
-// SQLiteSetting for sqlite db
-type SQLiteSetting struct {
-	Path string `yaml:"path"`
-	File string `yaml:"file"`
-}
-
-// Setting data type representing app configuration
-type Setting struct {
-	SQLiteSetting `yaml:"sqlite"`
-}
-
-// createIfNotExistSettingDir a director name "$HOME/.ebz" or
+// createIfNotExistDir a director name "$HOME/.ebz" or
 // %APPDATA%/ebz if it does not exists
-func createIfNotExistSettingDir(sPath string) error {
+func createIfNotExistDir(sPath string) error {
 
 	_, err := os.Stat(sPath)
 	if err == nil {
@@ -90,11 +78,11 @@ func createIfNotExistSettingDir(sPath string) error {
 	return nil
 }
 
-// createIfNotExistSetting a file named "settings.yml" in the path
+// createIfNotExistFile a file named "settings.yml" in the path
 // $HOME/.ebz or %APPDATA%/ebz if it does not exists
-func createIfNotExistSetting(sPath string) error {
+func createIfNotExistFile(sPath string) error {
 
-	settingFile := path.Join(sPath, "settings.yaml")
+	settingFile := path.Join(sPath, fmt.Sprintf("%s.%s", SettingFileName, SettingFileType))
 	_, err := os.Stat(settingFile)
 	if err == nil {
 		return nil
@@ -106,17 +94,7 @@ func createIfNotExistSetting(sPath string) error {
 	}
 	defer f.Close()
 
-	p, err := Path()
-	if err != nil {
-		return err
-	}
-
-	s := Setting{
-		SQLiteSetting: SQLiteSetting{
-			Path: p,
-			File: "data.db",
-		},
-	}
+	s := defaultSetting(sPath)
 
 	b, err := yaml.Marshal(s)
 	if err != nil {
