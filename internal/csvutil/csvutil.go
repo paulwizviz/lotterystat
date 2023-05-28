@@ -11,12 +11,14 @@ import (
 )
 
 var (
-	ErrInvalidNumFmt      = errors.New("invalid numeric format")
+	ErrInvalidDayFmt      = errors.New("invalid day format")
+	ErrInvalidYearFmt     = errors.New("invalid year format")
 	ErrInvalidDaysInMonth = errors.New("invalid day in the month")
 	ErrInvalidMonth       = errors.New("invalid month")
 
 	ErrCSVLine          = errors.New("unable to process line")
 	ErrInvalidDrawDigit = errors.New("invalid draw digit")
+	ErrInvalidDrawSeq   = errors.New("invalid draw seq")
 
 	ErrDownloadFromURL = errors.New("unable to download from url")
 	ErrContentMissing  = errors.New("empty csv content")
@@ -27,12 +29,12 @@ func ParseDateTime(dt string) (time.Time, error) {
 
 	day, err := strconv.Atoi(elm[0])
 	if err != nil {
-		return time.Time{}, fmt.Errorf("%w: improper day format", ErrInvalidNumFmt)
+		return time.Time{}, fmt.Errorf("%w: improper day format", ErrInvalidDayFmt)
 	}
 
 	year, err := strconv.Atoi(elm[2])
 	if err != nil {
-		return time.Time{}, fmt.Errorf("%w: improper year format", ErrInvalidNumFmt)
+		return time.Time{}, fmt.Errorf("%w: improper year format", ErrInvalidYearFmt)
 	}
 
 	var mth time.Month
@@ -123,7 +125,7 @@ func ParseDrawNum(value string) (uint8, error) {
 func ParseDrawSeq(value string) (uint64, error) {
 	result, err := strconv.Atoi(value)
 	if err != nil {
-		return 0, fmt.Errorf("%w: %s", ErrInvalidDrawDigit, err.Error())
+		return 0, fmt.Errorf("%w: %s", ErrInvalidDrawSeq, err.Error())
 	}
 	return uint64(result), nil
 }
