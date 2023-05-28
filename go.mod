@@ -1,6 +1,6 @@
 // Change the module name to suit your project requirements
 
-module github.com/paulwizviz/lotterystat
+module paulwizviz/lotterystat
 
 go 1.18
 
@@ -9,6 +9,7 @@ require (
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.1
+	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 	gopkg.in/yaml.v2 v2.2.2
 )
 
