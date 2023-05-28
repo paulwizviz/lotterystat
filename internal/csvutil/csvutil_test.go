@@ -169,7 +169,7 @@ func TestParseDateTime(t *testing.T) {
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrInvalidNumFmt,
+				err: ErrInvalidDayFmt,
 			},
 			description: "Invalid day format",
 		},
@@ -191,7 +191,7 @@ func TestParseDateTime(t *testing.T) {
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrInvalidNumFmt,
+				err: ErrInvalidYearFmt,
 			},
 			description: "Invalid year format",
 		},
