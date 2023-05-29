@@ -105,3 +105,28 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 		}
 	}
 }
+
+// This test verify that
+func Example_processCSV() {
+	input := []byte(`DrawDate,Ball 1,Ball 2,Ball 3,Ball 4,Ball 5,Lucky Star 1,Lucky Star 2,UK Millionaire Maker,European Millionaire Maker,DrawNumber
+04-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
+31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`)
+
+	draw := processCSV(context.TODO(), bytes.NewReader(input))
+	for d := range draw {
+		fmt.Println(d) // All draws will be displayed
+	}
+
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	cancel()
+	draw = processCSV(ctx, bytes.NewReader(input))
+	// The following step will not be called
+	for d := range draw {
+		fmt.Println(d)
+	}
+
+	// Output:
+	// {2023-04-04 00:00:00 +0000 UTC Tuesday 10 16 31 33 50 3 8 XCRG53171  1621}
+	// {2023-03-31 00:00:00 +0000 UTC Friday 16 18 28 34 47 5 10 JBQS10867  1620}
+}
