@@ -9,8 +9,9 @@ import (
 	"path"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/paulwizviz/lotterystat/internal/csvdata"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {

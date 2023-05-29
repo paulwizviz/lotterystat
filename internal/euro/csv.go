@@ -8,7 +8,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"paulwizviz/lotterystat/internal/csvutil"
+
+	"github.com/paulwizviz/lotterystat/internal/csvutil"
 
 	"golang.org/x/exp/slog"
 )

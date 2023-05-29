@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"paulwizviz/lotterystat/internal/csvutil"
 	"testing"
 	"time"
+
+	"github.com/paulwizviz/lotterystat/internal/csvutil"
 
 	"github.com/stretchr/testify/assert"
 )
