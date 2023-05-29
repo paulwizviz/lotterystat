@@ -15,13 +15,11 @@ var (
 	ErrInvalidYearFmt     = errors.New("invalid year format")
 	ErrInvalidDaysInMonth = errors.New("invalid day in the month")
 	ErrInvalidMonth       = errors.New("invalid month")
-
-	ErrCSVLine          = errors.New("unable to process line")
-	ErrInvalidDrawDigit = errors.New("invalid draw digit")
-	ErrInvalidDrawSeq   = errors.New("invalid draw seq")
-
-	ErrDownloadFromURL = errors.New("unable to download from url")
-	ErrContentMissing  = errors.New("empty csv content")
+	ErrCSVLine            = errors.New("unable to process line")
+	ErrInvalidDrawDigit   = errors.New("invalid draw digit")
+	ErrInvalidDrawSeq     = errors.New("invalid draw seq")
+	ErrDownloadFromURL    = errors.New("unable to download from url")
+	ErrContentMissing     = errors.New("empty csv content")
 )
 
 func ParseDateTime(dt string) (time.Time, error) {

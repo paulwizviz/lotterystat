@@ -1,6 +1,6 @@
 // Change the module name to suit your project requirements
 
-module paulwizviz/lotterystat
+module github.com/paulwizviz/lotterystat
 
 go 1.18
 

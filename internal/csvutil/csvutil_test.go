@@ -342,7 +342,7 @@ func TestParseDateTime(t *testing.T) {
 
 	for i, tc := range tcases {
 		actual, err := ParseDateTime(tc.input)
-		if assert.True(t, errors.Is(err, tc.expected.err)) {
+		if assert.True(t, errors.Is(err, tc.expected.err), fmt.Sprintf("Case: %d Description: %s", i, tc.description)) {
 			assert.Equal(t, tc.expected.dt, actual, fmt.Sprintf("Case: %d Description: %s", i, tc.description))
 		}
 	}

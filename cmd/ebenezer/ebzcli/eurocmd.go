@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/paulwizviz/lotterystat/internal/config"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
