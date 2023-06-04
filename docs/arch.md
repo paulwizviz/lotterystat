@@ -14,17 +14,3 @@ This artefacts in this projects are layout this way:
 * `test` - a container for stuff to support testing
 * `web` - a container for one or more Web UI codes, such as ReactJS
 
-## `Ebenezer`
-
-There are two versions of `Ebenezer`:
-
-* `ebzcli` - A command line version of the app
-* `ebzui` - An embedded web-based application
-
-By default, the application stores its runtime state in the folder `$HOME/.ebz`. A component of the runtime state folder is a SQLite db file. The location of the state folder is customisable. The application configuration file in macOS and Linux are located in the folder where the app is store.
-
-<u>Source Codes</u>
-
-The main package for ebzcli is located in [./cmd/ebenezer/ebzcli](../cmd/ebenezer/ebzcli/)
-
-The main package for ebzui is located in [./cmd/ebenezer/ebzui](../cmd/ebenezer/ebzul/)

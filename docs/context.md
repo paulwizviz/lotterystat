@@ -4,42 +4,23 @@ This section describes the use case, the architecture philosophy, and developmen
 
 ## Use Cases
 
-The following use cases are the target market segment for this project:
+The outcome of this project in intended for two personas, Alice and Bob.
 
-* a macOS, Linux and Windows based native application (Codename **ebenezer**) 
-* an RESTFul and GraphQL based API enabling third parties to build apps against it (Codename **richie**) 
+<u>Alice</u>
 
-### Ebenezer
+Alice is a frontend developer who intends to build a front end applications against a RESTful API. For her, this project will deliver an API based solution codename `ebenezer` (shortname `ebz`).
 
-For this use case, this project is delivering in two forms:
+<u>Bob</u>
 
-* a command line interface (cli) application
-* an application with a graphical user interface
-
-<ins>Command line interface application</ins>
-
-The cli version of the app is intended for used by personas that has the technical know how to interact with the application via Linux like (and windows equivalent) shell. The project has identified the following personas as representative of the application's target market segment:
-
-* Alice - A Mac user
-* Bob - A Linux user
-* Charlotte - A Windows user
-
-All personas have advance knowledge in working with command line applications
-
-<ins>Graphical User Interface application</ins>
-
-Details to be presented later.
-
-### Richie ###
-
-Details to be presented later
+Bob intends to use an application natively on a (macOS, Linux or Windows) or a cloud based web app. He is not a developer, only a user of the app. For him, this project will deliver a solution codename `richie`.
 
 ## Architectural Decisions
 
 The decisions influencing the architecture and deliverables of this project are guided by these methodologies:
 
 * [Design thinking](https://www.interaction-design.org/literature/topics/design-thinking)
-* The [go standard project layout](https://github.com/golang-standards/project-layout) for source code architecture (see also the blog [Design the architecture, name the components, document the details](https://paulwizviz.github.io/go/2022/12/23/go-proverb-architecture.html))
+* The source code architecture is based on a structure described in the blog [Design the architecture, name the components, document the details](https://paulwizviz.github.io/go/2022/12/23/go-proverb-architecture.html)
+* A backend based on the microservices architecture 
 
 ## Quality Considerations
 
@@ -49,6 +30,4 @@ The Test Driven Development methodology is also used in this project.
 
 ## Project Lifecycle Management
 
-The project's development is based on the [lean startup methodology](https://theleanstartup.com/principles). To compliment lean startup, the project uses the kanban agile methodology. 
-
-[Pivotal tracker](https://www.pivotaltracker.com/n/projects/2639054) is used to track the lifecycle the project.
+The project's development is based on the [lean startup methodology](https://theleanstartup.com/principles). To compliment lean startup, the project uses the kanban agile methodology. [Pivotal tracker](https://www.pivotaltracker.com/n/projects/2639054) is used to track the lifecycle the project.

@@ -1,7 +1,7 @@
 ![build](https://github.com/paulwizviz/go-web/workflows/build/badge.svg)
 # Overview
 
-This is an **educational** project demonstrating software engineering principles and the agile methodology applicable to building mission-critical solutions. This project encompasses a range of technologies and paradigms:
+This is an **educational** project demonstrating software engineering principles and the agile methodology applicable to building mission-critical solutions. This project encompasses a range of technologies and methodologies, that covers these:
 
 * Go and ReactJS
 * Concurrency
@@ -9,12 +9,9 @@ This is an **educational** project demonstrating software engineering principles
 * Application Programming Interfaces (API)
 * Container
 * Continuous Integration and Continuous Delivery (CI/CD)
-* Data modelling and algorithm
-* and many more.
+* Microservices
 
-The objective of this project is to showcase an operational solution that implements data modelling, statistical analysis techniques, data processing techniques and techniques to displaying data to end users.
-
-This project uses UK National Lottery draws data source as a case study. However, it is necessary to emphasise the objective of this project is **not** to deliver a solution to predict lottery wins. If the result generated a winning lottery, it is purely coincidental. If you are seeking a solution to accurately predict lottery winnings, please refer to other projects.
+This project uses UK National Lottery draws data source as a case study. The choice of Lottery draws to showcase this project is purely arbitary. However, the objective of this project is **not** to deliver a solution to predict lottery wins. If this solution from this project generated a winning lottery, it is purely coincidental. If you are seeking a solution to accurately predict lottery winnings, please refer to other projects.
 
 ## Table of content
 
