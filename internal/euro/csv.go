@@ -14,7 +14,7 @@ import (
 )
 
 // DrawFromURL implements function to download draw results from source url
-func DrawFromURL(ctx context.Context) (<-chan Draw, error) {
+func DrawFromURL(ctx context.Context) (<-chan EuroDraw, error) {
 	url := "https://www.national-lottery.co.uk/results/euromillions/draw-history/csv"
 	slog.Info("Dowloading draws csv from url", "url", url)
 	resp, err := http.Get(url)
@@ -30,9 +30,9 @@ func DrawFromURL(ctx context.Context) (<-chan Draw, error) {
 	return c, nil
 }
 
-func processCSV(ctx context.Context, r io.Reader) <-chan Draw {
+func processCSV(ctx context.Context, r io.Reader) <-chan EuroDraw {
 	const logMsg = "Processing CSV"
-	c := make(chan Draw)
+	c := make(chan EuroDraw)
 	go func() {
 		cr := csv.NewReader(r)
 		cr.Read() // remove titles
@@ -99,7 +99,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan Draw {
 					slog.Error(logMsg, "error", err.Error())
 					continue loop
 				}
-				c <- Draw{
+				c <- EuroDraw{
 					DrawDate:   drawDate,
 					DayOfWeek:  drawDate.Weekday(),
 					Ball1:      uint8(b1),

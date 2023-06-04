@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-// Draw represents a line from euro draw results
-type Draw struct {
+// EuroDraw represents a line from euro draw results
+type EuroDraw struct {
 	DrawDate   time.Time    `json:"draw_date" sqlite:"draw_date,INTEGER"`
 	DayOfWeek  time.Weekday `json:"day_of_week" sqlite:"day_of_week,INTEGER"`
 	Ball1      uint8        `json:"ball1" sqlite:"ball1,INTEGER"`
