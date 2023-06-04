@@ -15,14 +15,14 @@ import (
 func TestProcessCSV(t *testing.T) {
 	testcases := []struct {
 		input       []byte
-		expected    []Draw
+		expected    []EuroDraw
 		description string
 	}{
 		{
 			input: []byte(`DrawDate,Ball 1,Ball 2,Ball 3,Ball 4,Ball 5,Lucky Star 1,Lucky Star 2,UK Millionaire Maker,European Millionaire Maker,DrawNumber
 04-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`),
-			expected: []Draw{
+			expected: []EuroDraw{
 				{
 					DrawDate: func() time.Time {
 						dt, _ := csvutil.ParseDateTime("04-Apr-2023")
@@ -70,7 +70,7 @@ func TestProcessCSV(t *testing.T) {
 			input: []byte(`DrawDate,Ball 1,Ball 2,Ball 3,Ball 4,Ball 5,Lucky Star 1,Lucky Star 2,UK Millionaire Maker,European Millionaire Maker,DrawNumber
 a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
 31-Mar-2023,16,18,28,34,47,5,10,"JBQS10867","",1620`),
-			expected: []Draw{
+			expected: []EuroDraw{
 				{
 					DrawDate: func() time.Time {
 						dt, _ := csvutil.ParseDateTime("31-Mar-2023")
