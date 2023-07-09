@@ -1,17 +1,9 @@
 ![build](https://github.com/paulwizviz/go-web/workflows/build/badge.svg)
 # Overview
 
-This is an **educational** project demonstrating software engineering principles and the agile methodology applicable to building mission-critical solutions. This project encompasses a range of technologies and methodologies, that covers these:
+The purpose of this project is to demonstrate the use of lean startup and software engineering principles to build applications that encompass Go, ReactJS, Docker, and Continuous Integration and Continuous Delivery (CI/CD).
 
-* Go and ReactJS
-* Concurrency
-* Databases
-* Application Programming Interfaces (API)
-* Container
-* Continuous Integration and Continuous Delivery (CI/CD)
-* Microservices
-
-This project uses UK National Lottery draws data source as a case study. The choice of Lottery draws to showcase this project is purely arbitary. However, the objective of this project is **not** to deliver a solution to predict lottery wins. If this solution from this project generated a winning lottery, it is purely coincidental. If you are seeking a solution to accurately predict lottery winnings, please refer to other projects.
+For this project, we will utilize the process of building an application for hypothetical users to perform simple statistical analysis of the UK National Lottery. This will serve as an illustration of the development process. However, it is worth noting that an application derived from this project is not intended to help users accurately predict lottery results. In other words, this is a purely educational project. If the application generates or suggests a winning draw, it is purely coincidental. If you are seeking an application that accurately predicts lottery winnings, please refer to other projects.
 
 ## Table of content
 
@@ -21,9 +13,9 @@ This project uses UK National Lottery draws data source as a case study. The cho
 
 ## Disclaimer
 
-This project uses mission-critical principles where practicable. However, it is not for any mission-critical setting. The project's author(s) is not liable for any consequences for its use beyond this project setting.
+This project incorporates mission-critical principles where practicable; however, it is not intended for use in any mission-critical settings. The author(s) of the project are not liable for any consequences resulting from its use outside the scope of this project setting.
 
-This is a evolving project and is subject to changes without notification.
+Please note that this is an evolving project and is subject to changes without prior notification.
 
 ## Copyright notice
 
