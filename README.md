@@ -1,7 +1,7 @@
 ![build](https://github.com/paulwizviz/go-web/workflows/build/badge.svg)
 # Overview
 
-The purpose of this project is to demonstrate the use of lean startup and software engineering principles to build applications that encompass Go, ReactJS, Docker, and Continuous Integration and Continuous Delivery (CI/CD). To illustrate the use of these methodologies and techniques, this project will use the process of building an application for hypothetical users to perform simple statistical analysis of the UK National Lottery.
+The purpose of this project is to demonstrate the use of lean startup, agile and software engineering principles to build applications that encompass Go, ReactJS, Docker, and Continuous Integration and Continuous Delivery (CI/CD). To illustrate the use of these methodologies and techniques, this project will use the process of building an application for hypothetical users to perform simple statistical analysis of the UK National Lottery.
 
 It is worth noting that the application derived from this project has functionalities to perform statistical analysis, the intention is **not** to deliver something that can accurately predict lottery winnings. If the application generates or suggests a winning draw, it is purely coincidental. If you are expecting an application that accurately predicts lottery winnings, please refer to other projects.
 
