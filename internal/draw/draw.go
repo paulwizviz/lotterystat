@@ -1,4 +1,4 @@
-// Package euro implements datasvc draws
+// Package draw implements datasvc draws
 package draw
 
 import (

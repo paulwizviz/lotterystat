@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/paulwizviz/lotterystat/internal/config"
+	"paulwizviz/lotterystat/internal/config"
 )
 
 const (
