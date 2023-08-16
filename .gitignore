@@ -11,4 +11,7 @@ build/native
 # Ignore tmp director
 tmp/
 
+# VS Code
+.vscode
+
 build/ebenezer/package

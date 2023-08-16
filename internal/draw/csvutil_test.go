@@ -169,7 +169,7 @@ func TestParseDateTime(t *testing.T) {
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrInvalidDayFmt,
+				err: ErrCSVInvalidDayFmt,
 			},
 			description: "Invalid day format",
 		},
@@ -191,7 +191,7 @@ func TestParseDateTime(t *testing.T) {
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrInvalidYearFmt,
+				err: ErrCSVInvalidYearFmt,
 			},
 			description: "Invalid year format",
 		},
@@ -202,7 +202,7 @@ func TestParseDateTime(t *testing.T) {
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrInvalidDaysInMonth,
+				err: ErrCSVInvalidDaysInMonth,
 			},
 			description: "Invalid day in Jan",
 		},
@@ -213,7 +213,7 @@ func TestParseDateTime(t *testing.T) {
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrInvalidDaysInMonth,
+				err: ErrCSVInvalidDaysInMonth,
 			},
 			description: "Invalid day in Feb leap year",
 		},
@@ -224,7 +224,7 @@ func TestParseDateTime(t *testing.T) {
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrInvalidDaysInMonth,
+				err: ErrCSVInvalidDaysInMonth,
 			},
 			description: "Invalid day in Feb non leap year",
 		},
@@ -235,7 +235,7 @@ func TestParseDateTime(t *testing.T) {
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrInvalidDaysInMonth,
+				err: ErrCSVInvalidDaysInMonth,
 			},
 			description: "Invalid day in Mar",
 		},
@@ -246,7 +246,7 @@ func TestParseDateTime(t *testing.T) {
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrInvalidDaysInMonth,
+				err: ErrCSVInvalidDaysInMonth,
 			},
 			description: "Invalid day in Apr",
 		},
@@ -257,7 +257,7 @@ func TestParseDateTime(t *testing.T) {
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrInvalidDaysInMonth,
+				err: ErrCSVInvalidDaysInMonth,
 			},
 			description: "Invalid day in May",
 		},
@@ -268,7 +268,7 @@ func TestParseDateTime(t *testing.T) {
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrInvalidDaysInMonth,
+				err: ErrCSVInvalidDaysInMonth,
 			},
 			description: "Invalid day in Jun",
 		},
@@ -279,7 +279,7 @@ func TestParseDateTime(t *testing.T) {
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrInvalidDaysInMonth,
+				err: ErrCSVInvalidDaysInMonth,
 			},
 			description: "Invalid day in Ju",
 		},
@@ -290,7 +290,7 @@ func TestParseDateTime(t *testing.T) {
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrInvalidDaysInMonth,
+				err: ErrCSVInvalidDaysInMonth,
 			},
 			description: "Invalid day in Aug",
 		},
@@ -301,7 +301,7 @@ func TestParseDateTime(t *testing.T) {
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrInvalidDaysInMonth,
+				err: ErrCSVInvalidDaysInMonth,
 			},
 			description: "Invalid day in Sep",
 		},
@@ -312,7 +312,7 @@ func TestParseDateTime(t *testing.T) {
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrInvalidDaysInMonth,
+				err: ErrCSVInvalidDaysInMonth,
 			},
 			description: "Invalid day in Oct",
 		},
@@ -323,7 +323,7 @@ func TestParseDateTime(t *testing.T) {
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrInvalidDaysInMonth,
+				err: ErrCSVInvalidDaysInMonth,
 			},
 			description: "Invalid day in Nov",
 		},
@@ -334,7 +334,7 @@ func TestParseDateTime(t *testing.T) {
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrInvalidDaysInMonth,
+				err: ErrCSVInvalidDaysInMonth,
 			},
 			description: "Invalid day in Dec",
 		},

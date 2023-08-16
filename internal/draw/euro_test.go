@@ -14,7 +14,7 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1622
 07-Apr-2023,18,28,34,47,5,10,"JBQS10867","",1624
 08-Apr-2023,16,18,28,34,47,5,10,"JBQS10867","",1625`)
 
-	ecd := processEuroCSV(context.TODO(), bytes.NewReader(input))
+	ecd := ProcessEuroCSV(context.TODO(), bytes.NewReader(input))
 	for d := range ecd {
 		fmt.Println(d) // All draws will be displayed
 	}
@@ -22,7 +22,7 @@ a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1622
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	cancel()
-	ecd = processEuroCSV(ctx, bytes.NewReader(input))
+	ecd = ProcessEuroCSV(ctx, bytes.NewReader(input))
 	// The following step will not be called
 	for d := range ecd {
 		fmt.Println(d)

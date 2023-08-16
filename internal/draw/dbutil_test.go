@@ -3,7 +3,6 @@ package draw
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -80,7 +79,7 @@ func TestSqliteTags(t *testing.T) {
 	}
 }
 
-func TestCreateSqliteTblStmt(t *testing.T) {
+func TestCreateTblStmt(t *testing.T) {
 
 	testcases := []struct {
 		input       any
@@ -89,50 +88,23 @@ func TestCreateSqliteTblStmt(t *testing.T) {
 	}{
 		{
 			input:       &Euro{},
-			expected:    "CREATE TABLE IF NOT EXISTS EuroDraw ( draw_date INTEGER, day_of_week INTEGER, ball1 INTEGER, ball2 INTEGER, ball3 INTEGER, ball4 INTEGER, ball5 INTEGER, ls1 INTEGER, ls2 INTEGER, uk_marker TEXT, euro_marker TEXT, draw_no INTEGER PRIMARY KEY )",
+			expected:    "CREATE TABLE IF NOT EXISTS Euro ( draw_date INTEGER, day_of_week INTEGER, ball1 INTEGER, ball2 INTEGER, ball3 INTEGER, ball4 INTEGER, ball5 INTEGER, ls1 INTEGER, ls2 INTEGER, uk_marker TEXT, euro_marker TEXT, draw_no INTEGER PRIMARY KEY )",
 			description: "Euro Draw Table",
 		},
-	}
-
-	for i, tc := range testcases {
-		switch v := tc.input.(type) {
-		case *Euro:
-			actual := createTblStmt(v)
-			assert.Equal(t, tc.expected, actual, fmt.Sprintf("Case: %d Description: %s", i, tc.description))
-		}
-	}
-}
-
-func TestInsertSQLStmt(t *testing.T) {
-	now := time.Now()
-	testcases := []struct {
-		input       any
-		expected    string
-		description string
-	}{
 		{
-			input: &Euro{
-				DrawDate:   now,
-				DayOfWeek:  now.Weekday(),
-				Ball1:      1,
-				Ball2:      2,
-				Ball3:      3,
-				Ball5:      4,
-				LS1:        1,
-				LS2:        2,
-				UKMarker:   "uk marker",
-				EuroMarker: "Euro marker",
-				DrawNo:     12345,
-			},
-			expected:    fmt.Sprintf("INSERT INTO EuroDraw ( draw_date, day_of_week, ball1, ball2, ball3, ball4, ball5, ls1, ls2, uk_marker, euro_marker, draw_no) VALUES ( %v, 0, 1, 2, 3, 0, 4, 1, 2, \"uk marker\", \"Euro marker\", 12345)", now.Unix()),
-			description: "Euro Draw",
+			input:       &Set4Life{},
+			expected:    "CREATE TABLE IF NOT EXISTS Set4Life ( draw_date INTEGER, day_of_week INTEGER, ball1 INTEGER, ball2 INTEGER, ball3 INTEGER, ball4 INTEGER, ball5 INTEGER, life_ball INTEGER, ball_set TEXT, machine TEXT, draw_no TEXT PRIMARY KEY )",
+			description: "Set for Life Draw Table",
 		},
 	}
 
 	for i, tc := range testcases {
 		switch v := tc.input.(type) {
 		case *Euro:
-			actual := insertTblStmt(v)
+			actual := CreateTblStmt(v)
+			assert.Equal(t, tc.expected, actual, fmt.Sprintf("Case: %d Description: %s", i, tc.description))
+		case *Set4Life:
+			actual := CreateTblStmt(v)
 			assert.Equal(t, tc.expected, actual, fmt.Sprintf("Case: %d Description: %s", i, tc.description))
 		}
 	}
