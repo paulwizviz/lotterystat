@@ -10,7 +10,13 @@ It is worth noting whilst the application derived from this project has function
 * Users use the application to extract lottery draws in CSV from the UK National lottery website and store in database
 * User perform statistical analysis
 
-## Project layout
+## Architecture
+
+The project is organised based on the hexagonal architecture principle.
+
+![Architecture Principle](./docs/img/hexagonal.png)
+
+The folders are layout as follows:
 
 * `build` - docker script responsible for building binaries
 * `cmd` - folder containing Go main packages
@@ -18,6 +24,18 @@ It is worth noting whilst the application derived from this project has function
 * `internal` - common Go packages that are accessible via main packages under cmd
 * `scripts` - a collection of Bash script to trigger operations such as build, benchmarking, etc
 * `testdata` - data intended to support test throughout the project
+
+In this project the business models are organised around these packages:
+
+* `euro` -- package of model for Euro Lottery draw
+* `sforl` -- package of models for Set for Life draw 
+
+The repositories are organised around these packages:
+
+* `repo` -- package of database related handlers
+* `csvproc` -- package of csv operations
+
+These packages are dependent on the business models
 
 ## Disclaimer
 

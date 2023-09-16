@@ -1,4 +1,4 @@
-package draw
+package csvproc
 
 import (
 	"context"
@@ -6,13 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"paulwizviz/lotterystat/internal/euro"
 	"strconv"
 	"strings"
 	"time"
-)
-
-const (
-	EuroURL = "https://www.national-lottery.co.uk/results/euromillions/draw-history/csv"
 )
 
 var (
@@ -141,7 +138,12 @@ func parseDrawSeq(value string) (uint64, error) {
 	return uint64(result), nil
 }
 
-func ProcessEuroCSV(ctx context.Context, r io.Reader) <-chan EuroChan {
+type EuroChan struct {
+	Draw euro.Draw
+	Err  error
+}
+
+func EuroCSV(ctx context.Context, r io.Reader) <-chan EuroChan {
 	c := make(chan EuroChan)
 	go func() {
 		cr := csv.NewReader(r)
@@ -162,7 +164,7 @@ func ProcessEuroCSV(ctx context.Context, r io.Reader) <-chan EuroChan {
 				}
 				if err != nil {
 					c <- EuroChan{
-						Draw: Euro{},
+						Draw: euro.Draw{},
 						Err:  err,
 					}
 					continue loop
@@ -170,7 +172,7 @@ func ProcessEuroCSV(ctx context.Context, r io.Reader) <-chan EuroChan {
 				drawDate, err := parseDateTime(rec[0])
 				if err != nil {
 					c <- EuroChan{
-						Draw: Euro{},
+						Draw: euro.Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
 					continue loop
@@ -178,7 +180,7 @@ func ProcessEuroCSV(ctx context.Context, r io.Reader) <-chan EuroChan {
 				b1, err := parseDrawNum(rec[1], 50)
 				if err != nil {
 					c <- EuroChan{
-						Draw: Euro{},
+						Draw: euro.Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
 					continue loop
@@ -186,7 +188,7 @@ func ProcessEuroCSV(ctx context.Context, r io.Reader) <-chan EuroChan {
 				b2, err := parseDrawNum(rec[2], 50)
 				if err != nil {
 					c <- EuroChan{
-						Draw: Euro{},
+						Draw: euro.Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
 					continue loop
@@ -194,7 +196,7 @@ func ProcessEuroCSV(ctx context.Context, r io.Reader) <-chan EuroChan {
 				b3, err := parseDrawNum(rec[3], 50)
 				if err != nil {
 					c <- EuroChan{
-						Draw: Euro{},
+						Draw: euro.Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
 					continue loop
@@ -202,7 +204,7 @@ func ProcessEuroCSV(ctx context.Context, r io.Reader) <-chan EuroChan {
 				b4, err := parseDrawNum(rec[4], 50)
 				if err != nil {
 					c <- EuroChan{
-						Draw: Euro{},
+						Draw: euro.Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
 					continue loop
@@ -210,7 +212,7 @@ func ProcessEuroCSV(ctx context.Context, r io.Reader) <-chan EuroChan {
 				b5, err := parseDrawNum(rec[5], 50)
 				if err != nil {
 					c <- EuroChan{
-						Draw: Euro{},
+						Draw: euro.Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
 					continue loop
@@ -218,7 +220,7 @@ func ProcessEuroCSV(ctx context.Context, r io.Reader) <-chan EuroChan {
 				ls1, err := parseDrawNum(rec[6], 12)
 				if err != nil {
 					c <- EuroChan{
-						Draw: Euro{},
+						Draw: euro.Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
 					continue loop
@@ -226,7 +228,7 @@ func ProcessEuroCSV(ctx context.Context, r io.Reader) <-chan EuroChan {
 				ls2, err := parseDrawNum(rec[7], 12)
 				if err != nil {
 					c <- EuroChan{
-						Draw: Euro{},
+						Draw: euro.Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
 					continue loop
@@ -234,13 +236,13 @@ func ProcessEuroCSV(ctx context.Context, r io.Reader) <-chan EuroChan {
 				dn, err := parseDrawSeq(rec[10])
 				if err != nil {
 					c <- EuroChan{
-						Draw: Euro{},
+						Draw: euro.Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
 					continue loop
 				}
 				c <- EuroChan{
-					Draw: Euro{
+					Draw: euro.Draw{
 						DrawDate:   drawDate,
 						DayOfWeek:  drawDate.Weekday(),
 						Ball1:      uint8(b1),

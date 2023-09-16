@@ -1,9 +1,11 @@
-package draw
+package repo
 
 import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"paulwizviz/lotterystat/internal/euro"
+	"paulwizviz/lotterystat/internal/sforl"
 	"reflect"
 	"strings"
 	"time"
@@ -12,6 +14,10 @@ import (
 var (
 	ErrDBCreateTbl = errors.New("unable to create table")
 )
+
+type DrawType interface {
+	euro.Draw | sforl.Draw
+}
 
 type structTag struct {
 	FieldName string
