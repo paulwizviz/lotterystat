@@ -1,15 +1,23 @@
 ![build](https://github.com/paulwizviz/go-web/workflows/build/badge.svg)
 # Overview
 
-The purpose of this project is to demonstrate the use of lean startup, agile and software engineering principles to build applications that encompass Go, ReactJS, Docker, and Continuous Integration and Continuous Delivery (CI/CD). To illustrate the use of these methodologies and techniques, this project will use the process of building an application for hypothetical users to perform simple statistical analysis of the UK National Lottery.
+The purpose of this project is to demonstrate the development of a simple cli based application to enable a user perform simple statistical based in past draws using *Golang concurrency* and *SQL DB*. Note the emphasis of this project are concurrency and db.
 
-It is worth noting that the application derived from this project has functionalities to perform statistical analysis, the intention is **not** to deliver something that can accurately predict lottery winnings. If the application generates or suggests a winning draw, it is purely coincidental. If you are expecting an application that accurately predicts lottery winnings, please refer to other projects.
+It is worth noting whilst the application derived from this project has functionalities to perform statistical analysis, the intention is **not** to deliver something that can accurately predict lottery winnings. If the application generates or suggests a winning draw, it is purely coincidental. If you are expecting an application that accurately predicts lottery winnings, please refer to other projects.
 
-## Table of content
+## Application use case
 
-* [Use Case](./docs/usecase.md) -- This section describes how we identify the requirements for our application
-* [Architecture](./docs/arch.md) -- This section describes the layout of the project and code organisations
-* [Tools](./docs/tools.md) -- This section lists tools used in this project to support development effort
+* Users use the application to extract lottery draws in CSV from the UK National lottery website and store in database
+* User perform statistical analysis
+
+## Project layout
+
+* `build` - docker script responsible for building binaries
+* `cmd` - folder containing Go main packages
+* `examples` - folder contains main packages to illustrative applications and also for benchmarking and other performance analysis
+* `internal` - common Go packages that are accessible via main packages under cmd
+* `scripts` - a collection of Bash script to trigger operations such as build, benchmarking, etc
+* `testdata` - data intended to support test throughout the project
 
 ## Disclaimer
 

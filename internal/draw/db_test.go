@@ -3,6 +3,7 @@ package draw
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -93,7 +94,7 @@ func TestCreateTblStmt(t *testing.T) {
 		},
 		{
 			input:       &Set4Life{},
-			expected:    "CREATE TABLE IF NOT EXISTS Set4Life ( draw_date INTEGER, day_of_week INTEGER, ball1 INTEGER, ball2 INTEGER, ball3 INTEGER, ball4 INTEGER, ball5 INTEGER, life_ball INTEGER, ball_set TEXT, machine TEXT, draw_no TEXT PRIMARY KEY )",
+			expected:    "CREATE TABLE IF NOT EXISTS Set4Life ( draw_date INTEGER, day_of_week INTEGER, ball1 INTEGER, ball2 INTEGER, ball3 INTEGER, ball4 INTEGER, ball5 INTEGER, life_ball INTEGER, ball_set TEXT, machine TEXT, draw_no INTEGER PRIMARY KEY )",
 			description: "Set for Life Draw Table",
 		},
 	}
@@ -108,4 +109,45 @@ func TestCreateTblStmt(t *testing.T) {
 			assert.Equal(t, tc.expected, actual, fmt.Sprintf("Case: %d Description: %s", i, tc.description))
 		}
 	}
+}
+
+func Example() {
+
+	vals := []Euro{
+		{
+			DrawDate:   time.Now(),
+			DayOfWeek:  time.Now().Weekday(),
+			Ball1:      1,
+			Ball2:      2,
+			Ball3:      3,
+			Ball4:      4,
+			Ball5:      5,
+			LS1:        1,
+			LS2:        3,
+			UKMarker:   "UK market",
+			EuroMarker: "Euro marker",
+			DrawNo:     1,
+		},
+		{
+			DrawDate:   time.Now(),
+			DayOfWeek:  time.Now().Weekday(),
+			Ball1:      1,
+			Ball2:      2,
+			Ball3:      3,
+			Ball4:      4,
+			Ball5:      5,
+			LS1:        1,
+			LS2:        3,
+			UKMarker:   "UK market 1",
+			EuroMarker: "Euro marker 1",
+			DrawNo:     2,
+		},
+	}
+
+	stmt := CreateInsertStmt[Euro](vals)
+	fmt.Println(stmt)
+
+	// Output:
+	//
+
 }
