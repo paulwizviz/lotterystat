@@ -1,4 +1,4 @@
-package repo
+package sqlite
 
 import (
 	"database/sql"
@@ -8,11 +8,11 @@ import (
 	"paulwizviz/lotterystat/internal/sforl"
 	"reflect"
 	"strings"
-	"time"
 )
 
 var (
-	ErrDBCreateTbl = errors.New("unable to create table")
+	ErrDBPrepareStmt = errors.New("prepare statement")
+	ErrDBCreateTbl   = errors.New("unable to create table")
 )
 
 type DrawType interface {
@@ -43,13 +43,17 @@ func sqliteTags[T DrawType](typ *T) []structTag {
 	return tags
 }
 
-type CreateTblStmtFunc[T DrawType] func(*T) string
+func CreateTable[T DrawType](db *sql.DB, v *T) error {
+	_, err := db.Exec(createTblStmtStr(v))
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
-// CreateTblStmt is an implementation to generate create
-// table statement
-func CreateTblStmt[T DrawType](v *T) string {
+func createTblStmtStr[T DrawType](v *T) string {
 	t := reflect.TypeOf(v)
-	tblName := strings.Split(fmt.Sprintf("%v", t), ".")[1]
+	tblName := strings.Split(fmt.Sprintf("%v", t), ".")[0][1:]
 	tags := sqliteTags(v)
 
 	stmt := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (", tblName)
@@ -66,60 +70,34 @@ func CreateTblStmt[T DrawType](v *T) string {
 	}
 	stmt = stmt[0 : len(stmt)-1] // remove last comma
 	stmt = fmt.Sprintf(`%s )`, stmt)
-
 	return stmt
 }
 
-func CreateInsertStmt[T DrawType](vals []T) string {
-	stmt := "BEGIN TRANSACTIONS;"
-	for _, val := range vals {
-		s := createInsertStmt[T](&val)
-		stmt = fmt.Sprintf("%s %s;", stmt, s)
+func CreateInsertStmt[T DrawType](db *sql.DB, v *T) (*sql.Stmt, error) {
+	stmt, err := db.Prepare(createInsertStmtStr(v))
+	if err != nil {
+		return nil, fmt.Errorf("%w-%s", ErrDBPrepareStmt, err.Error())
 	}
-	stmt = fmt.Sprintf("%s COMMIT;", stmt)
-	return stmt
+	return stmt, nil
 }
 
-func createInsertStmt[T DrawType](val *T) string {
+func createInsertStmtStr[T DrawType](val *T) string {
 	t := reflect.TypeOf(val)
-	tblName := strings.Split(fmt.Sprintf("%v", t), ".")[1]
+	tblName := strings.Split(fmt.Sprintf("%v", t), ".")[0][1:]
 	tags := sqliteTags(val)
-	v := reflect.Indirect(reflect.ValueOf(val))
 
 	stmt := fmt.Sprintf("INSERT INTO %s (", tblName)
 	for _, tag := range tags {
 		t1 := strings.Split(tag.Tag, ",")
 		stmt = fmt.Sprintf("%s %s,", stmt, t1[0])
 	}
+
 	stmt = stmt[0 : len(stmt)-1]
 	stmt = fmt.Sprintf("%s) VALUES (", stmt)
-	for _, tag := range tags {
-		fval := v.FieldByName(tag.FieldName)
-		switch fv := fval.Interface().(type) {
-		case time.Time:
-			ut := fv.Unix()
-			stmt = fmt.Sprintf("%s %d,", stmt, ut)
-		case time.Weekday:
-			stmt = fmt.Sprintf("%s %d,", stmt, uint64(fv))
-		case uint8, uint64:
-			stmt = fmt.Sprintf("%s %d,", stmt, fv)
-		case string:
-			stmt = fmt.Sprintf(`%s "%s",`, stmt, fval)
-		default:
-			stmt = fmt.Sprintf(`%v "%s",`, stmt, fval)
-		}
+	for range tags {
+		stmt = fmt.Sprintf("%s ?,", stmt)
 	}
 	stmt = stmt[0 : len(stmt)-1]
-	stmt = fmt.Sprintf("%s)", stmt)
+	stmt = fmt.Sprintf("%s )", stmt)
 	return stmt
-}
-
-// CreateTbl is an implementation of operations to create Table
-func CreateTbl[T DrawType](db *sql.DB, creator CreateTblStmtFunc[T], typ *T) (sql.Result, error) {
-	stmt := creator(typ)
-	result, err := db.Exec(stmt)
-	if err != nil {
-		return result, fmt.Errorf("%w: %s", ErrDBCreateTbl, err.Error())
-	}
-	return result, nil
 }

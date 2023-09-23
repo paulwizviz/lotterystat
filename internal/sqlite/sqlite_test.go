@@ -1,9 +1,8 @@
-package repo
+package sqlite
 
 import (
 	"fmt"
 	"paulwizviz/lotterystat/internal/euro"
-	"paulwizviz/lotterystat/internal/sforl"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -90,23 +89,37 @@ func TestCreateTblStmt(t *testing.T) {
 	}{
 		{
 			input:       &euro.Draw{},
-			expected:    "CREATE TABLE IF NOT EXISTS Draw ( draw_date INTEGER, day_of_week INTEGER, ball1 INTEGER, ball2 INTEGER, ball3 INTEGER, ball4 INTEGER, ball5 INTEGER, ls1 INTEGER, ls2 INTEGER, uk_marker TEXT, euro_marker TEXT, draw_no INTEGER PRIMARY KEY )",
+			expected:    "CREATE TABLE IF NOT EXISTS euro ( draw_date INTEGER, day_of_week INTEGER, ball1 INTEGER, ball2 INTEGER, ball3 INTEGER, ball4 INTEGER, ball5 INTEGER, ls1 INTEGER, ls2 INTEGER, uk_marker TEXT, euro_marker TEXT, draw_no INTEGER PRIMARY KEY )",
 			description: "Euro Draw Table",
-		},
-		{
-			input:       &euro.Draw{},
-			expected:    "CREATE TABLE IF NOT EXISTS Draw ( draw_date INTEGER, day_of_week INTEGER, ball1 INTEGER, ball2 INTEGER, ball3 INTEGER, ball4 INTEGER, ball5 INTEGER, ls1 INTEGER, ls2 INTEGER, uk_marker TEXT, euro_marker TEXT, draw_no INTEGER PRIMARY KEY )",
-			description: "Set for Life Draw Table",
 		},
 	}
 
 	for i, tc := range testcases {
 		switch v := tc.input.(type) {
 		case *euro.Draw:
-			actual := CreateTblStmt(v)
+			actual := createTblStmtStr(v)
 			assert.Equal(t, tc.expected, actual, fmt.Sprintf("Case: %d Description: %s", i, tc.description))
-		case *sforl.Draw:
-			actual := CreateTblStmt(v)
+		}
+	}
+}
+
+func TestInsertTblStmtStr(t *testing.T) {
+	testcases := []struct {
+		input       any
+		expected    string
+		description string
+	}{
+		{
+			input:       &euro.Draw{},
+			expected:    "INSERT INTO euro ( draw_date, day_of_week, ball1, ball2, ball3, ball4, ball5, ls1, ls2, uk_marker, euro_marker, draw_no) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )",
+			description: "Euro Draw Statement",
+		},
+	}
+
+	for i, tc := range testcases {
+		switch v := tc.input.(type) {
+		case *euro.Draw:
+			actual := createInsertStmtStr(v)
 			assert.Equal(t, tc.expected, actual, fmt.Sprintf("Case: %d Description: %s", i, tc.description))
 		}
 	}
