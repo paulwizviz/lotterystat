@@ -7,13 +7,15 @@ It is worth noting whilst the application derived from this project has function
 
 ## Use case
 
-For this project, we will build two applications for two fictional users (also known as personas). 
+For this project, we will build two applications for two fictional users (also known as personas). It is worth noting that personas, for real life projects, are stand-in for real users. Personas are a vehicle to help member of a product development team empathize with users's needs and wants. The product team would use information obtained to focus on delivering features that will fulfill the needs and wants of the users.
 
-One persona is named `Ebenezer` and the other is named `Richie`.
+However, for this project we have not considered beyond the superficial and fictional needs of our personas named `Ebenezer` and `Richie`. The personas are not tied to any real users anyway.
 
-`Ebenezer` is familiar with using applications via command line instruction (CLI). He intends to use the application to collect collect draws and store it in a database and to be able to interrograte the database via CLI. He also intends to make it available in the form a a server with RESTFul interfaces.
+Let's summarise needs of the personas:
 
-`Richie` does not have the necessary technical knowlege to work with applications completely via CLIs. He has only work with applications via Graphical User Interface (UI). He intends to use the application from a mac.  
+* `Ebenezer` is familiar with using applications via command line instruction (CLI). He intends to use the application to collect collect draws and store it in a database and to be able to interrograte the database via CLI. He also intends to make it available in the form a a server with RESTFul interfaces.
+
+* `Richie` does not have the necessary technical knowlege to work with applications completely via CLIs. He has only work with applications via Graphical User Interface (UI). He intends to use the application from a mac.  
 
 The common functionalities expected from `Ebenezer` and `Richie` are features to: extract lottery draws in CSV from the UK National lottery website, store the downloaded draws in a persistent repository and perform statistical analysis of stored draws.
 
@@ -32,17 +34,7 @@ The folders are layout as follows:
 * `scripts` - a collection of Bash script to trigger operations such as build, benchmarking, etc
 * `testdata` - data intended to support test throughout the project
 
-In this project the business models are organised around these packages:
-
-* `euro` -- package of model for Euro Lottery draw
-* `sforl` -- package of models for Set for Life draw 
-
-The repositories and services layers are organised around these packages:
-
-* `repo` -- package of database related handlers
-* `csvproc` -- package of csv operations
-
-These packages are dependent on the business models
+Please refer to the section named [architecture](./docs/arch.md) for in-depth discussions of engineering decisions behind the project.
 
 ## Disclaimer
 
