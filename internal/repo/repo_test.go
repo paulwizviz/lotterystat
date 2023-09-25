@@ -1,4 +1,4 @@
-package sqlite
+package repo
 
 import (
 	"fmt"
@@ -97,13 +97,13 @@ func TestCreateTblStmt(t *testing.T) {
 	for i, tc := range testcases {
 		switch v := tc.input.(type) {
 		case *euro.Draw:
-			actual := createTblStmtStr(v)
+			actual := sqliteCreateTblStmtStr(v)
 			assert.Equal(t, tc.expected, actual, fmt.Sprintf("Case: %d Description: %s", i, tc.description))
 		}
 	}
 }
 
-func TestInsertTblStmtStr(t *testing.T) {
+func TestCreateInsertTblStmtStr(t *testing.T) {
 	testcases := []struct {
 		input       any
 		expected    string
@@ -119,7 +119,7 @@ func TestInsertTblStmtStr(t *testing.T) {
 	for i, tc := range testcases {
 		switch v := tc.input.(type) {
 		case *euro.Draw:
-			actual := createInsertStmtStr(v)
+			actual := sqliteInsertStmtStr(v)
 			assert.Equal(t, tc.expected, actual, fmt.Sprintf("Case: %d Description: %s", i, tc.description))
 		}
 	}

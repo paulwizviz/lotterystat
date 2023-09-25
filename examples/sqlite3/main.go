@@ -5,8 +5,6 @@ import (
 	"log"
 	"os"
 	"path"
-	"paulwizviz/lotterystat/internal/euro"
-	"paulwizviz/lotterystat/internal/sqlite"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -34,8 +32,4 @@ func main() {
 	}
 	defer db.Close()
 
-	err = sqlite.CreateTable(db, &euro.Draw{})
-	if err != nil {
-		log.Fatal(err)
-	}
 }

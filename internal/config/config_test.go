@@ -10,11 +10,10 @@ import (
 )
 
 func TestPath(t *testing.T) {
-	actual, err := Path()
+	actual, err := location()
 	if err != nil {
 		t.Fatal("error not expected")
 	}
-
 	switch runtime.GOOS {
 	case "windows":
 		uprofile := os.Getenv("USERPROFILE")
