@@ -13,7 +13,7 @@ However, for this project we have not considered beyond the superficial and fict
 
 Let's summarise needs of the personas:
 
-* `Ebenezer` is familiar with using applications via command line instruction (CLI). He intends to use the application to collect collect draws and store it in a database and to be able to interrograte the database via CLI. He also intends to make it available in the form a a server with RESTFul interfaces.
+* `Ebenezer` is familiar with using applications via command line instruction (CLI). He intends to use the application to collect collect draws and store it in a database and to be able to interrograte the database via CLI.
 
 * `Richie` does not have the necessary technical knowlege to work with applications completely via CLIs. He has only work with applications via Graphical User Interface (UI). He intends to use the application from a mac.  
 
