@@ -1,10 +1,10 @@
 #!/bin/bash
 
 export GO_VER=golang:1.20.3
-export APP_NAME=ebzcli
+export APP_NAME=ebz
 
-export EBZCLI_BUILD_IMAGE=paulwizviz/ebzcli:current
-export EBZCLI_BUILD_CONTAINER=ebzcli_container
+export EBZ_BUILD_IMAGE=paulwizviz/ebz:current
+export EBZ_BUILD_CONTAINER=ebz_container
 
 COMMAND=$1
 

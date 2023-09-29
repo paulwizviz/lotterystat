@@ -13,11 +13,8 @@ import (
 )
 
 const (
-	SQLitePathKey = "sqlite.path"
-	SQLiteFileKey = "sqlite.file"
-
-	SettingFileName = "settings"
-	SettingFileType = "yaml"
+	SQLiteFile      = "sqlite.db"
+	SettingFileName = "settings.yaml"
 )
 
 var (
@@ -25,6 +22,7 @@ var (
 )
 
 type DBConfig struct {
+	SQLiteDB        string
 	ConnMaxIdleTime time.Duration
 	ConnMaxLifeTime time.Duration
 	MaxIdleConn     int
@@ -74,33 +72,32 @@ func createIfNotExistDir(sPath string) error {
 // createIfNotExistFile a file named "settings.yml" in the path
 // $HOME/.ebz or %APPDATA%/ebz if it does not exists
 func createIfNotExistFile(cPath string) error {
-
-	settingFile := path.Join(cPath, fmt.Sprintf("%s.%s", SettingFileName, SettingFileType))
+	settingFile := path.Join(cPath, SettingFileName)
 	_, err := os.Stat(settingFile)
 	if err == nil {
 		return nil
 	}
-
+	sqliteDB := path.Join(cPath, SQLiteFile)
+	d := DBConfig{
+		SQLiteDB: sqliteDB,
+	}
 	f, err := os.Create(settingFile)
 	if err != nil {
 		return fmt.Errorf("%w-%s", ErrConfig, err.Error())
 	}
 	defer f.Close()
-
 	s := Detail{
-		Path: cPath,
+		DBConfig: d,
+		Path:     cPath,
 	}
-
 	b, err := yaml.Marshal(s)
 	if err != nil {
 		return fmt.Errorf("%w-%s", ErrConfig, err.Error())
 	}
-
 	_, err = f.Write(b)
 	if err != nil {
 		return fmt.Errorf("%w-%s", ErrConfig, err.Error())
 	}
-
 	err = os.Chmod(settingFile, 0666)
 	if err != nil {
 		return fmt.Errorf("%w-%s", ErrConfig, err.Error())
@@ -111,7 +108,6 @@ func createIfNotExistFile(cPath string) error {
 // location returns $HOME/.bz or %APPDATA%/ebz
 func location() (string, error) {
 	var dir string
-
 	switch runtime.GOOS {
 	case "windows":
 		dir = os.Getenv("AppData")
@@ -126,6 +122,5 @@ func location() (string, error) {
 		}
 		dir = path.Join(dir, ".ebz")
 	}
-
 	return dir, nil
 }

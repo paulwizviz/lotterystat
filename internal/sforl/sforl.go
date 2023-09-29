@@ -4,15 +4,41 @@ import "time"
 
 // Draw represents a draw from Set for Life
 type Draw struct {
-	DrawDate  time.Time    `json:"draw_date" sqlite:"draw_date,INTEGER"`
-	DayOfWeek time.Weekday `json:"day_of_week" sqlite:"day_of_week,INTEGER"`
-	Ball1     uint8        `json:"ball1" sqlite:"ball1,INTEGER"`
-	Ball2     uint8        `json:"ball2" sqlite:"ball2,INTEGER"`
-	Ball3     uint8        `json:"ball3" sqlite:"ball3,INTEGER"`
-	Ball4     uint8        `json:"ball4" sqlite:"ball4,INTEGER"`
-	Ball5     uint8        `json:"ball5" sqlite:"ball5,INTEGER"`
-	LifeBall  uint8        `json:"life_ball" sqlite:"life_ball,INTEGER"`
-	BallSet   string       `json:"ball_set" sqlite:"ball_set,TEXT"`
-	Machine   string       `json:"machine" sqlite:"machine,TEXT"`
-	DrawNo    uint64       `json:"draw_no" sqlite:"draw_no,INTEGER,PRIMARY_KEY"`
+	DrawDate  time.Time    `json:"draw_date"`
+	DayOfWeek time.Weekday `json:"day_of_week"`
+	Ball1     uint8        `json:"ball1"`
+	Ball2     uint8        `json:"ball2"`
+	Ball3     uint8        `json:"ball3"`
+	Ball4     uint8        `json:"ball4"`
+	Ball5     uint8        `json:"ball5"`
+	LifeBall  uint8        `json:"life_ball"`
+	BallSet   string       `json:"ball_set"`
+	Machine   string       `json:"machine"`
+	DrawNo    uint64       `json:"draw_no"`
 }
+
+var (
+	SQLiteCreateTblStr = `CREATE TABLE IF NOT EXISTS set_for_life (
+		draw_date INTEGER, 
+		day_of_week INTEGER, 
+		ball1 INTEGER, 
+		ball3 INTEGER, 
+		ball4 INTEGER, 
+		ball5 INTEGER, 
+		lb INTEGER,  
+		ball_set TEXT,
+		machine TEXT,
+		draw_no INTEGER PRIMARY KEY)`
+	SQLiteInsertEuroStr = `INSERT INTO set_for_life (
+		draw_date, 
+		day_of_week, 
+		ball1,
+		ball2, 
+		ball3,
+		ball4,
+		ball5,
+		lb,
+		ball_set,
+		machine, 
+		draw_no) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )`
+)

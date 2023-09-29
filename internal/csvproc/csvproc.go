@@ -1,11 +1,13 @@
 package csvproc
 
 import (
+	"bytes"
 	"context"
 	"encoding/csv"
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"paulwizviz/lotterystat/internal/euro"
 	"strconv"
 	"strings"
@@ -233,7 +235,7 @@ func EuroCSV(ctx context.Context, r io.Reader) <-chan EuroChan {
 					}
 					continue loop
 				}
-				dn, err := parseDrawSeq(rec[10])
+				dn, err := parseDrawSeq(rec[9])
 				if err != nil {
 					c <- EuroChan{
 						Draw: euro.Draw{},
@@ -243,18 +245,17 @@ func EuroCSV(ctx context.Context, r io.Reader) <-chan EuroChan {
 				}
 				c <- EuroChan{
 					Draw: euro.Draw{
-						DrawDate:   drawDate,
-						DayOfWeek:  drawDate.Weekday(),
-						Ball1:      uint8(b1),
-						Ball2:      uint8(b2),
-						Ball3:      uint8(b3),
-						Ball4:      uint8(b4),
-						Ball5:      uint8(b5),
-						LS1:        uint8(ls1),
-						LS2:        uint8(ls2),
-						UKMarker:   rec[8],
-						EuroMarker: rec[9],
-						DrawNo:     dn,
+						DrawDate:  drawDate,
+						DayOfWeek: drawDate.Weekday(),
+						Ball1:     uint8(b1),
+						Ball2:     uint8(b2),
+						Ball3:     uint8(b3),
+						Ball4:     uint8(b4),
+						Ball5:     uint8(b5),
+						LS1:       uint8(ls1),
+						LS2:       uint8(ls2),
+						UKMarker:  rec[8],
+						DrawNo:    dn,
 					},
 					Err: nil,
 				}
@@ -262,4 +263,17 @@ func EuroCSV(ctx context.Context, r io.Reader) <-chan EuroChan {
 		}
 	}()
 	return c
+}
+
+func DownloadFrom(url string) (io.Reader, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	return bytes.NewReader(b), nil
 }

@@ -5,14 +5,14 @@ services:
   ebzcli:
     build:
       context: ../../
-      dockerfile: ./build/ebenezer/ebzcli.dockerfile
+      dockerfile: ./build/ebenezer/ebz.dockerfile
       args:
         GO_VER: ${GO_VER}
     environment:
       - APP_NAME=${APP_NAME}
-    image: ${EBZCLI_BUILD_IMAGE:-paulwizviz/ebzcli:current}
-    container_name: ${EBZCLI_BUILD_CONTAINER:-ebzcli}
-    command: ./ebzclinative.sh
+    image: ${EBZ_BUILD_IMAGE:-paulwizviz/ebz:current}
+    container_name: ${EBZ_BUILD_CONTAINER:-ebz}
+    command: ./ebznative.sh
     volumes:
-      - ./ebzclinative.sh:/opt/ebzclinative.sh
+      - ./ebznative.sh:/opt/ebznative.sh
       - ./package:/opt/build/package

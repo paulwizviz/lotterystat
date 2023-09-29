@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export OS_VER=ubuntu:22.10
-export USER_NAME=ebzcli
+export OS_VER=ubuntu:18.04
+export USER_NAME=ebz
 export LINUXDT_IMAGE=paulwizviz/linuxdt:current
 
 COMMAND=$1
@@ -19,7 +19,7 @@ function login(){
     docker run  -it --rm \
                 --user ${USER_NAME}:${USER_NAME} \
                 --workdir="/home/${USER_NAME}" \
-                -v $PWD/build/ebenezer/package/linux/ebzcli:/usr/local/bin/ebzcli \
+                -v $PWD/build/ebenezer/package/linux/ebz:/usr/local/bin/ebz \
                 ${LINUXDT_IMAGE} /bin/bash
 }
 
