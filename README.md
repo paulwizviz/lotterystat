@@ -28,13 +28,19 @@ The project is organised based on the hexagonal architecture principle.
 The folders are layout as follows:
 
 * `build` - docker script responsible for building binaries
-* `cmd` - folder containing Go main packages
-* `examples` - folder contains main packages to illustrative applications and also for benchmarking and other performance analysis
+* `cmd` - folder containing Go main packages that are further divided into several sub folders to reflect multiple exectuable builds
+* `examples` - folder contains snippets of code to support testing or verification of edge cases that cannot easily be tested using unit tests
 * `internal` - common Go packages that are accessible via main packages under cmd
 * `scripts` - a collection of Bash script to trigger operations such as build, benchmarking, etc
 * `testdata` - data intended to support test throughout the project
 
 Please refer to the section named [architecture](./docs/arch.md) for in-depth discussions of engineering decisions behind the project.
+
+## DevOps
+
+The main packages are built using Dockers.
+
+To support local testing of executable codes the project as provided an Ubuntu based containers to simulate a Linux environment.
 
 ## Disclaimer
 

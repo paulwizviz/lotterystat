@@ -10,7 +10,7 @@ services:
         GO_VER: ${GO_VER}
     environment:
       - APP_NAME=${APP_NAME}
-    image: ${EBZ_BUILD_IMAGE:-paulwizviz/ebz:current}
+    image: ${EBZ_BUILD_IMAGE:-lotterystat/ebz:current}
     container_name: ${EBZ_BUILD_CONTAINER:-ebz}
     command: ./ebznative.sh
     volumes:

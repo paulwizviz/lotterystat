@@ -30,38 +30,85 @@ type DBConfig struct {
 }
 
 type Detail struct {
-	DBConfig DBConfig `json:"dbconfig"`
-	Path     string   `json:"path"`
+	DBConfig DBConfig `yaml:"dbconfig"`
+	Path     string   `yaml:"path"`
 }
 
 // Initialize app config
-func Initialize() error {
+func Initialize() (*Detail, error) {
 	p, err := location()
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("%w-%s", ErrConfig, err.Error())
 	}
-	err = createIfNotExistDir(p)
-	if err != nil {
-		return err
-	}
-	err = createIfNotExistFile(p)
-	if err != nil {
-		return err
+	settingFile := path.Join(p, SettingFileName)
+
+	_, err = os.Stat(settingFile)
+	if errors.Is(err, os.ErrExist) {
+		d, err := unmarshalSettingFile(settingFile)
+		if err != nil {
+			return nil, fmt.Errorf("%w-%s", ErrConfig, err.Error())
+		}
+		return d, nil
 	}
 
-	return nil
+	_, err = os.Stat(p)
+	if errors.Is(err, os.ErrNotExist) {
+		err = os.MkdirAll(p, 0775)
+		if err != nil {
+			return nil, fmt.Errorf("%w-%s", ErrConfig, err.Error())
+		}
+	}
+
+	settingDetail := Detail{
+		DBConfig: DBConfig{
+			SQLiteDB: path.Join(p, "data.db"),
+		},
+		Path: p,
+	}
+
+	b, err := yaml.Marshal(settingDetail)
+	if err != nil {
+		return nil, fmt.Errorf("%w-%s", ErrConfig, err.Error())
+	}
+	f, err := os.Create(settingFile)
+	if err != nil {
+		return nil, fmt.Errorf("%w-%s", ErrConfig, err.Error())
+	}
+	defer f.Close()
+	_, err = f.Write(b)
+	if err != nil {
+		return nil, fmt.Errorf("%w-%s", ErrConfig, err.Error())
+	}
+	err = os.Chmod(settingFile, 0666)
+	if err != nil {
+		return nil, fmt.Errorf("%w-%s", ErrConfig, err.Error())
+	}
+	return &settingDetail, nil
+}
+
+func unmarshalSettingFile(f string) (*Detail, error) {
+	content, err := os.ReadFile(f)
+	if err != nil {
+		return nil, fmt.Errorf("%w-%s", ErrConfig, err.Error())
+	}
+	var setting Detail
+	err = yaml.Unmarshal(content, &setting)
+	if err != nil {
+		return nil, fmt.Errorf("%w-%s", ErrConfig, err.Error())
+	}
+	return &setting, nil
 }
 
 // createIfNotExistDir a director name "$HOME/.ebz" or
 // %APPDATA%/ebz if it does not exists
-func createIfNotExistDir(sPath string) error {
+func createIfNotExistDir(p string) error {
 
-	_, err := os.Stat(sPath)
+	_, err := os.Stat(p)
 	if err == nil {
 		return nil
 	}
 
-	err = os.MkdirAll(sPath, 0775)
+	err = os.MkdirAll(p, 0775)
 	if err != nil {
 		return fmt.Errorf("%w-%s", ErrConfig, err.Error())
 	}
