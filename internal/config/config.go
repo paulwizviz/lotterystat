@@ -4,11 +4,13 @@ package config
 import (
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"runtime"
 	"time"
 
+	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
 )
 
@@ -21,139 +23,96 @@ var (
 	ErrConfig = errors.New("config err")
 )
 
-type DBConfig struct {
-	SQLiteDB        string
-	ConnMaxIdleTime time.Duration
-	ConnMaxLifeTime time.Duration
-	MaxIdleConn     int
-	MaxOpenConn     int
-}
+const (
+	Type           = "yaml"
+	Name           = "setting"
+	MaxIdleTimeKey = "max_idle_time"
+	MaxLifeTimeKey = "max_life_time"
+	MaxIdleConnKey = "max_idle_conn"
+	MaxOpenConnKey = "max_open_comn"
+	DBConnKey      = "db_conn"
+	DBConnVal      = "sqlite.db"
+)
 
 type Detail struct {
-	DBConfig DBConfig `yaml:"dbconfig"`
-	Path     string   `yaml:"path"`
+	Path        string        `yaml:"path"`
+	Name        string        `yaml:"name"`
+	DBConn      string        `yaml:"db_conn"`
+	MaxIdleTime time.Duration `yaml:"max_idle_time"`
+	MaxLifeTime time.Duration `yaml:"max_life_time"`
+	MaxIdleConn int           `yaml:"max_idle_conn"`
+	MaxOpenConn int           `yaml:"max_open_comn"`
 }
 
-// Initialize app config
-func Initialize() (*Detail, error) {
-	p, err := location()
+func (d Detail) DBConnVal() string {
+	return path.Join(d.Path, DBConnVal)
+}
+
+func (d Detail) ConfigFile() string {
+	return path.Join(d.Path, fmt.Sprintf("%s.%s", d.Name, Type))
+}
+
+func Initilalize() error {
+	p, err := Location()
 	if err != nil {
-		return nil, fmt.Errorf("%w-%s", ErrConfig, err.Error())
+		return fmt.Errorf("%w-%s", ErrConfig, err.Error())
 	}
-	settingFile := path.Join(p, SettingFileName)
-
-	_, err = os.Stat(settingFile)
+	d := Detail{
+		Path:   p,
+		Name:   Name,
+		DBConn: DBConnVal,
+	}
+	cFile := d.ConfigFile()
+	_, err = os.Stat(cFile)
 	if errors.Is(err, os.ErrExist) {
-		d, err := unmarshalSettingFile(settingFile)
+		err := initConfig(p)
 		if err != nil {
-			return nil, fmt.Errorf("%w-%s", ErrConfig, err.Error())
+			return err
 		}
-		return d, nil
+		return nil
 	}
-
 	_, err = os.Stat(p)
 	if errors.Is(err, os.ErrNotExist) {
-		err = os.MkdirAll(p, 0775)
+		err := os.MkdirAll(p, 0777)
 		if err != nil {
-			return nil, fmt.Errorf("%w-%s", ErrConfig, err.Error())
+			return fmt.Errorf("%w-%s", ErrConfig, err.Error())
 		}
 	}
-
-	settingDetail := Detail{
-		DBConfig: DBConfig{
-			SQLiteDB: path.Join(p, "data.db"),
-		},
-		Path: p,
-	}
-
-	b, err := yaml.Marshal(settingDetail)
-	if err != nil {
-		return nil, fmt.Errorf("%w-%s", ErrConfig, err.Error())
-	}
-	f, err := os.Create(settingFile)
-	if err != nil {
-		return nil, fmt.Errorf("%w-%s", ErrConfig, err.Error())
-	}
-	defer f.Close()
-	_, err = f.Write(b)
-	if err != nil {
-		return nil, fmt.Errorf("%w-%s", ErrConfig, err.Error())
-	}
-	err = os.Chmod(settingFile, 0666)
-	if err != nil {
-		return nil, fmt.Errorf("%w-%s", ErrConfig, err.Error())
-	}
-	return &settingDetail, nil
-}
-
-func unmarshalSettingFile(f string) (*Detail, error) {
-	content, err := os.ReadFile(f)
-	if err != nil {
-		return nil, fmt.Errorf("%w-%s", ErrConfig, err.Error())
-	}
-	var setting Detail
-	err = yaml.Unmarshal(content, &setting)
-	if err != nil {
-		return nil, fmt.Errorf("%w-%s", ErrConfig, err.Error())
-	}
-	return &setting, nil
-}
-
-// createIfNotExistDir a director name "$HOME/.ebz" or
-// %APPDATA%/ebz if it does not exists
-func createIfNotExistDir(p string) error {
-
-	_, err := os.Stat(p)
-	if err == nil {
-		return nil
-	}
-
-	err = os.MkdirAll(p, 0775)
+	b, err := yaml.Marshal(d)
 	if err != nil {
 		return fmt.Errorf("%w-%s", ErrConfig, err.Error())
 	}
-
-	return nil
-}
-
-// createIfNotExistFile a file named "settings.yml" in the path
-// $HOME/.ebz or %APPDATA%/ebz if it does not exists
-func createIfNotExistFile(cPath string) error {
-	settingFile := path.Join(cPath, SettingFileName)
-	_, err := os.Stat(settingFile)
-	if err == nil {
-		return nil
-	}
-	sqliteDB := path.Join(cPath, SQLiteFile)
-	d := DBConfig{
-		SQLiteDB: sqliteDB,
-	}
-	f, err := os.Create(settingFile)
+	f, err := os.Create(d.ConfigFile())
 	if err != nil {
 		return fmt.Errorf("%w-%s", ErrConfig, err.Error())
 	}
 	defer f.Close()
-	s := Detail{
-		DBConfig: d,
-		Path:     cPath,
-	}
-	b, err := yaml.Marshal(s)
-	if err != nil {
-		return fmt.Errorf("%w-%s", ErrConfig, err.Error())
-	}
 	_, err = f.Write(b)
 	if err != nil {
 		return fmt.Errorf("%w-%s", ErrConfig, err.Error())
 	}
-	err = os.Chmod(settingFile, 0666)
+	err = initConfig(p)
 	if err != nil {
-		return fmt.Errorf("%w-%s", ErrConfig, err.Error())
+		return err
 	}
 	return nil
 }
 
-// location returns $HOME/.bz or %APPDATA%/ebz
-func location() (string, error) {
+func initConfig(p string) error {
+	viper.AddConfigPath(p)
+	viper.SetConfigType(Type)
+	viper.SetConfigName(Name)
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		return fmt.Errorf("%w-%s", ErrConfig, err.Error())
+	}
+	log.Println("Using config file:", viper.ConfigFileUsed())
+	return nil
+}
+
+// Location returns $HOME/.bz or %APPDATA%/ebz
+func Location() (string, error) {
 	var dir string
 	switch runtime.GOOS {
 	case "windows":

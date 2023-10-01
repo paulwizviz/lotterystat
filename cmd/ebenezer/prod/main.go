@@ -1,7 +1,14 @@
 package main
 
-import "fmt"
+import (
+	"log"
+	"paulwizviz/lotterystat/internal/config"
+)
 
 func main() {
-	fmt.Println("Hello world")
+	err := config.Initilalize()
+	if err != nil {
+		log.Fatal(err)
+	}
+	Execute()
 }

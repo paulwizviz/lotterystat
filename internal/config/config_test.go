@@ -10,7 +10,7 @@ import (
 )
 
 func TestPath(t *testing.T) {
-	actual, err := location()
+	actual, err := Location()
 	if err != nil {
 		t.Fatal("error not expected")
 	}
