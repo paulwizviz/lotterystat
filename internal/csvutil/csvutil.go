@@ -1,14 +1,11 @@
-package csvproc
+package csvutil
 
 import (
 	"bytes"
-	"context"
-	"encoding/csv"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
-	"paulwizviz/lotterystat/internal/euro"
 	"strconv"
 	"strings"
 	"time"
@@ -28,7 +25,7 @@ var (
 	ErrCSVInvalidURL         = errors.New("invalid url")
 )
 
-func parseDateTime(dt string) (time.Time, error) {
+func ParseDateTime(dt string) (time.Time, error) {
 	elm := strings.Split(dt, "-")
 
 	day, err := strconv.Atoi(elm[0])
@@ -118,7 +115,7 @@ func parseDateTime(dt string) (time.Time, error) {
 	return tm, nil
 }
 
-func parseDrawNum(value string, maxval int) (uint8, error) {
+func ParseDrawNum(value string, maxval int) (uint8, error) {
 	result, err := strconv.Atoi(value)
 	if err != nil {
 		return 0, fmt.Errorf("%w: %s", ErrCSVInvalidDrawDigit, err.Error())
@@ -132,137 +129,12 @@ func parseDrawNum(value string, maxval int) (uint8, error) {
 	return uint8(result), nil
 }
 
-func parseDrawSeq(value string) (uint64, error) {
+func ParseDrawSeq(value string) (uint64, error) {
 	result, err := strconv.Atoi(value)
 	if err != nil {
 		return 0, fmt.Errorf("%w: %s", ErrCSVInvalidDrawSeq, err.Error())
 	}
 	return uint64(result), nil
-}
-
-type EuroChan struct {
-	Draw euro.Draw
-	Err  error
-}
-
-func EuroCSV(ctx context.Context, r io.Reader) <-chan EuroChan {
-	c := make(chan EuroChan)
-	go func() {
-		cr := csv.NewReader(r)
-		cr.Read() // remove titles
-		ln := 1
-		defer close(c)
-
-	loop:
-		for {
-			select {
-			case <-ctx.Done():
-				break loop
-			default:
-				ln++
-				rec, err := cr.Read()
-				if errors.Is(err, io.EOF) {
-					break loop
-				}
-				if err != nil {
-					c <- EuroChan{
-						Draw: euro.Draw{},
-						Err:  err,
-					}
-					continue loop
-				}
-				drawDate, err := parseDateTime(rec[0])
-				if err != nil {
-					c <- EuroChan{
-						Draw: euro.Draw{},
-						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
-					}
-					continue loop
-				}
-				b1, err := parseDrawNum(rec[1], 50)
-				if err != nil {
-					c <- EuroChan{
-						Draw: euro.Draw{},
-						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
-					}
-					continue loop
-				}
-				b2, err := parseDrawNum(rec[2], 50)
-				if err != nil {
-					c <- EuroChan{
-						Draw: euro.Draw{},
-						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
-					}
-					continue loop
-				}
-				b3, err := parseDrawNum(rec[3], 50)
-				if err != nil {
-					c <- EuroChan{
-						Draw: euro.Draw{},
-						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
-					}
-					continue loop
-				}
-				b4, err := parseDrawNum(rec[4], 50)
-				if err != nil {
-					c <- EuroChan{
-						Draw: euro.Draw{},
-						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
-					}
-					continue loop
-				}
-				b5, err := parseDrawNum(rec[5], 50)
-				if err != nil {
-					c <- EuroChan{
-						Draw: euro.Draw{},
-						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
-					}
-					continue loop
-				}
-				ls1, err := parseDrawNum(rec[6], 12)
-				if err != nil {
-					c <- EuroChan{
-						Draw: euro.Draw{},
-						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
-					}
-					continue loop
-				}
-				ls2, err := parseDrawNum(rec[7], 12)
-				if err != nil {
-					c <- EuroChan{
-						Draw: euro.Draw{},
-						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
-					}
-					continue loop
-				}
-				dn, err := parseDrawSeq(rec[9])
-				if err != nil {
-					c <- EuroChan{
-						Draw: euro.Draw{},
-						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
-					}
-					continue loop
-				}
-				c <- EuroChan{
-					Draw: euro.Draw{
-						DrawDate:  drawDate,
-						DayOfWeek: drawDate.Weekday(),
-						Ball1:     uint8(b1),
-						Ball2:     uint8(b2),
-						Ball3:     uint8(b3),
-						Ball4:     uint8(b4),
-						Ball5:     uint8(b5),
-						LS1:       uint8(ls1),
-						LS2:       uint8(ls2),
-						UKMarker:  rec[8],
-						DrawNo:    dn,
-					},
-					Err: nil,
-				}
-			}
-		}
-	}()
-	return c
 }
 
 func DownloadFrom(url string) (io.Reader, error) {

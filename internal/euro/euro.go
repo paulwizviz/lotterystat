@@ -1,6 +1,10 @@
+// Package euro contains abstractions of the Euro Millions draw from UK National lottery and
+// all related data analytics.
 package euro
 
-import "time"
+import (
+	"time"
+)
 
 const (
 	CSVUrl = "https://www.national-lottery.co.uk/results/euromillions/draw-history/csv"
@@ -20,31 +24,3 @@ type Draw struct {
 	UKMarker  string       `json:"uk_marker"`
 	DrawNo    uint64       `json:"draw_no"`
 }
-
-var (
-	SQLiteCreateTblStr = `CREATE TABLE IF NOT EXISTS euro (
-		draw_date INTEGER, 
-		day_of_week INTEGER, 
-		ball1 INTEGER, 
-		ball2 INTEGER, 
-		ball3 INTEGER, 
-		ball4 INTEGER, 
-		ball5 INTEGER, 
-		ls1 INTEGER, 
-		ls2 INTEGER, 
-		uk_marker TEXT, 
-		draw_no INTEGER PRIMARY KEY)`
-	SQLiteInsertEuroStr = `INSERT INTO euro (
-		draw_date, 
-		day_of_week, 
-		ball1, 
-		ball2, 
-		ball3, 
-		ball4, 
-		ball5, 
-		ls1, 
-		ls2, 
-		uk_marker, 
-		draw_no) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )`
-	SQLiteListAllEuroStr = `SELECT * FROM euro`
-)

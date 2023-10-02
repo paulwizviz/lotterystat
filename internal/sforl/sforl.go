@@ -1,6 +1,9 @@
+// Package sforl represents data structures for Set For Life draw
 package sforl
 
-import "time"
+import (
+	"time"
+)
 
 // Draw represents a draw from Set for Life
 type Draw struct {
@@ -16,29 +19,3 @@ type Draw struct {
 	Machine   string       `json:"machine"`
 	DrawNo    uint64       `json:"draw_no"`
 }
-
-var (
-	SQLiteCreateTblStr = `CREATE TABLE IF NOT EXISTS set_for_life (
-		draw_date INTEGER, 
-		day_of_week INTEGER, 
-		ball1 INTEGER, 
-		ball3 INTEGER, 
-		ball4 INTEGER, 
-		ball5 INTEGER, 
-		lb INTEGER,  
-		ball_set TEXT,
-		machine TEXT,
-		draw_no INTEGER PRIMARY KEY)`
-	SQLiteInsertEuroStr = `INSERT INTO set_for_life (
-		draw_date, 
-		day_of_week, 
-		ball1,
-		ball2, 
-		ball3,
-		ball4,
-		ball5,
-		lb,
-		ball_set,
-		machine, 
-		draw_no) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )`
-)

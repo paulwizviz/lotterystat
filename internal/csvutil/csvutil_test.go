@@ -1,8 +1,6 @@
-package csvproc
+package csvutil
 
 import (
-	"bytes"
-	"context"
 	"errors"
 	"fmt"
 	"testing"
@@ -343,7 +341,7 @@ func TestParseDateTime(t *testing.T) {
 	}
 
 	for i, tc := range tcases {
-		actual, err := parseDateTime(tc.input)
+		actual, err := ParseDateTime(tc.input)
 		if assert.True(t, errors.Is(err, tc.expected.err), fmt.Sprintf("Case: %d Description: %s", i, tc.description)) {
 			assert.Equal(t, tc.expected.dt, actual, fmt.Sprintf("Case: %d Description: %s", i, tc.description))
 		}
@@ -351,19 +349,19 @@ func TestParseDateTime(t *testing.T) {
 }
 
 func Example_parseDrawNum() {
-	result, err := parseDrawNum("10", 10)
+	result, err := ParseDrawNum("10", 10)
 	fmt.Printf("Result: %v Error: %v\n", result, err)
 
-	result, err = parseDrawNum("1", 10)
+	result, err = ParseDrawNum("1", 10)
 	fmt.Printf("Result: %v Error: %v\n", result, err)
 
-	result, err = parseDrawNum("1a", 10)
+	result, err = ParseDrawNum("1a", 10)
 	fmt.Printf("Result: %v Error: %v\n", result, err)
 
-	result, err = parseDrawNum("0", 10)
+	result, err = ParseDrawNum("0", 10)
 	fmt.Printf("Result: %v Error: %v\n", result, err)
 
-	result, err = parseDrawNum("11", 10)
+	result, err = ParseDrawNum("11", 10)
 	fmt.Printf("Result: %v Error: %v\n", result, err)
 
 	// Output:
@@ -375,44 +373,13 @@ func Example_parseDrawNum() {
 }
 
 func Example_parseDrawSeq() {
-	num, err := parseDrawSeq("10000")
+	num, err := ParseDrawSeq("10000")
 	fmt.Println(num, err)
 
-	num, err = parseDrawSeq("1a")
+	num, err = ParseDrawSeq("1a")
 	fmt.Println(num, err)
 
 	// Output:
 	// 10000 <nil>
 	// 0 invalid draw seq: strconv.Atoi: parsing "1a": invalid syntax
-}
-
-func Example_processEuroCSV() {
-	input := []byte(`DrawDate,Ball 1,Ball 2,Ball 3,Ball 4,Ball 5,Lucky Star 1,Lucky Star 2,UK Millionaire Maker,European Millionaire Maker,DrawNumber
-04-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1621
-a-Apr-2023,10,16,31,33,50,3,8,"XCRG53171","",1622
-06-Apr-2023,b,18,28,34,47,5,10,"JBQS10867","",1623
-07-Apr-2023,18,28,34,47,5,10,"JBQS10867","",1624
-08-Apr-2023,16,18,28,34,47,5,10,"JBQS10867","",1625`)
-
-	ecd := EuroCSV(context.TODO(), bytes.NewReader(input))
-	for d := range ecd {
-		fmt.Println(d) // All draws will be displayed
-	}
-
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	cancel()
-	ecd = EuroCSV(ctx, bytes.NewReader(input))
-	// The following step will not be called
-	for d := range ecd {
-		fmt.Println(d)
-	}
-
-	// Output:
-	// {{2023-04-04 00:00:00 +0000 UTC Tuesday 10 16 31 33 50 3 8 XCRG53171  1621} <nil>}
-	// {{0001-01-01 00:00:00 +0000 UTC Sunday 0 0 0 0 0 0 0   0} record on line: 3: invalid day format: improper day format}
-	// {{0001-01-01 00:00:00 +0000 UTC Sunday 0 0 0 0 0 0 0   0} record on line: 4: invalid draw digit: strconv.Atoi: parsing "b": invalid syntax}
-	// {{0001-01-01 00:00:00 +0000 UTC Sunday 0 0 0 0 0 0 0   0} record on line 5: wrong number of fields}
-	// {{2023-04-08 00:00:00 +0000 UTC Saturday 16 18 28 34 47 5 10 JBQS10867  1625} <nil>}
-
 }

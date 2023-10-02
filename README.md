@@ -21,9 +21,7 @@ The common functionalities expected from `Ebenezer` and `Richie` are features to
 
 ## Architecture
 
-The project is organised based on the hexagonal architecture principle.
-
-![Architecture Principle](./docs/img/hexagonal.png)
+The project is organised based on the hexagonal [architecture principle](./docs/img/hexagonal.png).
 
 The folders are layout as follows:
 

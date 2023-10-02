@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export OS_VER=ubuntu:18.04
+export OS_VER=ubuntu:20.04
 export USER_NAME=ebz
 export LINUXDT_IMAGE=paulwizviz/linuxdt:current
 

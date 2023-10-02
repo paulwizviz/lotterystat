@@ -65,7 +65,7 @@ func Initilalize() error {
 	cFile := d.ConfigFile()
 	_, err = os.Stat(cFile)
 	if errors.Is(err, os.ErrExist) {
-		err := initConfig(p)
+		err := initViper(p)
 		if err != nil {
 			return err
 		}
@@ -91,14 +91,14 @@ func Initilalize() error {
 	if err != nil {
 		return fmt.Errorf("%w-%s", ErrConfig, err.Error())
 	}
-	err = initConfig(p)
+	err = initViper(p)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func initConfig(p string) error {
+func initViper(p string) error {
 	viper.AddConfigPath(p)
 	viper.SetConfigType(Type)
 	viper.SetConfigName(Name)

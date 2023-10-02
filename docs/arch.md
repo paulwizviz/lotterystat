@@ -15,7 +15,7 @@ The business domain for this projects are draws from the games found in [UK Nati
 
 ## How is the business dmain packaged?
 
-One option is to package our data structures representing draws under the package name `draw`. Thus, the package could look something like `draw.Euro`, `draw.SetForLife`, etc. After due considerations, we felt that as we add more data structure to the `draw` packages such as representing in process data structure, the package would become extremely unweldy.
+One option is to package our data structures representing draws under one package name `draw`. Thus, the package could look something like `draw.Euro`, `draw.SetForLife`, etc. After due considerations, we felt that as we add more data structure to the `draw` packages such as representing in process data structure, the package would become extremely unweldy.
 
 We have instead opted to package around different types of draws like `euro.Draw`, `sforl.Draw` (Set for Life), etc. This allows for expansion of package content without being unweldy even if there is potential where some packages might enventually end up having small content. Thus avoiding unnecessarily painful refactoring down the line.
 
