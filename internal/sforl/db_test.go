@@ -56,7 +56,7 @@ func TestInsertDraw(t *testing.T) {
 		t.Fatalf("Unable to create table: %v", err)
 	}
 
-	stmt, err := PrepareInsertDrawStmt(context.TODO(), db)
+	stmt, err := prepareInsertDrawStmt(context.TODO(), db)
 	if errors.Is(err, dbutil.ErrDBPrepareStmt) {
 		t.Errorf("Prepare insert statement: %v ", err)
 	}
@@ -76,8 +76,16 @@ func TestInsertDraw(t *testing.T) {
 		Machine:   "machine",
 		DrawNo:    1234,
 	}
-	_, err = InsertDraw(context.TODO(), stmt, d)
+	_, err = insertDraw(context.TODO(), stmt, d)
 	if errors.Is(err, dbutil.ErrDBInsertTbl) {
 		t.Errorf("Insert draw. %v", err)
+	}
+
+	draws, err := ListAll(context.TODO(), db)
+	if errors.Is(err, dbutil.ErrDBQueryTbl) {
+		t.Errorf("Query table. %v", err)
+	}
+	if len(draws) != 1 {
+		t.Errorf("Expected: 1 Actual: %v", len(draws))
 	}
 }

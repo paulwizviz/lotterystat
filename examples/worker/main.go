@@ -3,8 +3,6 @@ package main
 import (
 	"context"
 	"database/sql"
-	"flag"
-	"fmt"
 	"log"
 	"os"
 	"path"
@@ -27,8 +25,6 @@ func IntializeDB(ctx context.Context, db *sql.DB) {
 }
 
 func main() {
-	ops := flag.String("ops", "", "db operations")
-	flag.Parse()
 	pwd, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
@@ -47,15 +43,12 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.Close()
+
 	ctx := context.TODO()
-	if *ops == "initialize" {
-		fmt.Println("Initializing DB ....")
-		IntializeDB(ctx, db)
-	} else if *ops == "populate" {
-		fmt.Println("Populating DB ....")
-	} else if *ops == "list" {
-		fmt.Println("List all .....")
-	} else {
-		fmt.Println("No actions")
-	}
+
+	IntializeDB(ctx, db)
+
+	euro.PersistsCSV(ctx, db, 3)
+	sforl.PersistsCSV(ctx, db, 3)
+
 }

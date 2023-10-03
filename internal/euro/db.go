@@ -37,7 +37,26 @@ func CreateTable(ctx context.Context, db *sql.DB) error {
 	return nil
 }
 
-func PrepareInsertDrawStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
+func ListAllDraw(ctx context.Context, db *sql.DB) ([]Draw, error) {
+	var draws []Draw
+	row, err := db.QueryContext(ctx, selectAllStmtStr)
+	if err != nil {
+		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBQueryTbl, err.Error())
+	}
+	for row.Next() {
+		d := Draw{}
+		var drawDate int
+		err := row.Scan(&drawDate, &d.DayOfWeek, &d.Ball1, &d.Ball2, &d.Ball3, &d.Ball4, &d.Ball5, &d.LS1, &d.LS2, &d.UKMarker, &d.DrawNo)
+		if err != nil {
+			return nil, fmt.Errorf("%w-%s", dbutil.ErrDBQueryTbl, err.Error())
+		}
+		d.DrawDate = time.Unix(int64(drawDate), 0)
+		draws = append(draws, d)
+	}
+	return draws, nil
+}
+
+func prepareInsertDrawStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
 	stmt, err := db.PrepareContext(ctx, insertDrawStmtStr)
 	if err != nil {
 		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBPrepareStmt, err.Error())
@@ -45,28 +64,10 @@ func PrepareInsertDrawStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
 	return stmt, nil
 }
 
-func InsertDraw(ctx context.Context, stmt *sql.Stmt, d Draw) (sql.Result, error) {
+func insertDraw(ctx context.Context, stmt *sql.Stmt, d Draw) (sql.Result, error) {
 	result, err := stmt.ExecContext(ctx, d.DrawDate.Unix(), d.DayOfWeek, d.Ball1, d.Ball2, d.Ball3, d.Ball4, d.Ball5, d.LS1, d.LS2, d.UKMarker, d.DrawNo)
 	if err != nil {
 		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBInsertTbl, err.Error())
 	}
 	return result, nil
-}
-
-func ListAll(ctx context.Context, db *sql.DB) ([]Draw, error) {
-	var draws []Draw
-	row, err := db.QueryContext(ctx, selectAllStmtStr)
-	if err != nil {
-		return nil, err
-	}
-	for row.Next() {
-		d := Draw{}
-		var drawDate int
-		err := row.Scan(&drawDate, &d.DayOfWeek, &d.Ball1, &d.Ball2, &d.Ball3, &d.Ball4, &d.Ball5, &d.LS1, &d.LS2, &d.UKMarker, &d.DrawNo)
-		if err == nil {
-			d.DrawDate = time.Unix(int64(drawDate), 0)
-			draws = append(draws, d)
-		}
-	}
-	return draws, nil
 }

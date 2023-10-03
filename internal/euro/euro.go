@@ -3,6 +3,11 @@
 package euro
 
 import (
+	"context"
+	"database/sql"
+	"log"
+	"paulwizviz/lotterystat/internal/csvutil"
+	"sync"
 	"time"
 )
 
@@ -23,4 +28,39 @@ type Draw struct {
 	LS2       uint8        `json:"ls2"`
 	UKMarker  string       `json:"uk_marker"`
 	DrawNo    uint64       `json:"draw_no"`
+}
+
+func PersistsCSV(ctx context.Context, db *sql.DB, nworkers int) error {
+	r, err := csvutil.DownloadFrom(CSVUrl)
+	if err != nil {
+		return err
+	}
+	ch := ProcessCSV(ctx, r)
+	var wg sync.WaitGroup
+	wg.Add(nworkers)
+	for i := 0; i < nworkers; i++ {
+		go func() {
+			err := persistsDrawChan(ctx, db, ch)
+			if err != nil {
+				log.Println(err)
+			}
+			wg.Done()
+		}()
+	}
+	wg.Wait()
+	return nil
+}
+
+func persistsDrawChan(ctx context.Context, db *sql.DB, dc <-chan DrawChan) error {
+	for c := range dc {
+		stmt, err := prepareInsertDrawStmt(ctx, db)
+		if err != nil {
+			return err
+		}
+		_, err = insertDraw(ctx, stmt, c.Draw)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
