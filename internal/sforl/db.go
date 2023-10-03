@@ -38,11 +38,15 @@ func CreateTable(ctx context.Context, db *sql.DB) error {
 }
 
 func PrepareInsertDrawStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
-	return db.PrepareContext(ctx, insertDrawStmtStr)
+	stmt, err := db.PrepareContext(ctx, insertDrawStmtStr)
+	if err != nil {
+		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBPrepareStmt, err.Error())
+	}
+	return stmt, nil
 }
 
 func InsertDraw(ctx context.Context, stmt *sql.Stmt, d Draw) (sql.Result, error) {
-	result, err := stmt.ExecContext(ctx, d.DrawDate.Unix(), d.DayOfWeek, d.Ball1, d.Ball2, d.Ball3, d.Ball4, d.Ball5, d.LifeBall, d.Machine, d.DrawNo)
+	result, err := stmt.ExecContext(ctx, d.DrawDate.Unix(), d.DayOfWeek, d.Ball1, d.Ball2, d.Ball3, d.Ball4, d.Ball5, d.LifeBall, d.BallSet, d.Machine, d.DrawNo)
 	if err != nil {
 		return nil, err
 	}

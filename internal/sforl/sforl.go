@@ -2,6 +2,10 @@
 package sforl
 
 import (
+	"context"
+	"database/sql"
+	"log"
+	"paulwizviz/lotterystat/internal/csvutil"
 	"time"
 )
 
@@ -22,4 +26,23 @@ type Draw struct {
 	BallSet   string       `json:"ball_set"`
 	Machine   string       `json:"machine"`
 	DrawNo    uint64       `json:"draw_no"`
+}
+
+func PersistenceWorker(ctx context.Context, db *sql.DB) {
+	stmt, err := PrepareInsertDrawStmt(ctx, db)
+	if err != nil {
+		log.Println(err)
+	}
+	r, err := csvutil.DownloadFrom(CSVUrl)
+	if err != nil {
+		log.Println(err)
+	}
+	ch := ProcessCSV(ctx, r)
+	for c := range ch {
+		log.Println(c.Draw)
+		_, err := InsertDraw(ctx, stmt, c.Draw)
+		if err != nil {
+			log.Println(err)
+		}
+	}
 }
