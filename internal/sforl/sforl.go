@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+const (
+	CSVUrl = "https://www.national-lottery.co.uk/results/set-for-life/draw-history/csv"
+)
+
 // Draw represents a draw from Set for Life
 type Draw struct {
 	DrawDate  time.Time    `json:"draw_date"`
