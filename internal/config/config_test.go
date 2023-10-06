@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPath(t *testing.T) {
-	actual, err := Location()
+func TestLocation(t *testing.T) {
+	actual, err := location()
 	if err != nil {
 		t.Fatal("error not expected")
 	}

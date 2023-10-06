@@ -8,7 +8,6 @@ import (
 	"os"
 	"path"
 	"runtime"
-	"time"
 
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
@@ -24,45 +23,40 @@ var (
 )
 
 const (
-	Type           = "yaml"
-	Name           = "setting"
-	MaxIdleTimeKey = "max_idle_time"
-	MaxLifeTimeKey = "max_life_time"
-	MaxIdleConnKey = "max_idle_conn"
-	MaxOpenConnKey = "max_open_comn"
-	DBConnKey      = "db_conn"
-	DBConnVal      = "sqlite.db"
+	configType = "yaml"
+	configName = "setting"
+	dbName     = "data.db"
 )
 
+func Path() string {
+	return viper.GetString("path")
+}
+
+func Name() string {
+	return viper.GetString("name")
+}
+
+func DBConn() string {
+	return viper.GetString("db_conn")
+}
+
 type Detail struct {
-	Path        string        `yaml:"path"`
-	Name        string        `yaml:"name"`
-	DBConn      string        `yaml:"db_conn"`
-	MaxIdleTime time.Duration `yaml:"max_idle_time"`
-	MaxLifeTime time.Duration `yaml:"max_life_time"`
-	MaxIdleConn int           `yaml:"max_idle_conn"`
-	MaxOpenConn int           `yaml:"max_open_comn"`
-}
-
-func (d Detail) DBConnVal() string {
-	return path.Join(d.Path, DBConnVal)
-}
-
-func (d Detail) ConfigFile() string {
-	return path.Join(d.Path, fmt.Sprintf("%s.%s", d.Name, Type))
+	Path   string `yaml:"path"`
+	Name   string `yaml:"name"`
+	DBConn string `yaml:"db_conn"`
 }
 
 func Initilalize() error {
-	p, err := Location()
+	p, err := location()
 	if err != nil {
 		return fmt.Errorf("%w-%s", ErrConfig, err.Error())
 	}
 	d := Detail{
 		Path:   p,
-		Name:   Name,
-		DBConn: DBConnVal,
+		Name:   configName,
+		DBConn: fmt.Sprintf("file:%s%s?cache=shared&mode=memory", p, dbName),
 	}
-	cFile := d.ConfigFile()
+	cFile := path.Join(p, fmt.Sprintf("%s.%s", d.Name, configType))
 	_, err = os.Stat(cFile)
 	if errors.Is(err, os.ErrExist) {
 		err := initViper(p)
@@ -82,7 +76,7 @@ func Initilalize() error {
 	if err != nil {
 		return fmt.Errorf("%w-%s", ErrConfig, err.Error())
 	}
-	f, err := os.Create(d.ConfigFile())
+	f, err := os.Create(cFile)
 	if err != nil {
 		return fmt.Errorf("%w-%s", ErrConfig, err.Error())
 	}
@@ -100,19 +94,18 @@ func Initilalize() error {
 
 func initViper(p string) error {
 	viper.AddConfigPath(p)
-	viper.SetConfigType(Type)
-	viper.SetConfigName(Name)
-
+	viper.SetConfigType(configType)
+	viper.SetConfigName(configName)
 	err := viper.ReadInConfig()
 	if err != nil {
 		return fmt.Errorf("%w-%s", ErrConfig, err.Error())
 	}
-	log.Println("Using config file:", viper.ConfigFileUsed())
+	log.Printf("%s used", viper.ConfigFileUsed())
 	return nil
 }
 
-// Location returns $HOME/.bz or %APPDATA%/ebz
-func Location() (string, error) {
+// location returns $HOME/.bz or %APPDATA%/ebz
+func location() (string, error) {
 	var dir string
 	switch runtime.GOOS {
 	case "windows":

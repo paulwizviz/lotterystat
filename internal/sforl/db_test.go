@@ -36,6 +36,11 @@ func TestStmtStr(t *testing.T) {
 			expected:    "SELECT * FROM set_for_life",
 			description: "selectAllDrawStmtStr",
 		},
+		{
+			actual:      selectMatchDrawStr,
+			expected:    "SELECT draw_date, day_of_week, ball1, ball2, ball3, ball4, ball5, lb, ball_set, machine, draw_no FROM set_for_life WHERE ball1=? OR ball2=? OR ball3=? OR ball4=? OR ball5=? OR lb=?",
+			description: "selectMatchDrawStr",
+		},
 	}
 	for i, tc := range testcases {
 		if tc.actual != tc.expected {
@@ -81,7 +86,7 @@ func TestInsertDraw(t *testing.T) {
 		t.Errorf("Insert draw. %v", err)
 	}
 
-	draws, err := ListAll(context.TODO(), db)
+	draws, err := listAll(context.TODO(), db)
 	if errors.Is(err, dbutil.ErrDBQueryTbl) {
 		t.Errorf("Query table. %v", err)
 	}

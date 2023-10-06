@@ -29,35 +29,28 @@ type Draw struct {
 	DrawNo    uint64       `json:"draw_no"`
 }
 
+var (
+	CreateTable func(ctx context.Context, db *sql.DB) error                                                                                      = createTable
+	MatchDraw   func(ctx context.Context, db *sql.DB, ball1 uint, ball2 uint, ball3 uint, ball4 uint, ball5 uint, lifeball uint) ([]Draw, error) = matchDraw
+)
+
 func PersistsCSV(ctx context.Context, db *sql.DB, nworkers int) error {
 	r, err := csvutil.DownloadFrom(CSVUrl)
 	if err != nil {
 		return err
 	}
-	ch := ProcessCSV(ctx, r)
+	ch := processCSV(ctx, r)
 	var wg sync.WaitGroup
 	wg.Add(nworkers)
 	for i := 0; i < nworkers; i++ {
 		go func() {
 			err := persistsDrawChan(ctx, db, ch)
-			log.Println(err)
+			if err != nil {
+				log.Println(err)
+			}
 			wg.Done()
 		}()
 	}
 	wg.Wait()
-	return nil
-}
-
-func persistsDrawChan(ctx context.Context, db *sql.DB, dc <-chan DrawChan) error {
-	for c := range dc {
-		stmt, err := prepareInsertDrawStmt(ctx, db)
-		if err != nil {
-			return err
-		}
-		_, err = insertDraw(ctx, stmt, c.Draw)
-		if err != nil {
-			return err
-		}
-	}
 	return nil
 }

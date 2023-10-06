@@ -9,13 +9,13 @@ import (
 	"paulwizviz/lotterystat/internal/csvutil"
 )
 
-type DrawChan struct {
+type drawChan struct {
 	Draw Draw
 	Err  error
 }
 
-func ProcessCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
-	c := make(chan DrawChan)
+func processCSV(ctx context.Context, r io.Reader) <-chan drawChan {
+	c := make(chan drawChan)
 	go func() {
 		cr := csv.NewReader(r)
 		cr.Read() // remove titles
@@ -34,7 +34,7 @@ func ProcessCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 					break loop
 				}
 				if err != nil {
-					c <- DrawChan{
+					c <- drawChan{
 						Draw: Draw{},
 						Err:  err,
 					}
@@ -42,7 +42,7 @@ func ProcessCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 				}
 				drawDate, err := csvutil.ParseDateTime(rec[0])
 				if err != nil {
-					c <- DrawChan{
+					c <- drawChan{
 						Draw: Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
@@ -50,7 +50,7 @@ func ProcessCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 				}
 				b1, err := csvutil.ParseDrawNum(rec[1], 50)
 				if err != nil {
-					c <- DrawChan{
+					c <- drawChan{
 						Draw: Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
@@ -58,7 +58,7 @@ func ProcessCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 				}
 				b2, err := csvutil.ParseDrawNum(rec[2], 50)
 				if err != nil {
-					c <- DrawChan{
+					c <- drawChan{
 						Draw: Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
@@ -66,7 +66,7 @@ func ProcessCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 				}
 				b3, err := csvutil.ParseDrawNum(rec[3], 50)
 				if err != nil {
-					c <- DrawChan{
+					c <- drawChan{
 						Draw: Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
@@ -74,7 +74,7 @@ func ProcessCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 				}
 				b4, err := csvutil.ParseDrawNum(rec[4], 50)
 				if err != nil {
-					c <- DrawChan{
+					c <- drawChan{
 						Draw: Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
@@ -82,7 +82,7 @@ func ProcessCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 				}
 				b5, err := csvutil.ParseDrawNum(rec[5], 50)
 				if err != nil {
-					c <- DrawChan{
+					c <- drawChan{
 						Draw: Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
@@ -90,7 +90,7 @@ func ProcessCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 				}
 				ls1, err := csvutil.ParseDrawNum(rec[6], 12)
 				if err != nil {
-					c <- DrawChan{
+					c <- drawChan{
 						Draw: Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
@@ -98,7 +98,7 @@ func ProcessCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 				}
 				ls2, err := csvutil.ParseDrawNum(rec[7], 12)
 				if err != nil {
-					c <- DrawChan{
+					c <- drawChan{
 						Draw: Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
@@ -106,13 +106,13 @@ func ProcessCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 				}
 				dn, err := csvutil.ParseDrawSeq(rec[9])
 				if err != nil {
-					c <- DrawChan{
+					c <- drawChan{
 						Draw: Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
 					continue loop
 				}
-				c <- DrawChan{
+				c <- drawChan{
 					Draw: Draw{
 						DrawDate:  drawDate,
 						DayOfWeek: drawDate.Weekday(),

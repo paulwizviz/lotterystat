@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export GO_VER=golang:1.20.3
+export GO_VER=golang:1.21-bullseye
 export APP_NAME=ebz
 
 export EBZ_BUILD_IMAGE=lotterystat/ebz:current
@@ -9,8 +9,9 @@ export EBZ_BUILD_CONTAINER=ebz_container
 COMMAND=$1
 
 function build(){
-    docker-compose -f ./build/ebenezer/builder.yml build
-    docker-compose -f ./build/ebenezer/builder.yml up
+    # docker-compose -f ./build/ebenezer/builder.yml build
+    # docker-compose -f ./build/ebenezer/builder.yml up
+    env GOOS=darwin GOARCH=amd64 go build -o ./build/ebenezer/package/macOS/ebz ./cmd/ebenezer/prod
 }
 
 function clean(){

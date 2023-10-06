@@ -13,7 +13,7 @@ func Example_processEuroCSV() {
 12-Jan-2023,23,30,31,25,24,9,SFL3,Excalibur 5,400
 `)
 
-	ecd := ProcessCSV(context.TODO(), bytes.NewReader(input))
+	ecd := processCSV(context.TODO(), bytes.NewReader(input))
 	for d := range ecd {
 		fmt.Println(d) // All draws will be displayed
 	}
@@ -21,7 +21,7 @@ func Example_processEuroCSV() {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	cancel()
-	ecd = ProcessCSV(ctx, bytes.NewReader(input))
+	ecd = processCSV(ctx, bytes.NewReader(input))
 	// The following step will not be called
 	for d := range ecd {
 		fmt.Println(d)
