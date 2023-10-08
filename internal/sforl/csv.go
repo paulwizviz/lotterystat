@@ -2,20 +2,18 @@ package sforl
 
 import (
 	"context"
+	"database/sql"
 	"encoding/csv"
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"paulwizviz/lotterystat/internal/csvutil"
+	"sync"
 )
 
-type drawChan struct {
-	Draw Draw
-	Err  error
-}
-
-func processCSV(ctx context.Context, r io.Reader) <-chan drawChan {
-	c := make(chan drawChan)
+func processCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
+	c := make(chan DrawChan)
 	go func() {
 		cr := csv.NewReader(r)
 		cr.Read() // remove titles
@@ -34,7 +32,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan drawChan {
 					break loop
 				}
 				if err != nil {
-					c <- drawChan{
+					c <- DrawChan{
 						Draw: Draw{},
 						Err:  err,
 					}
@@ -42,7 +40,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan drawChan {
 				}
 				drawDate, err := csvutil.ParseDateTime(rec[0])
 				if err != nil {
-					c <- drawChan{
+					c <- DrawChan{
 						Draw: Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
@@ -50,7 +48,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan drawChan {
 				}
 				b1, err := csvutil.ParseDrawNum(rec[1], 50)
 				if err != nil {
-					c <- drawChan{
+					c <- DrawChan{
 						Draw: Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
@@ -58,7 +56,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan drawChan {
 				}
 				b2, err := csvutil.ParseDrawNum(rec[2], 50)
 				if err != nil {
-					c <- drawChan{
+					c <- DrawChan{
 						Draw: Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
@@ -66,7 +64,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan drawChan {
 				}
 				b3, err := csvutil.ParseDrawNum(rec[3], 50)
 				if err != nil {
-					c <- drawChan{
+					c <- DrawChan{
 						Draw: Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
@@ -74,7 +72,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan drawChan {
 				}
 				b4, err := csvutil.ParseDrawNum(rec[4], 50)
 				if err != nil {
-					c <- drawChan{
+					c <- DrawChan{
 						Draw: Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
@@ -82,7 +80,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan drawChan {
 				}
 				b5, err := csvutil.ParseDrawNum(rec[5], 50)
 				if err != nil {
-					c <- drawChan{
+					c <- DrawChan{
 						Draw: Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
@@ -90,7 +88,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan drawChan {
 				}
 				lb, err := csvutil.ParseDrawNum(rec[6], 12)
 				if err != nil {
-					c <- drawChan{
+					c <- DrawChan{
 						Draw: Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
@@ -98,13 +96,13 @@ func processCSV(ctx context.Context, r io.Reader) <-chan drawChan {
 				}
 				dn, err := csvutil.ParseDrawSeq(rec[9])
 				if err != nil {
-					c <- drawChan{
+					c <- DrawChan{
 						Draw: Draw{},
 						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
 					}
 					continue loop
 				}
-				c <- drawChan{
+				c <- DrawChan{
 					Draw: Draw{
 						DrawDate:  drawDate,
 						DayOfWeek: drawDate.Weekday(),
@@ -124,4 +122,27 @@ func processCSV(ctx context.Context, r io.Reader) <-chan drawChan {
 		}
 	}()
 	return c
+}
+
+func persistsCSV(ctx context.Context, db *sql.DB, nworkers int) error {
+	r, err := csvutil.DownloadFrom(CSVUrl)
+	if err != nil {
+		return err
+	}
+	ch := processCSV(ctx, r)
+	var wg sync.WaitGroup
+	wg.Add(nworkers)
+	for i := 0; i < nworkers; i++ {
+		i := i
+		go func() {
+			log.Printf("sforl worker: %d", i)
+			err := persistsDrawChan(ctx, db, ch)
+			if err != nil {
+				log.Println(err)
+			}
+			wg.Done()
+		}()
+	}
+	wg.Wait()
+	return nil
 }

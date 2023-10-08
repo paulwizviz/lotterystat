@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"paulwizviz/lotterystat/internal/dbutil"
 	"time"
 )
@@ -39,19 +38,17 @@ func createTable(ctx context.Context, db *sql.DB) error {
 	return nil
 }
 
-func persistsDrawChan(ctx context.Context, db *sql.DB, dc <-chan drawChan) error {
+func persistsDrawChan(ctx context.Context, db *sql.DB, dc <-chan DrawChan) error {
 	stmt, err := prepareInsertDrawStmt(ctx, db)
 	if err != nil {
 		return err
 	}
 	for c := range dc {
 		if c.Err != nil {
-			log.Println(c.Err)
 			continue
 		}
 		_, err = insertDraw(ctx, stmt, c.Draw)
 		if err != nil {
-			log.Println(err)
 			continue
 		}
 	}
@@ -93,16 +90,57 @@ func insertDraw(ctx context.Context, stmt *sql.Stmt, d Draw) (sql.Result, error)
 	return result, nil
 }
 
-func matchDraw(ctx context.Context, db *sql.DB, ball1 uint, ball2 uint, ball3 uint, ball4 uint, ball5 uint, lifeball uint) ([]Draw, error) {
+func matchBets(ctx context.Context, db *sql.DB, bets []Bet) ([]MatchedDraw, error) {
+	stmt, err := prepareMatchDrawStmt(ctx, db)
+	if err != nil {
+		return nil, err
+	}
+	var mds []MatchedDraw
+	for _, b := range bets {
+		b := b
+		draws, err := matchDraw(ctx, stmt, b.Ball1, b.Ball2, b.Ball3, b.Ball4, b.Ball5, b.LifeBall)
+		if err == nil {
+			for _, d := range draws {
+				d := d
+				md := MatchedDraw{
+					Bet:  b,
+					Draw: d,
+				}
+				if d.Ball1 == b.Ball1 {
+					md.Balls = append(md.Balls, d.Ball1)
+				}
+				if d.Ball2 == b.Ball2 {
+					md.Balls = append(md.Balls, d.Ball2)
+				}
+				if d.Ball3 == b.Ball3 {
+					md.Balls = append(md.Balls, d.Ball3)
+				}
+				if d.Ball4 == b.Ball4 {
+					md.Balls = append(md.Balls, d.Ball4)
+				}
+				if d.Ball5 == b.Ball5 {
+					md.Balls = append(md.Balls, d.Ball5)
+				}
+				if d.LifeBall == b.LifeBall {
+					md.LifeBall = d.LifeBall
+				}
+				mds = append(mds, md)
+			}
+		}
+	}
+	return mds, nil
+}
+
+func matchDraw(ctx context.Context, stmt *sql.Stmt, ball1 uint8, ball2 uint8, ball3 uint8, ball4 uint8, ball5 uint8, lifeball uint8) ([]Draw, error) {
 	var draws []Draw
-	row, err := db.QueryContext(ctx, selectMatchDrawStr, ball1, ball2, ball3, ball4, ball5, lifeball)
+	row, err := stmt.QueryContext(ctx, ball1, ball2, ball3, ball4, ball5, lifeball)
 	if err != nil {
 		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBQueryTbl, err.Error())
 	}
 	for row.Next() {
 		d := Draw{}
 		var drawDate int
-		err := row.Scan(&drawDate, &d.DayOfWeek, &d.Ball1, &d.Ball2, &d.Ball3, &d.Ball4, &d.Ball5, &d.BallSet, &d.Machine, &d.DrawNo)
+		err := row.Scan(&drawDate, &d.DayOfWeek, &d.Ball1, &d.Ball2, &d.Ball3, &d.Ball4, &d.Ball5, &d.LifeBall, &d.BallSet, &d.Machine, &d.DrawNo)
 		if err != nil {
 			return nil, fmt.Errorf("%w-%s", dbutil.ErrDBQueryTbl, err.Error())
 		}
@@ -110,4 +148,12 @@ func matchDraw(ctx context.Context, db *sql.DB, ball1 uint, ball2 uint, ball3 ui
 		draws = append(draws, d)
 	}
 	return draws, nil
+}
+
+func prepareMatchDrawStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
+	stmt, err := db.PrepareContext(ctx, selectMatchDrawStr)
+	if err != nil {
+		return nil, err
+	}
+	return stmt, nil
 }

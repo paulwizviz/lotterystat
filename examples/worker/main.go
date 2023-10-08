@@ -9,6 +9,7 @@ import (
 	"paulwizviz/lotterystat/internal/dbutil"
 	"paulwizviz/lotterystat/internal/euro"
 	"paulwizviz/lotterystat/internal/sforl"
+	"paulwizviz/lotterystat/internal/worker"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -48,7 +49,9 @@ func main() {
 
 	IntializeDB(ctx, db)
 
-	euro.PersistsCSV(ctx, db, 3)
-	sforl.PersistsCSV(ctx, db, 3)
+	err = worker.PersistsDraw(ctx, db)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 }

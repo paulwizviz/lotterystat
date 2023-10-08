@@ -4,9 +4,6 @@ package sforl
 import (
 	"context"
 	"database/sql"
-	"log"
-	"paulwizviz/lotterystat/internal/csvutil"
-	"sync"
 	"time"
 )
 
@@ -29,28 +26,35 @@ type Draw struct {
 	DrawNo    uint64       `json:"draw_no"`
 }
 
-var (
-	CreateTable func(ctx context.Context, db *sql.DB) error                                                                                      = createTable
-	MatchDraw   func(ctx context.Context, db *sql.DB, ball1 uint, ball2 uint, ball3 uint, ball4 uint, ball5 uint, lifeball uint) ([]Draw, error) = matchDraw
-)
+type Bet struct {
+	Ball1    uint8 `json:"ball1"`
+	Ball2    uint8 `json:"ball2"`
+	Ball3    uint8 `json:"ball3"`
+	Ball4    uint8 `json:"ball4"`
+	Ball5    uint8 `json:"ball5"`
+	LifeBall uint8 `json:"life_ball"`
+}
+
+type MatchedDraw struct {
+	Bet      Bet     `json:"bet"`
+	Draw     Draw    `json:"draw"`
+	Balls    []uint8 `json:"balls"`
+	LifeBall uint8   `json:"life_ball"`
+}
+
+type DrawChan struct {
+	Draw Draw
+	Err  error
+}
+
+func CreateTable(ctx context.Context, db *sql.DB) error {
+	return createTable(ctx, db)
+}
+
+func MatchBets(ctx context.Context, db *sql.DB, bets []Bet) ([]MatchedDraw, error) {
+	return matchBets(ctx, db, bets)
+}
 
 func PersistsCSV(ctx context.Context, db *sql.DB, nworkers int) error {
-	r, err := csvutil.DownloadFrom(CSVUrl)
-	if err != nil {
-		return err
-	}
-	ch := processCSV(ctx, r)
-	var wg sync.WaitGroup
-	wg.Add(nworkers)
-	for i := 0; i < nworkers; i++ {
-		go func() {
-			err := persistsDrawChan(ctx, db, ch)
-			if err != nil {
-				log.Println(err)
-			}
-			wg.Done()
-		}()
-	}
-	wg.Wait()
-	return nil
+	return persistsCSV(ctx, db, nworkers)
 }
