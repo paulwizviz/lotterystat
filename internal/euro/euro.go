@@ -5,6 +5,11 @@ package euro
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"regexp"
+	"sort"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -59,4 +64,66 @@ func MatchBets(ctx context.Context, db *sql.DB, bets []Bet) ([]MatchedDraw, erro
 
 func PersistsCSV(ctx context.Context, db *sql.DB, nworkers int) error {
 	return persistsCSV(ctx, db, nworkers)
+}
+
+func IsValidBet(arg string) bool {
+	pattern := `^\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b,\b([1-9]|1[0-2])\b,\b([1-9]|1[0-2])\b*$`
+	matched, err := regexp.MatchString(pattern, arg)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return matched
+}
+
+func ProcessBetArg(arg string) (Bet, error) {
+	elems := strings.Split(arg, ",")
+	var bArray []uint8
+	b1, err := strconv.ParseInt(elems[0], 0, 0)
+	if err != nil {
+		return Bet{}, err
+	}
+	b2, err := strconv.ParseInt(elems[1], 0, 0)
+	if err != nil {
+		return Bet{}, err
+	}
+	b3, err := strconv.ParseInt(elems[2], 0, 0)
+	if err != nil {
+		return Bet{}, err
+	}
+	b4, err := strconv.ParseInt(elems[3], 0, 0)
+	if err != nil {
+		return Bet{}, err
+	}
+	b5, err := strconv.ParseInt(elems[4], 0, 0)
+	if err != nil {
+		return Bet{}, err
+	}
+	bArray = append(bArray, uint8(b1), uint8(b2), uint8(b3), uint8(b4), uint8(b5))
+	sort.Slice(bArray, func(i, j int) bool {
+		return bArray[i] < bArray[j]
+	})
+
+	var lsArray []uint8
+	ls1, err := strconv.ParseInt(elems[5], 0, 0)
+	if err != nil {
+		return Bet{}, err
+	}
+	ls2, err := strconv.ParseInt(elems[6], 0, 0)
+	if err != nil {
+		return Bet{}, err
+	}
+	lsArray = append(lsArray, uint8(ls1), uint8(ls2))
+	sort.Slice(lsArray, func(i, j int) bool {
+		return lsArray[i] < lsArray[j]
+	})
+	b := Bet{
+		Ball1: bArray[0],
+		Ball2: bArray[1],
+		Ball3: bArray[2],
+		Ball4: bArray[3],
+		Ball5: bArray[4],
+		LS1:   lsArray[0],
+		LS2:   lsArray[1],
+	}
+	return b, nil
 }

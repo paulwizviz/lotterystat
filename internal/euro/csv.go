@@ -143,12 +143,13 @@ func persistsCSV(ctx context.Context, db *sql.DB, nworkers int) error {
 	for i := 0; i < nworkers; i++ {
 		i := i
 		go func() {
+			defer wg.Done()
 			log.Printf("Persists Euro worker: %d", i)
 			err := persistsDrawChan(ctx, db, ch)
 			if err != nil {
 				log.Println(err)
 			}
-			wg.Done()
+
 		}()
 	}
 	wg.Wait()
