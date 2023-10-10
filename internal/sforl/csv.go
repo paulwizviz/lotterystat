@@ -133,10 +133,8 @@ func persistsCSV(ctx context.Context, db *sql.DB, nworkers int) error {
 	var wg sync.WaitGroup
 	wg.Add(nworkers)
 	for i := 0; i < nworkers; i++ {
-		i := i
 		go func() {
 			defer wg.Done()
-			log.Printf("persists sforl worker: %d", i)
 			err := persistsDrawChan(ctx, db, ch)
 			if err != nil {
 				log.Println(err)
