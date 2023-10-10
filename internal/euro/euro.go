@@ -5,7 +5,7 @@ package euro
 import (
 	"context"
 	"database/sql"
-	"fmt"
+	"log"
 	"regexp"
 	"sort"
 	"strconv"
@@ -67,10 +67,10 @@ func PersistsCSV(ctx context.Context, db *sql.DB, nworkers int) error {
 }
 
 func IsValidBet(arg string) bool {
-	pattern := `^\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b,\b([1-9]|1[0-2])\b,\b([1-9]|1[0-2])\b*$`
+	pattern := `^\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b,\b([1-9]|1[0-2])\b,\b([1-9]|1[0-2])\b$`
 	matched, err := regexp.MatchString(pattern, arg)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 	return matched
 }

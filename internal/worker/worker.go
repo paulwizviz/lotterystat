@@ -70,3 +70,25 @@ func ProcessEuroBetArg(ctx context.Context, arg string, db *sql.DB) error {
 
 	return nil
 }
+
+func ProcessSForLBetArg(ctx context.Context, arg string, db *sql.DB) error {
+
+	if !sforl.IsValidBet(arg) {
+		return fmt.Errorf("can't bet")
+	}
+	b, err := sforl.ProcessBetArg(arg)
+	if err != nil {
+		return fmt.Errorf("can't bet")
+	}
+	bets := []sforl.Bet{b}
+	mbs, err := sforl.MatchBets(ctx, db, bets)
+	if err != nil {
+		return err
+	}
+
+	for _, mb := range mbs {
+		fmt.Printf("Bet: %v Draw: %v Match Balls: %v Life ball: %v\n", mb.Bet, fmt.Sprintf("{%d,%d,%d,%d,%d,%d}", mb.Draw.Ball1, mb.Draw.Ball2, mb.Draw.Ball3, mb.Draw.Ball4, mb.Draw.Ball5, mb.Draw.LifeBall), mb.Balls, mb.LifeBall)
+	}
+
+	return nil
+}
