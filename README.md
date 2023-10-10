@@ -1,7 +1,7 @@
 ![build](https://github.com/paulwizviz/go-web/workflows/build/badge.svg)
 # Overview
 
-The purpose of this project is to demonstrate the development of a simple cli based application to enable a user perform simple statistical based in past draws using *Golang concurrency* and *SQL DB*. Note, the emphasis of this project to demonstrate software engineering principles.
+The purpose of this project is to demonstrate the development of an application to enable a user perform simple statistical based in past draws using *Golang concurrency* and *SQL DB*. Note, the emphasis of this project to demonstrate software engineering principles.
 
 It is worth noting whilst the application derived from this project has functionalities to perform statistical analysis, the intention is **not** to deliver something that can accurately predict lottery winnings. If the application generates or suggests a winning draw, it is purely coincidental. If you are expecting an application that accurately predicts lottery winnings, please refer to other projects.
 
@@ -18,6 +18,8 @@ Let's summarise needs of the personas:
 * `Richie` does not have the necessary technical knowlege to work with applications completely via CLIs. He has only work with applications via Graphical User Interface (UI). He intends to use the application from a mac.  
 
 The common functionalities expected from `Ebenezer` and `Richie` are features to: extract lottery draws in CSV from the UK National lottery website, store the downloaded draws in a persistent repository and perform statistical analysis of stored draws.
+
+Please refer to the section named [user case analysis](./docs/usecase.md) to learn more about how the project derive use cases (via Lean Startup methodology, Design Thinking) and Agile management.
 
 ## Architecture
 
@@ -36,9 +38,13 @@ Please refer to the section named [architecture](./docs/arch.md) for in-depth di
 
 ## DevOps
 
-The main packages are built using Dockers.
+Currently, the DevOps only support the creation of macOS based application (named `ebz`) for Ebenezer. To access `ebz` executable, you will need to build it yourself. The steps are:
 
-To support local testing of executable codes the project as provided an Ubuntu based containers to simulate a Linux environment.
+1. Git clone this project.
+1. At the root of the project, run the command: `./scripts/ebz.sh build`
+1. You will find the application in `./build/package/macOS/ebz`
+
+When the project is fully developed, all applications will be built via Docker, which you can inspect in these docker scripts under this folder `./build/`
 
 ## Disclaimer
 

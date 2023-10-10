@@ -13,11 +13,15 @@ The business domain for this projects are draws from the games found in [UK Nati
 * Euro millions.
 * Set for life.
 
-## How is the business dmain packaged?
+## How are internal Go codes packaged?
 
 One option is to package our data structures representing draws under one package name `draw`. Thus, the package could look something like `draw.Euro`, `draw.SetForLife`, etc. After due considerations, we felt that as we add more data structure to the `draw` packages such as representing in process data structure, the package would become extremely unweldy.
 
 We have instead opted to package around different types of draws like `euro.Draw`, `sforl.Draw` (Set for Life), etc. This allows for expansion of package content without being unweldy even if there is potential where some packages might enventually end up having small content. Thus avoiding unnecessarily painful refactoring down the line.
+
+The packages with the sub text named `*util` like `dbutil` and `csvutil` served as support packages for `euro.Draw`, `sforl.Draw` and any other higher packages. It does not depend on other packages and is essentially the atomic package.
+
+There is a package named `worker`, which are referred to as aggregating package. It aggregate automic operations in `euro`, `sforl`, `dbutil`, etc., packages.
 
 ## Notes
 
