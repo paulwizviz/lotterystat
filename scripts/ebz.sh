@@ -11,6 +11,7 @@ COMMAND=$1
 function build(){
     # docker-compose -f ./build/ebenezer/builder.yml build
     # docker-compose -f ./build/ebenezer/builder.yml up
+    go test -v ./...
     env GOOS=darwin GOARCH=amd64 go build -o ./build/ebenezer/package/macOS/ebz ./cmd/ebenezer/prod
 }
 
