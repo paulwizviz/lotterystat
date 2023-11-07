@@ -49,12 +49,12 @@ func PersistsDraw(ctx context.Context, db *sql.DB) error {
 	return nil
 }
 
-func ProcessEuroBetArg(ctx context.Context, arg string, db *sql.DB) error {
+func EuroMatchArg(ctx context.Context, bet string, db *sql.DB) error {
 
-	if !euro.IsValidBet(arg) {
+	if !euro.IsValidBet(bet) {
 		return fmt.Errorf("can't bet")
 	}
-	b, err := euro.ProcessBetArg(arg)
+	b, err := euro.ProcessBetArg(bet)
 	if err != nil {
 		return fmt.Errorf("can't bet")
 	}
@@ -67,6 +67,14 @@ func ProcessEuroBetArg(ctx context.Context, arg string, db *sql.DB) error {
 	for _, mb := range mbs {
 		fmt.Printf("Bet: %v Draw: %v Match Balls: %v Lucky Stars: %v\n", mb.Bet, fmt.Sprintf("{%d,%d,%d,%d,%d,%d,%d}", mb.Draw.Ball1, mb.Draw.Ball2, mb.Draw.Ball3, mb.Draw.Ball4, mb.Draw.Ball5, mb.Draw.LS1, mb.Draw.LS2), mb.Balls, mb.LuckyStars)
 	}
+
+	return nil
+}
+
+func EuroFreqArg(ctx context.Context, balls string, stars string, db *sql.DB) error {
+
+	fmt.Println("Balls", balls)
+	fmt.Println("Stars", stars)
 
 	return nil
 }
