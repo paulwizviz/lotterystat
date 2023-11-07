@@ -67,7 +67,7 @@ func PersistsCSV(ctx context.Context, db *sql.DB, nworkers int) error {
 }
 
 func IsValidBet(arg string) bool {
-	pattern := `^\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b,\b([1-9]|1[0-2])\b,\b([1-9]|1[0-2])\b$`
+	pattern := `^\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b(,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b){4},\b([1-9]|1[0-2])\b,\b([1-9]|1[0-2])\b$`
 	matched, err := regexp.MatchString(pattern, arg)
 	if err != nil {
 		log.Println(err)
@@ -126,4 +126,22 @@ func ProcessBetArg(arg string) (Bet, error) {
 		LS2:   lsArray[1],
 	}
 	return b, nil
+}
+
+func IsValidBall(arg string) bool {
+	pattern := `^\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b(,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b){0,4}$`
+	matched, err := regexp.MatchString(pattern, arg)
+	if err != nil {
+		log.Println(err)
+	}
+	return matched
+}
+
+func IsValidStars(arg string) bool {
+	pattern := `^\b([1-9]|1[0-2])\b(,\b([1-9]|1[0-2])\b){0,1}$`
+	matched, err := regexp.MatchString(pattern, arg)
+	if err != nil {
+		log.Println(err)
+	}
+	return matched
 }
