@@ -54,12 +54,61 @@ type DrawChan struct {
 	Err  error
 }
 
+type BallFreq struct {
+	Ball  uint8
+	Count uint16
+}
+
+type StarFreq struct {
+	Star  uint8
+	Count uint16
+}
+
 func CreateTable(ctx context.Context, db *sql.DB) error {
 	return createTable(ctx, db)
 }
 
 func MatchBets(ctx context.Context, db *sql.DB, bets []Bet) ([]MatchedDraw, error) {
 	return matchBets(ctx, db, bets)
+}
+
+func CountBalls(ctx context.Context, db *sql.DB, balls []uint8) ([]BallFreq, error) {
+	var results []BallFreq
+	stmt, err := prepareCountBallsStmt(ctx, db)
+	if err != nil {
+		return nil, err
+	}
+	for _, b := range balls {
+		if err != nil {
+			return nil, err
+		}
+		bc, err := countBall(ctx, stmt, b)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, bc)
+	}
+	return results, nil
+}
+
+func CountStars(ctx context.Context, db *sql.DB, stars []uint8) ([]StarFreq, error) {
+	var results []StarFreq
+	stmt, err := prepareCountStarsStmt(ctx, db)
+	if err != nil {
+		return nil, err
+	}
+	for _, s := range stars {
+		if err != nil {
+			return nil, err
+		}
+		s, err := countStars(ctx, stmt, s)
+		if err != nil {
+			return nil, err
+		}
+
+		results = append(results, s)
+	}
+	return results, nil
 }
 
 func PersistsCSV(ctx context.Context, db *sql.DB, nworkers int) error {
@@ -129,16 +178,17 @@ func ProcessBetArg(arg string) (Bet, error) {
 }
 
 func IsValidBall(arg string) bool {
-	pattern := `^\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b(,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b){0,4}$`
+	pattern := `^\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b(,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b)*$`
 	matched, err := regexp.MatchString(pattern, arg)
 	if err != nil {
 		log.Println(err)
+		return matched
 	}
 	return matched
 }
 
 func IsValidStars(arg string) bool {
-	pattern := `^\b([1-9]|1[0-2])\b(,\b([1-9]|1[0-2])\b){0,1}$`
+	pattern := `^\b([1-9]|1[0-2])\b(,\b([1-9]|1[0-2])\b)*$`
 	matched, err := regexp.MatchString(pattern, arg)
 	if err != nil {
 		log.Println(err)

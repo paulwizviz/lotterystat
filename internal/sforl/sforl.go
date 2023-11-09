@@ -52,12 +52,61 @@ type DrawChan struct {
 	Err  error
 }
 
+type BallFreq struct {
+	Ball  uint8
+	Count uint16
+}
+
+type LuckyBallFreq struct {
+	LuckyBall uint8
+	Count     uint16
+}
+
 func CreateTable(ctx context.Context, db *sql.DB) error {
 	return createTable(ctx, db)
 }
 
 func MatchBets(ctx context.Context, db *sql.DB, bets []Bet) ([]MatchedDraw, error) {
 	return matchBets(ctx, db, bets)
+}
+
+func CountBalls(ctx context.Context, db *sql.DB, balls []uint8) ([]BallFreq, error) {
+	var results []BallFreq
+	stmt, err := prepareCountBallsStmt(ctx, db)
+	if err != nil {
+		return nil, err
+	}
+	for _, b := range balls {
+		if err != nil {
+			return nil, err
+		}
+		bc, err := countBall(ctx, stmt, b)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, bc)
+	}
+	return results, nil
+}
+
+func CountLuckyBall(ctx context.Context, db *sql.DB, stars []uint8) ([]LuckyBallFreq, error) {
+	var results []LuckyBallFreq
+	stmt, err := prepareCountLBStmt(ctx, db)
+	if err != nil {
+		return nil, err
+	}
+	for _, s := range stars {
+		if err != nil {
+			return nil, err
+		}
+		s, err := countLuckBall(ctx, stmt, s)
+		if err != nil {
+			return nil, err
+		}
+
+		results = append(results, s)
+	}
+	return results, nil
 }
 
 func PersistsCSV(ctx context.Context, db *sql.DB, nworkers int) error {

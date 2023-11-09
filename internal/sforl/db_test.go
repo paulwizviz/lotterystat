@@ -414,3 +414,253 @@ func Example_matchBet() {
 	// Bet: {1 10 20 40 45 2} Draw: {2003-03-10 12:00:00 +0000 GMT Monday 1 10 20 27 40 2 ball set machine 1235} Balls match: [1 10 20] Lucky stars: 2
 	// Bet: {1 10 20 40 45 2} Draw: {2003-05-10 13:00:00 +0100 BST Saturday 1 12 15 21 40 1 ball set machine 1238} Balls match: [1] Lucky stars: 0
 }
+
+func Example_countBall() {
+	db, err := dbConn()
+	if err != nil {
+		fmt.Printf("Unable to connect to DB: %v", err)
+		return
+	}
+	defer db.Close()
+
+	err = CreateTable(context.TODO(), db)
+	if errors.Is(err, dbutil.ErrDBCreateTbl) {
+		fmt.Printf("Unable to create table: %v", err)
+		return
+	}
+
+	stmt, err := prepareInsertDrawStmt(context.TODO(), db)
+	if errors.Is(err, dbutil.ErrDBPrepareStmt) {
+		fmt.Printf("Prepare insert statement: %v ", err)
+		return
+	}
+	defer stmt.Close()
+
+	draws := []Draw{
+		{
+			DrawDate:  time.Date(2003, time.January, 10, 12, 00, 00, 0, time.UTC),
+			DayOfWeek: time.Date(2003, time.January, 10, 12, 00, 00, 0, time.UTC).Weekday(),
+			Ball1:     1,
+			Ball2:     2,
+			Ball3:     3,
+			Ball4:     4,
+			Ball5:     5,
+			LifeBall:  1,
+			BallSet:   "ball set",
+			Machine:   "machine",
+			DrawNo:    1233,
+		},
+		{
+			DrawDate:  time.Date(2003, time.February, 10, 12, 00, 00, 0, time.UTC),
+			DayOfWeek: time.Date(2003, time.February, 10, 12, 00, 00, 0, time.UTC).Weekday(),
+			Ball1:     2,
+			Ball2:     10,
+			Ball3:     20,
+			Ball4:     27,
+			Ball5:     41,
+			LifeBall:  3,
+			BallSet:   "ball set",
+			Machine:   "machine",
+			DrawNo:    1234,
+		},
+		{
+			DrawDate:  time.Date(2003, time.March, 10, 12, 00, 00, 0, time.UTC),
+			DayOfWeek: time.Date(2003, time.March, 10, 12, 00, 00, 0, time.UTC).Weekday(),
+			Ball1:     1,
+			Ball2:     10,
+			Ball3:     20,
+			Ball4:     27,
+			Ball5:     40,
+			LifeBall:  2,
+			BallSet:   "ball set",
+			Machine:   "machine",
+			DrawNo:    1235,
+		},
+		{
+			DrawDate:  time.Date(2003, time.April, 10, 12, 00, 00, 0, time.UTC),
+			DayOfWeek: time.Date(2003, time.April, 10, 12, 00, 00, 0, time.UTC).Weekday(),
+			Ball1:     3,
+			Ball2:     27,
+			Ball3:     30,
+			Ball4:     35,
+			Ball5:     40,
+			LifeBall:  3,
+			BallSet:   "ball set",
+			Machine:   "machine",
+			DrawNo:    1236,
+		},
+		{
+			DrawDate:  time.Date(2003, time.May, 10, 12, 00, 00, 0, time.UTC),
+			DayOfWeek: time.Date(2003, time.May, 10, 12, 00, 00, 0, time.UTC).Weekday(),
+			Ball1:     3,
+			Ball2:     27,
+			Ball3:     30,
+			Ball4:     35,
+			Ball5:     41,
+			LifeBall:  3,
+			BallSet:   "ball set",
+			Machine:   "machine",
+			DrawNo:    1237,
+		},
+		{
+			DrawDate:  time.Date(2003, time.May, 10, 12, 00, 00, 0, time.UTC),
+			DayOfWeek: time.Date(2003, time.May, 10, 12, 00, 00, 0, time.UTC).Weekday(),
+			Ball1:     1,
+			Ball2:     12,
+			Ball3:     15,
+			Ball4:     21,
+			Ball5:     40,
+			LifeBall:  1,
+			BallSet:   "ball set",
+			Machine:   "machine",
+			DrawNo:    1238,
+		},
+	}
+
+	for _, d := range draws {
+		_, err = insertDraw(context.TODO(), stmt, d)
+		if errors.Is(err, dbutil.ErrDBInsertTbl) {
+			fmt.Printf("Insert draw. %v", err)
+		}
+	}
+
+	stmt, err = prepareCountBallsStmt(context.TODO(), db)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	count, err := countBall(context.TODO(), stmt, 2)
+	if err != nil {
+		fmt.Printf("Match bet error. %v", err)
+	}
+
+	fmt.Println(count)
+
+	// Output:
+	// {2 2}
+}
+
+func Example_countLuckyBall() {
+	db, err := dbConn()
+	if err != nil {
+		fmt.Printf("Unable to connect to DB: %v", err)
+		return
+	}
+	defer db.Close()
+
+	err = CreateTable(context.TODO(), db)
+	if errors.Is(err, dbutil.ErrDBCreateTbl) {
+		fmt.Printf("Unable to create table: %v", err)
+		return
+	}
+
+	stmt, err := prepareInsertDrawStmt(context.TODO(), db)
+	if errors.Is(err, dbutil.ErrDBPrepareStmt) {
+		fmt.Printf("Prepare insert statement: %v ", err)
+		return
+	}
+	defer stmt.Close()
+
+	draws := []Draw{
+		{
+			DrawDate:  time.Date(2003, time.January, 10, 12, 00, 00, 0, time.UTC),
+			DayOfWeek: time.Date(2003, time.January, 10, 12, 00, 00, 0, time.UTC).Weekday(),
+			Ball1:     1,
+			Ball2:     2,
+			Ball3:     3,
+			Ball4:     4,
+			Ball5:     5,
+			LifeBall:  1,
+			BallSet:   "ball set",
+			Machine:   "machine",
+			DrawNo:    1233,
+		},
+		{
+			DrawDate:  time.Date(2003, time.February, 10, 12, 00, 00, 0, time.UTC),
+			DayOfWeek: time.Date(2003, time.February, 10, 12, 00, 00, 0, time.UTC).Weekday(),
+			Ball1:     2,
+			Ball2:     10,
+			Ball3:     20,
+			Ball4:     27,
+			Ball5:     41,
+			LifeBall:  3,
+			BallSet:   "ball set",
+			Machine:   "machine",
+			DrawNo:    1234,
+		},
+		{
+			DrawDate:  time.Date(2003, time.March, 10, 12, 00, 00, 0, time.UTC),
+			DayOfWeek: time.Date(2003, time.March, 10, 12, 00, 00, 0, time.UTC).Weekday(),
+			Ball1:     1,
+			Ball2:     10,
+			Ball3:     20,
+			Ball4:     27,
+			Ball5:     40,
+			LifeBall:  2,
+			BallSet:   "ball set",
+			Machine:   "machine",
+			DrawNo:    1235,
+		},
+		{
+			DrawDate:  time.Date(2003, time.April, 10, 12, 00, 00, 0, time.UTC),
+			DayOfWeek: time.Date(2003, time.April, 10, 12, 00, 00, 0, time.UTC).Weekday(),
+			Ball1:     3,
+			Ball2:     27,
+			Ball3:     30,
+			Ball4:     35,
+			Ball5:     40,
+			LifeBall:  3,
+			BallSet:   "ball set",
+			Machine:   "machine",
+			DrawNo:    1236,
+		},
+		{
+			DrawDate:  time.Date(2003, time.May, 10, 12, 00, 00, 0, time.UTC),
+			DayOfWeek: time.Date(2003, time.May, 10, 12, 00, 00, 0, time.UTC).Weekday(),
+			Ball1:     3,
+			Ball2:     27,
+			Ball3:     30,
+			Ball4:     35,
+			Ball5:     41,
+			LifeBall:  3,
+			BallSet:   "ball set",
+			Machine:   "machine",
+			DrawNo:    1237,
+		},
+		{
+			DrawDate:  time.Date(2003, time.May, 10, 12, 00, 00, 0, time.UTC),
+			DayOfWeek: time.Date(2003, time.May, 10, 12, 00, 00, 0, time.UTC).Weekday(),
+			Ball1:     1,
+			Ball2:     12,
+			Ball3:     15,
+			Ball4:     21,
+			Ball5:     40,
+			LifeBall:  1,
+			BallSet:   "ball set",
+			Machine:   "machine",
+			DrawNo:    1238,
+		},
+	}
+
+	for _, d := range draws {
+		_, err = insertDraw(context.TODO(), stmt, d)
+		if errors.Is(err, dbutil.ErrDBInsertTbl) {
+			fmt.Printf("Insert draw. %v", err)
+		}
+	}
+
+	stmt, err = prepareCountLBStmt(context.TODO(), db)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	count, err := countLuckBall(context.TODO(), stmt, 3)
+	if err != nil {
+		fmt.Printf("Match bet error. %v", err)
+	}
+
+	fmt.Println(count)
+
+	// Output:
+	// {3 3}
+}
