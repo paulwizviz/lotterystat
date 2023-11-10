@@ -51,10 +51,11 @@ func Initilalize() error {
 	if err != nil {
 		return fmt.Errorf("%w-%s", ErrConfig, err.Error())
 	}
+	// DConn please refer to https://github.com/mattn/go-sqlite3 for list of valid strings
 	d := Detail{
 		Path:   p,
 		Name:   configName,
-		DBConn: fmt.Sprintf("file:%s%s?cache=shared&mode=memory", p, dbName),
+		DBConn: fmt.Sprintf("file:%s/%s", p, dbName),
 	}
 	cFile := path.Join(p, fmt.Sprintf("%s.%s", d.Name, configType))
 	_, err = os.Stat(cFile)
