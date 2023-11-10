@@ -1,4 +1,4 @@
-package worker
+package main
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"sync"
 )
 
-func InitalizeDB(ctx context.Context, db *sql.DB) error {
+func initalizeDB(ctx context.Context, db *sql.DB) error {
 	err := euro.CreateTable(ctx, db)
 	if err != nil {
 		return err
@@ -24,7 +24,7 @@ func InitalizeDB(ctx context.Context, db *sql.DB) error {
 	return nil
 }
 
-func PersistsDraw(ctx context.Context, db *sql.DB) error {
+func persistsDraw(ctx context.Context, db *sql.DB) error {
 
 	var wg sync.WaitGroup
 	wg.Add(2)
@@ -51,7 +51,7 @@ func PersistsDraw(ctx context.Context, db *sql.DB) error {
 	return nil
 }
 
-func EuroMatch(ctx context.Context, bet string, output string, db *sql.DB) error {
+func euroMatch(ctx context.Context, bet string, output string, db *sql.DB) error {
 
 	if !euro.IsValidBet(bet) {
 		return fmt.Errorf("can't bet")
@@ -95,7 +95,7 @@ func EuroMatch(ctx context.Context, bet string, output string, db *sql.DB) error
 	return nil
 }
 
-func EuroBallsFreq(ctx context.Context, output string, db *sql.DB) error {
+func euroBallsFreq(ctx context.Context, output string, db *sql.DB) error {
 	balls := []uint8{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50}
 	result, err := euro.CountBalls(ctx, db, balls)
 	if err != nil {
@@ -126,7 +126,7 @@ func EuroBallsFreq(ctx context.Context, output string, db *sql.DB) error {
 	return nil
 }
 
-func EuroStarsFreq(ctx context.Context, output string, db *sql.DB) error {
+func euroStarsFreq(ctx context.Context, output string, db *sql.DB) error {
 	stars := []uint8{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
 	result, err := euro.CountStars(ctx, db, stars)
 	if err != nil {
@@ -157,7 +157,7 @@ func EuroStarsFreq(ctx context.Context, output string, db *sql.DB) error {
 	return nil
 }
 
-func SForLMatch(ctx context.Context, arg string, db *sql.DB) error {
+func sForLMatch(ctx context.Context, arg string, db *sql.DB) error {
 
 	if !sforl.IsValidBet(arg) {
 		return fmt.Errorf("can't bet")
@@ -179,7 +179,7 @@ func SForLMatch(ctx context.Context, arg string, db *sql.DB) error {
 	return nil
 }
 
-func SForLBallsFreq(ctx context.Context, output string, db *sql.DB) error {
+func sForLBallsFreq(ctx context.Context, output string, db *sql.DB) error {
 	balls := []uint8{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47}
 	result, err := sforl.CountBalls(ctx, db, balls)
 	if err != nil {
@@ -210,7 +210,7 @@ func SForLBallsFreq(ctx context.Context, output string, db *sql.DB) error {
 	return nil
 }
 
-func SForLLuckyBallFreq(ctx context.Context, output string, db *sql.DB) error {
+func sForLLuckyBallFreq(ctx context.Context, output string, db *sql.DB) error {
 	stars := []uint8{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	result, err := sforl.CountLuckyBall(ctx, db, stars)
 	if err != nil {

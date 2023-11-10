@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"paulwizviz/lotterystat/internal/worker"
 
 	"github.com/spf13/cobra"
 )
@@ -18,7 +17,7 @@ var rootCmd = &cobra.Command{
 
 var matchCmd = &cobra.Command{
 	Use:   "match",
-	Short: "an ebz subcommand enabling users to match bet against draws",
+	Short: "An ebz subcommand enabling users to match bet against draws",
 	Long: `match is an ebz subcommand to enable users to match bets and draws
 in a sequential ball by ball, extra numbers basis. For example, in the case of Euro million
 lottery, a match against a user bet is as follows:
@@ -38,7 +37,7 @@ The match is [1] and [12] for balls`,
 
 var freqCmd = &cobra.Command{
 	Use:   "freq",
-	Short: "an ebz subcommand enabling users to perform frequency analysis",
+	Short: "A subcommand enabling users to perform frequency analysis",
 	Long: `freq is an ebz subcommand to enable users to determine frequency of
 of numeric occurrence.`,
 	Args: cobra.ExactArgs(0),
@@ -53,20 +52,20 @@ of numeric occurrence.`,
 var output string
 
 var (
-	euroBet       string
-	euroFreqStars bool
-	euroFreqBalls bool
-	euroMatchCmd  = &cobra.Command{
+	euroBetFlag       string
+	euroFreqStarsFlag bool
+	euroFreqBallsFlag bool
+	euroMatchCmd      = &cobra.Command{
 		Use:   "euro",
 		Args:  cobra.MaximumNArgs(0),
-		Short: "comand to perform analysis of euro draws",
+		Short: "A subcomand to perform analysis of euro draws",
 		Long:  `euro is an operation to match euro draws against bets presented by users`,
 		Run: func(cmd *cobra.Command, args []string) {
-			if euroBet == "" {
+			if euroBetFlag == "" {
 				cmd.Help()
 				return
 			}
-			err := worker.EuroMatch(context.TODO(), euroBet, output, DB)
+			err := euroMatch(context.TODO(), euroBetFlag, output, DB)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -75,15 +74,15 @@ var (
 	euroFreqCmd = &cobra.Command{
 		Use:   "euro",
 		Args:  cobra.MaximumNArgs(0),
-		Short: "comand to perform analysis of euro draws",
+		Short: "A subcomand to perform analysis of euro draws",
 		Long:  `euro is an operation to match euro draws against bets presented by users`,
 		Run: func(cmd *cobra.Command, args []string) {
-			if euroFreqStars {
-				worker.EuroStarsFreq(context.TODO(), output, DB)
+			if euroFreqStarsFlag {
+				euroStarsFreq(context.TODO(), output, DB)
 				return
 			}
-			if euroFreqBalls {
-				worker.EuroBallsFreq(context.TODO(), output, DB)
+			if euroFreqBallsFlag {
+				euroBallsFreq(context.TODO(), output, DB)
 				return
 			}
 			cmd.Help()
@@ -92,20 +91,20 @@ var (
 )
 
 var (
-	sforlBet          string
-	sforlFreqLuckBall bool
-	sforlFreqBalls    bool
-	sforlMatchCmd     = &cobra.Command{
+	sforlBetFlag       string
+	sforlFreqLBFlag    bool
+	sforlFreqBallsFlag bool
+	sforlMatchCmd      = &cobra.Command{
 		Use:   "sforl",
 		Args:  cobra.MaximumNArgs(0),
-		Short: "comand to perform analysis of set for life draws",
+		Short: "A subcomand to perform analysis of set for life draws",
 		Long:  `sforl is an operation to match set for life draws against bets presented by users`,
 		Run: func(cmd *cobra.Command, args []string) {
-			if sforlBet == "" {
+			if sforlBetFlag == "" {
 				cmd.Help()
 				return
 			}
-			err := worker.SForLMatch(context.TODO(), sforlBet, DB)
+			err := sForLMatch(context.TODO(), sforlBetFlag, DB)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -114,18 +113,18 @@ var (
 	sforlFreqCmd = &cobra.Command{
 		Use:   "sforl",
 		Args:  cobra.MaximumNArgs(0),
-		Short: "comand to perform analysis of set for life draws",
+		Short: "A subcomand to perform analysis of set for life draws",
 		Long:  `sforl is an operation to match set for life draws against bets presented by users`,
 		Run: func(cmd *cobra.Command, args []string) {
-			if sforlFreqBalls {
-				err := worker.SForLBallsFreq(context.TODO(), output, DB)
+			if sforlFreqBallsFlag {
+				err := sForLBallsFreq(context.TODO(), output, DB)
 				if err != nil {
 					log.Fatal(err)
 				}
 				return
 			}
-			if sforlFreqLuckBall {
-				err := worker.SForLLuckyBallFreq(context.TODO(), output, DB)
+			if sforlFreqLBFlag {
+				err := sForLLuckyBallFreq(context.TODO(), output, DB)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -137,21 +136,21 @@ var (
 )
 
 func initEuroCmd() {
-	euroMatchCmd.PersistentFlags().StringVarP(&euroBet, "bet", "b", "", `enter 5 numbers, 2 lucky stars in this format "[1-50],[1-50],[1-50],[1-50],[1-50],[1-12],[1-12]"`)
+	euroMatchCmd.PersistentFlags().StringVarP(&euroBetFlag, "bet", "b", "", `enter 5 numbers, 2 lucky stars in this format "[1-50],[1-50],[1-50],[1-50],[1-50],[1-12],[1-12]"`)
 	euroMatchCmd.PersistentFlags().StringVarP(&output, "output", "o", "", `where you like the result`)
 	euroMatchCmd.MarkFlagRequired("output")
-	euroFreqCmd.PersistentFlags().BoolVarP(&euroFreqBalls, "balls", "b", false, `get frequency list for balls`)
-	euroFreqCmd.PersistentFlags().BoolVarP(&euroFreqStars, "stars", "s", false, `get frequency list for stars`)
+	euroFreqCmd.PersistentFlags().BoolVarP(&euroFreqBallsFlag, "balls", "b", false, `get frequency list for balls`)
+	euroFreqCmd.PersistentFlags().BoolVarP(&euroFreqStarsFlag, "stars", "s", false, `get frequency list for stars`)
 	euroFreqCmd.PersistentFlags().StringVarP(&output, "output", "o", "", `where we should output the result`)
 	euroFreqCmd.MarkFlagRequired("output")
 }
 
 func initSForLCmd() {
-	sforlMatchCmd.PersistentFlags().StringVarP(&sforlBet, "bet", "b", "", `enter 5 numbers, 2 lifeball in this format "[1-47],[1-47],[1-47],[1-47],[1-47],[1-10]"`)
+	sforlMatchCmd.PersistentFlags().StringVarP(&sforlBetFlag, "bet", "b", "", `enter 5 numbers, 2 lifeball in this format "[1-47],[1-47],[1-47],[1-47],[1-47],[1-10]"`)
 	sforlMatchCmd.PersistentFlags().StringVarP(&output, "output", "o", "", `where you like the result`)
 	sforlMatchCmd.MarkFlagRequired("output")
-	sforlFreqCmd.PersistentFlags().BoolVarP(&sforlFreqBalls, "balls", "b", false, `get frequency list for balls`)
-	sforlFreqCmd.PersistentFlags().BoolVarP(&sforlFreqLuckBall, "lucky", "l", false, `get frequency list for stars`)
+	sforlFreqCmd.PersistentFlags().BoolVarP(&sforlFreqBallsFlag, "balls", "b", false, `get frequency list for balls`)
+	sforlFreqCmd.PersistentFlags().BoolVarP(&sforlFreqLBFlag, "lucky", "l", false, `get frequency list for stars`)
 	sforlFreqCmd.PersistentFlags().StringVarP(&output, "output", "o", "", `where we should output the result`)
 	sforlFreqCmd.MarkFlagRequired("output")
 }

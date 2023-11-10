@@ -6,7 +6,6 @@ import (
 	"log"
 	"paulwizviz/lotterystat/internal/config"
 	"paulwizviz/lotterystat/internal/dbutil"
-	"paulwizviz/lotterystat/internal/worker"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -25,11 +24,11 @@ func main() {
 		log.Fatal(err)
 	}
 	ctx := context.TODO()
-	err = worker.InitalizeDB(ctx, DB)
+	err = initalizeDB(ctx, DB)
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = worker.PersistsDraw(ctx, DB)
+	err = persistsDraw(ctx, DB)
 	if err != nil {
 		log.Fatal(err)
 	}
