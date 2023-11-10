@@ -51,7 +51,7 @@ func PersistsDraw(ctx context.Context, db *sql.DB) error {
 	return nil
 }
 
-func EuroMatch(ctx context.Context, bet string, db *sql.DB) error {
+func EuroMatch(ctx context.Context, bet string, output string, db *sql.DB) error {
 
 	if !euro.IsValidBet(bet) {
 		return fmt.Errorf("can't bet")
@@ -60,13 +60,37 @@ func EuroMatch(ctx context.Context, bet string, db *sql.DB) error {
 	if err != nil {
 		return fmt.Errorf("can't bet")
 	}
+
+	if output == "" {
+		return fmt.Errorf("no file name")
+	}
+	f, err := os.Create(output)
+	if err != nil {
+		return fmt.Errorf("unable to create output file")
+	}
+	defer f.Close()
+	w := csv.NewWriter(f)
+	defer w.Flush()
+
 	bets := []euro.Bet{b}
 	mbs, err := euro.MatchBets(ctx, db, bets)
 	if err != nil {
 		return err
 	}
+
+	headers := []string{"Bet", "Draw", "Match Balls", "Lucky Stars"}
+	var data [][]string
 	for _, mb := range mbs {
-		fmt.Printf("Bet: %v Draw: %v Match Balls: %v Lucky Stars: %v\n", mb.Bet, fmt.Sprintf("{%d,%d,%d,%d,%d,%d,%d}", mb.Draw.Ball1, mb.Draw.Ball2, mb.Draw.Ball3, mb.Draw.Ball4, mb.Draw.Ball5, mb.Draw.LS1, mb.Draw.LS2), mb.Balls, mb.LuckyStars)
+		var d []string
+		d = append(d, fmt.Sprintf("%v", mb.Bet))
+		d = append(d, fmt.Sprintf("{%d,%d,%d,%d,%d,%d,%d}", mb.Draw.Ball1, mb.Draw.Ball2, mb.Draw.Ball3, mb.Draw.Ball4, mb.Draw.Ball5, mb.Draw.LS1, mb.Draw.LS2))
+		d = append(d, fmt.Sprintf("%d", mb.Balls))
+		d = append(d, fmt.Sprintf("%d", mb.LuckyStars))
+		data = append(data, d)
+	}
+	w.Write(headers)
+	for _, row := range data {
+		w.Write(row)
 	}
 	return nil
 }
@@ -133,7 +157,7 @@ func EuroStarsFreq(ctx context.Context, output string, db *sql.DB) error {
 	return nil
 }
 
-func ProcessSForLBetArg(ctx context.Context, arg string, db *sql.DB) error {
+func SForLMatch(ctx context.Context, arg string, db *sql.DB) error {
 
 	if !sforl.IsValidBet(arg) {
 		return fmt.Errorf("can't bet")

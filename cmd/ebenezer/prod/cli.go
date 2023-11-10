@@ -66,7 +66,7 @@ var (
 				cmd.Help()
 				return
 			}
-			err := worker.EuroMatch(context.TODO(), euroBet, DB)
+			err := worker.EuroMatch(context.TODO(), euroBet, output, DB)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -105,7 +105,7 @@ var (
 				cmd.Help()
 				return
 			}
-			err := worker.ProcessSForLBetArg(context.TODO(), sforlBet, DB)
+			err := worker.SForLMatch(context.TODO(), sforlBet, DB)
 			if err != nil {
 				log.Fatal(err)
 			}
