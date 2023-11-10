@@ -12,7 +12,14 @@ function build(){
     # docker-compose -f ./build/ebenezer/builder.yml build
     # docker-compose -f ./build/ebenezer/builder.yml up
     go test -v ./...
-    env GOOS=darwin GOARCH=amd64 go build -o ./build/ebenezer/package/macOS/ebz ./cmd/ebenezer/prod
+    if [ "$(uname)" == "Darwin" ]; then
+        echo "build for mac"
+        env GOOS=darwin GOARCH=amd64 go build -o ./build/ebenezer/package/macOS/${APP_NAME} ./cmd/ebenezer/prod
+    fi
+    if [ "$(uname)" == "Linux" ]; then
+        echo "build for linux"
+        env GOOS=linux GOARCH=amd64 go build -o ./build/ebenezer/package/linux/${APP_NAME} ./cmd/ebenezer/prod
+    fi
 }
 
 function clean(){
