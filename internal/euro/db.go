@@ -110,25 +110,25 @@ func matchBets(ctx context.Context, db *sql.DB, bets []Bet) ([]MatchedDraw, erro
 					Bet:  b,
 					Draw: d,
 				}
-				if d.Ball1 == b.Ball1 {
+				if (d.Ball1 == b.Ball1) || (d.Ball1 == b.Ball2) || (d.Ball1 == b.Ball3) || (d.Ball1 == b.Ball4) || (d.Ball1 == b.Ball5) {
 					md.Balls = append(md.Balls, d.Ball1)
 				}
-				if d.Ball2 == b.Ball2 {
+				if (d.Ball2 == b.Ball1) || (d.Ball2 == b.Ball2) || (d.Ball2 == b.Ball3) || (d.Ball2 == b.Ball4) || (d.Ball2 == b.Ball5) {
 					md.Balls = append(md.Balls, d.Ball2)
 				}
-				if d.Ball3 == b.Ball3 {
+				if (d.Ball3 == b.Ball1) || (d.Ball3 == b.Ball2) || (d.Ball3 == b.Ball3) || (d.Ball3 == b.Ball4) || (d.Ball3 == b.Ball5) {
 					md.Balls = append(md.Balls, d.Ball3)
 				}
-				if d.Ball4 == b.Ball4 {
+				if (d.Ball4 == b.Ball1) || (d.Ball4 == b.Ball2) || (d.Ball4 == b.Ball3) || (d.Ball4 == b.Ball4) || (d.Ball4 == b.Ball5) {
 					md.Balls = append(md.Balls, d.Ball4)
 				}
-				if d.Ball5 == b.Ball5 {
+				if (d.Ball5 == b.Ball1) || (d.Ball5 == b.Ball2) || (d.Ball5 == b.Ball3) || (d.Ball5 == b.Ball4) || (d.Ball5 == b.Ball5) {
 					md.Balls = append(md.Balls, d.Ball5)
 				}
-				if d.LS1 == b.LS1 {
+				if (d.LS1 == b.LS1) || (d.LS1 == b.LS2) {
 					md.LuckyStars = append(md.LuckyStars, d.LS1)
 				}
-				if d.LS2 == b.LS2 {
+				if (d.LS2 == b.LS1) || (d.LS2 == b.LS2) {
 					md.LuckyStars = append(md.LuckyStars, d.LS2)
 				}
 				mds = append(mds, md)

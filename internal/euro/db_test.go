@@ -423,10 +423,10 @@ func Example_matchBet() {
 	}
 
 	// Output:
-	// Bet: {1 10 20 40 45 2 4} Draw: {2003-01-10 12:00:00 +0000 GMT Friday 1 2 3 4 5 1 2 uk marker 1233} Balls match: [1] Lucky stars: []
+	// Bet: {1 10 20 40 45 2 4} Draw: {2003-01-10 12:00:00 +0000 GMT Friday 1 2 3 4 5 1 2 uk marker 1233} Balls match: [1] Lucky stars: [2]
 	// Bet: {1 10 20 40 45 2 4} Draw: {2003-02-10 12:00:00 +0000 GMT Monday 2 10 20 27 41 3 6 uk marker 1234} Balls match: [10 20] Lucky stars: []
-	// Bet: {1 10 20 40 45 2 4} Draw: {2003-03-10 12:00:00 +0000 GMT Monday 1 10 20 27 40 2 5 uk marker 1235} Balls match: [1 10 20] Lucky stars: [2]
-	// Bet: {1 10 20 40 45 2 4} Draw: {2003-05-10 13:00:00 +0100 BST Saturday 1 12 15 21 40 1 1 uk marker 1238} Balls match: [1] Lucky stars: []
+	// Bet: {1 10 20 40 45 2 4} Draw: {2003-03-10 12:00:00 +0000 GMT Monday 1 10 20 27 40 2 5 uk marker 1235} Balls match: [1 10 20 40] Lucky stars: [2]
+	// Bet: {1 10 20 40 45 2 4} Draw: {2003-05-10 13:00:00 +0100 BST Saturday 1 12 15 21 40 1 1 uk marker 1238} Balls match: [1 40] Lucky stars: []
 }
 
 func Example_countBall() {
