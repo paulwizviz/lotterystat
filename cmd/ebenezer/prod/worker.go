@@ -157,7 +157,7 @@ func euroStarsFreq(ctx context.Context, output string, db *sql.DB) error {
 	return nil
 }
 
-func sForLMatch(ctx context.Context, arg string, db *sql.DB) error {
+func sForLMatch(ctx context.Context, arg string, output string, db *sql.DB) error {
 
 	if !sforl.IsValidBet(arg) {
 		return fmt.Errorf("can't bet")
@@ -172,10 +172,30 @@ func sForLMatch(ctx context.Context, arg string, db *sql.DB) error {
 		return err
 	}
 
-	for _, mb := range mbs {
-		fmt.Printf("Bet: %v Draw: %v Match Balls: %v Life ball: %v\n", mb.Bet, fmt.Sprintf("{%d,%d,%d,%d,%d,%d}", mb.Draw.Ball1, mb.Draw.Ball2, mb.Draw.Ball3, mb.Draw.Ball4, mb.Draw.Ball5, mb.Draw.LifeBall), mb.Balls, mb.LifeBall)
+	if output == "" {
+		return fmt.Errorf("no file name")
 	}
-
+	f, err := os.Create(output)
+	if err != nil {
+		return fmt.Errorf("unable to create output file")
+	}
+	defer f.Close()
+	w := csv.NewWriter(f)
+	defer w.Flush()
+	headers := []string{"Bet", "Draw", "Match Balls", "Lucky Ball"}
+	var data [][]string
+	for _, mb := range mbs {
+		var d []string
+		d = append(d, fmt.Sprintf("%v", mb.Bet))
+		d = append(d, fmt.Sprintf("{%d,%d,%d,%d,%d,%d}", mb.Draw.Ball1, mb.Draw.Ball2, mb.Draw.Ball3, mb.Draw.Ball4, mb.Draw.Ball5, mb.Draw.LifeBall))
+		d = append(d, fmt.Sprintf("%d", mb.Balls))
+		d = append(d, fmt.Sprintf("%d", mb.LifeBall))
+		data = append(data, d)
+	}
+	w.Write(headers)
+	for _, row := range data {
+		w.Write(row)
+	}
 	return nil
 }
 

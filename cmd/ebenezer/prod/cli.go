@@ -104,7 +104,7 @@ var (
 				cmd.Help()
 				return
 			}
-			err := sForLMatch(context.TODO(), sforlBetFlag, DB)
+			err := sForLMatch(context.TODO(), sforlBetFlag, output, DB)
 			if err != nil {
 				log.Fatal(err)
 			}
