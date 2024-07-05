@@ -1,6 +1,8 @@
 package csvutil
 
 import (
+	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"testing"
@@ -348,38 +350,151 @@ func TestParseDateTime(t *testing.T) {
 	}
 }
 
-func Example_parseDrawNum() {
-	result, err := ParseDrawNum("10", 10)
-	fmt.Printf("Result: %v Error: %v\n", result, err)
+func TestParseDrawNum(t *testing.T) {
+	testcases := []struct {
+		input    string
+		expected struct {
+			result uint8
+			err    error
+		}
+	}{
+		{
+			input: "1",
+			expected: struct {
+				result uint8
+				err    error
+			}{
+				result: 1,
+				err:    nil,
+			},
+		},
+		{
+			input: "10",
+			expected: struct {
+				result uint8
+				err    error
+			}{
+				result: 10,
+				err:    nil,
+			},
+		},
+		{
+			input: "0",
+			expected: struct {
+				result uint8
+				err    error
+			}{
+				result: 0,
+				err:    ErrCSVInvalidDrawRange,
+			},
+		},
+		{
+			input: "11",
+			expected: struct {
+				result uint8
+				err    error
+			}{
+				result: 0,
+				err:    ErrCSVInvalidDrawRange,
+			},
+		},
+		{
+			input: "1a",
+			expected: struct {
+				result uint8
+				err    error
+			}{
+				result: 0,
+				err:    ErrCSVInvalidDrawDigit,
+			},
+		},
+	}
 
-	result, err = ParseDrawNum("1", 10)
-	fmt.Printf("Result: %v Error: %v\n", result, err)
-
-	result, err = ParseDrawNum("1a", 10)
-	fmt.Printf("Result: %v Error: %v\n", result, err)
-
-	result, err = ParseDrawNum("0", 10)
-	fmt.Printf("Result: %v Error: %v\n", result, err)
-
-	result, err = ParseDrawNum("11", 10)
-	fmt.Printf("Result: %v Error: %v\n", result, err)
-
-	// Output:
-	// Result: 10 Error: <nil>
-	// Result: 1 Error: <nil>
-	// Result: 0 Error: invalid draw digit: strconv.Atoi: parsing "1a": invalid syntax
-	// Result: 0 Error: draw out of range: got 0 max 10
-	// Result: 0 Error: draw out of range: got 11 max 10
+	for i, tc := range testcases {
+		actual, err := ParseDrawNum(tc.input, 10)
+		if assert.True(t, errors.Is(err, tc.expected.err), fmt.Sprintf("Case: %d Error: %v", i, err)) {
+			assert.Equal(t, int(tc.expected.result), int(actual), fmt.Sprintf("Case: %d Compare value", i))
+		}
+	}
 }
 
-func Example_parseDrawSeq() {
-	num, err := ParseDrawSeq("10000")
-	fmt.Println(num, err)
+func TestParseDrawSeq(t *testing.T) {
+	testcases := []struct {
+		input    string
+		expected struct {
+			result uint64
+			err    error
+		}
+	}{
+		{
+			input: "1000",
+			expected: struct {
+				result uint64
+				err    error
+			}{
+				result: 1000,
+				err:    nil,
+			},
+		},
+		{
+			input: "1a",
+			expected: struct {
+				result uint64
+				err    error
+			}{
+				result: 0,
+				err:    ErrCSVInvalidDrawSeq,
+			},
+		},
+		{
+			input: "-1",
+			expected: struct {
+				result uint64
+				err    error
+			}{
+				result: 0,
+				err:    ErrCSVInvalidDrawSeq,
+			},
+		},
+	}
 
-	num, err = ParseDrawSeq("1a")
-	fmt.Println(num, err)
+	for i, tc := range testcases {
+		actual, err := ParseDrawSeq(tc.input)
+		if assert.True(t, errors.Is(err, tc.expected.err), fmt.Sprintf("Case: %d Error: %v", i, err)) {
+			assert.Equal(t, int(tc.expected.result), int(actual), fmt.Sprintf("Case: %d Check value", i))
+		}
+	}
+}
 
-	// Output:
-	// 10000 <nil>
-	// 0 invalid draw seq: strconv.Atoi: parsing "1a": invalid syntax
+func TestProcessCSV(t *testing.T) {
+	testcases := []struct {
+		input    []byte
+		expected CSVRec
+	}{
+		{
+			input: []byte(`DrawDate,Ball 1,Ball 2,Ball 3,Ball 4,Ball 5,Lucky Star 1,Lucky Star 2,UK Millionaire Maker,DrawNumber
+29-Sep-2023,9,11,13,21,32,2,7,"HQSB24670",1672`),
+			expected: CSVRec{
+				Record: []string{"29-Sep-2023", "9", "11", "13", "21", "32", "2", "7", "HQSB24670", "1672"},
+				Err:    nil,
+			},
+		},
+		{
+			input: []byte(`DrawDate,Ball 1,Ball 2,Ball 3,Ball 4,Ball 5,Lucky Star 1,Lucky Star 2,UK Millionaire Maker,DrawNumber
+9,11,13,21,32,2,7,"HQSB24670",1672`),
+			expected: CSVRec{
+				Record: []string{"9", "11", "13", "21", "32", "2", "7", "HQSB24670", "1672"},
+				Err:    ErrCSVLine,
+			},
+		},
+	}
+
+	for i, tc := range testcases {
+		recs := ProcessCSV(context.TODO(), bytes.NewReader(tc.input))
+		for actual := range recs {
+			if assert.True(t, errors.Is(actual.Err, tc.expected.Err), fmt.Sprintf("Case: %d Error: %v", i, actual.Err)) {
+				assert.Equal(t, tc.expected.Record, actual.Record, fmt.Sprintf("Case: %d", i))
+			}
+		}
+	}
 }
