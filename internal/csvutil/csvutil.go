@@ -2,6 +2,8 @@ package csvutil
 
 import (
 	"bytes"
+	"context"
+	"encoding/csv"
 	"errors"
 	"fmt"
 	"io"
@@ -118,13 +120,13 @@ func ParseDateTime(dt string) (time.Time, error) {
 func ParseDrawNum(value string, maxval int) (uint8, error) {
 	result, err := strconv.Atoi(value)
 	if err != nil {
-		return 0, fmt.Errorf("%w: %s", ErrCSVInvalidDrawDigit, err.Error())
+		return 0, fmt.Errorf("%w-%s", ErrCSVInvalidDrawDigit, err.Error())
 	}
 	if result < 1 {
-		return 0, fmt.Errorf("%w: %s", ErrCSVInvalidDrawRange, fmt.Sprintf("got %v max %v", result, maxval))
+		return 0, fmt.Errorf("%w-%s", ErrCSVInvalidDrawRange, fmt.Sprintf("got %v max %v", result, maxval))
 	}
 	if result > maxval {
-		return 0, fmt.Errorf("%w: %s", ErrCSVInvalidDrawRange, fmt.Sprintf("got %v max %v", result, maxval))
+		return 0, fmt.Errorf("%w-%s", ErrCSVInvalidDrawRange, fmt.Sprintf("got %v max %v", result, maxval))
 	}
 	return uint8(result), nil
 }
@@ -132,7 +134,10 @@ func ParseDrawNum(value string, maxval int) (uint8, error) {
 func ParseDrawSeq(value string) (uint64, error) {
 	result, err := strconv.Atoi(value)
 	if err != nil {
-		return 0, fmt.Errorf("%w: %s", ErrCSVInvalidDrawSeq, err.Error())
+		return 0, fmt.Errorf("%w-%s", ErrCSVInvalidDrawSeq, err.Error())
+	}
+	if result < 0 {
+		return 0, fmt.Errorf("%w-Less than 0", ErrCSVInvalidDrawSeq)
 	}
 	return uint64(result), nil
 }
@@ -148,4 +153,42 @@ func DownloadFrom(url string) (io.Reader, error) {
 		return nil, err
 	}
 	return bytes.NewReader(b), nil
+}
+
+type CSVRec struct {
+	Record []string
+	Err    error
+}
+
+func ProcessCSV(ctx context.Context, r io.Reader) <-chan CSVRec {
+	c := make(chan CSVRec)
+	go func(ch chan CSVRec) {
+		defer close(ch)
+		csvr := csv.NewReader(r)
+		csvr.Read()
+	loop:
+		for {
+			select {
+			case <-ctx.Done():
+				break loop
+			default:
+				rec, err := csvr.Read()
+				if errors.Is(err, io.EOF) {
+					break loop
+				}
+				if err != nil {
+					ch <- CSVRec{
+						Record: rec,
+						Err:    fmt.Errorf("%w-%s", ErrCSVLine, err.Error()),
+					}
+					continue loop
+				}
+				ch <- CSVRec{
+					Record: rec,
+					Err:    nil,
+				}
+			}
+		}
+	}(c)
+	return c
 }
