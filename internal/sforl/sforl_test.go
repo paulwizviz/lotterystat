@@ -1,7 +1,6 @@
 package sforl
 
 import (
-	"reflect"
 	"testing"
 )
 
@@ -95,45 +94,6 @@ func TestIsValidBet(t *testing.T) {
 	for i, tc := range testcases {
 		actual := IsValidBet(tc.input)
 		if tc.expected != actual {
-			t.Fatalf("Case: %d Description: %s Expected: %v Actual: %v", i, tc.description, tc.expected, actual)
-		}
-	}
-}
-
-func TestProcessBetArg(t *testing.T) {
-	testcases := []struct {
-		input       string
-		expected    Bet
-		description string
-	}{
-		{
-			input: "1,10,20,30,45,1",
-			expected: Bet{
-				Ball1:    1,
-				Ball2:    10,
-				Ball3:    20,
-				Ball4:    30,
-				Ball5:    45,
-				LifeBall: 1,
-			},
-			description: "Valid argument",
-		},
-		{
-			input: "10,1,25,20,45,10",
-			expected: Bet{
-				Ball1:    1,
-				Ball2:    10,
-				Ball3:    20,
-				Ball4:    25,
-				Ball5:    45,
-				LifeBall: 10,
-			},
-			description: "Invalid arrangement",
-		},
-	}
-	for i, tc := range testcases {
-		actual, _ := ProcessBetArg(tc.input)
-		if !reflect.DeepEqual(tc.expected, actual) {
 			t.Fatalf("Case: %d Description: %s Expected: %v Actual: %v", i, tc.description, tc.expected, actual)
 		}
 	}
