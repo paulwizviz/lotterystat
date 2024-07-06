@@ -157,21 +157,24 @@ func DownloadFrom(url string) (io.Reader, error) {
 
 type CSVRec struct {
 	Record []string
+	Line   uint
 	Err    error
 }
 
-func ProcessCSV(ctx context.Context, r io.Reader) <-chan CSVRec {
+func ExtractRec(ctx context.Context, r io.Reader) chan CSVRec {
 	c := make(chan CSVRec)
 	go func(ch chan CSVRec) {
 		defer close(ch)
 		csvr := csv.NewReader(r)
-		csvr.Read()
+		csvr.Read() // Remove header
+		ln := uint(1)
 	loop:
 		for {
 			select {
 			case <-ctx.Done():
 				break loop
 			default:
+				ln++
 				rec, err := csvr.Read()
 				if errors.Is(err, io.EOF) {
 					break loop
@@ -179,12 +182,14 @@ func ProcessCSV(ctx context.Context, r io.Reader) <-chan CSVRec {
 				if err != nil {
 					ch <- CSVRec{
 						Record: rec,
+						Line:   ln,
 						Err:    fmt.Errorf("%w-%s", ErrCSVLine, err.Error()),
 					}
 					continue loop
 				}
 				ch <- CSVRec{
 					Record: rec,
+					Line:   ln,
 					Err:    nil,
 				}
 			}

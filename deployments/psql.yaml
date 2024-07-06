@@ -1,0 +1,40 @@
+version: '3.7'
+
+services:
+
+  defaultserver:
+    image: postgres:${PSQL_VER}
+    container_name: defaultserver
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      # POSTGRES_DB: default
+    ports:
+      - 5432:5432
+    volumes:
+      - vol:/var/lib/postgresql/data
+    networks:
+      - local
+
+  devops:
+    image: dpage/pgadmin4:${PGADMIN_VER}
+    container_name: devops
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@psql.email
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_LISTEN_PORT: 5050
+    ports:
+      - 5050:5050
+    depends_on:
+      defaultserver:
+        condition: service_started
+    networks:
+      - local
+      
+networks:
+  local:
+    name: $NETWORK
+
+volumes:
+  vol:
+    name: ${PSQL_VOL}

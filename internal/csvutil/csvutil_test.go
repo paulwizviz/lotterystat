@@ -466,35 +466,58 @@ func TestParseDrawSeq(t *testing.T) {
 	}
 }
 
-func TestProcessCSV(t *testing.T) {
+func TestExtractRec(t *testing.T) {
 	testcases := []struct {
 		input    []byte
 		expected CSVRec
 	}{
 		{
-			input: []byte(`DrawDate,Ball 1,Ball 2,Ball 3,Ball 4,Ball 5,Lucky Star 1,Lucky Star 2,UK Millionaire Maker,DrawNumber
-29-Sep-2023,9,11,13,21,32,2,7,"HQSB24670",1672`),
+			input: []byte(`Index,Value,Date
+1,abc,29-Sep-2023`),
 			expected: CSVRec{
-				Record: []string{"29-Sep-2023", "9", "11", "13", "21", "32", "2", "7", "HQSB24670", "1672"},
+				Record: []string{"1", "abc", "29-Sep-2023"},
 				Err:    nil,
 			},
 		},
 		{
-			input: []byte(`DrawDate,Ball 1,Ball 2,Ball 3,Ball 4,Ball 5,Lucky Star 1,Lucky Star 2,UK Millionaire Maker,DrawNumber
-9,11,13,21,32,2,7,"HQSB24670",1672`),
+			input: []byte(`Index,Value,Date
+"abc","29-Sep-2023"`),
 			expected: CSVRec{
-				Record: []string{"9", "11", "13", "21", "32", "2", "7", "HQSB24670", "1672"},
+				Record: []string{"abc", "29-Sep-2023"},
 				Err:    ErrCSVLine,
 			},
 		},
 	}
 
 	for i, tc := range testcases {
-		recs := ProcessCSV(context.TODO(), bytes.NewReader(tc.input))
+		recs := ExtractRec(context.TODO(), bytes.NewReader(tc.input))
 		for actual := range recs {
 			if assert.True(t, errors.Is(actual.Err, tc.expected.Err), fmt.Sprintf("Case: %d Error: %v", i, actual.Err)) {
 				assert.Equal(t, tc.expected.Record, actual.Record, fmt.Sprintf("Case: %d", i))
 			}
 		}
 	}
+}
+
+func Example_processCSV_cancel() {
+	data := []byte(`d1,d2,d3
+1,a,c
+2,2,7
+3,z,d
+4,x,1
+5,x7,100`)
+	r := bytes.NewReader(data)
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		time.Sleep(1 * time.Millisecond)
+		cancel()
+	}()
+	records := ExtractRec(ctx, r)
+	for rec := range records {
+		fmt.Println(rec)
+		time.Sleep(10 * time.Millisecond)
+	}
+	// Output:
+	// {[1 a c] 2 <nil>}
+	// {[2 2 7] 3 <nil>}
 }
