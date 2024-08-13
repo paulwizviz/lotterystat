@@ -24,21 +24,21 @@ const (
 )
 
 var (
-	createTableStmtStr   = fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER, %s TEXT,%s TEXT,%s INTEGER PRIMARY KEY)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyBall, ballset, machine, drawNo)
-	insertDrawStmtStr    = fmt.Sprintf(`INSERT INTO %s (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyBall, ballset, machine, drawNo)
-	selectAllDrawStmtStr = fmt.Sprintf(`SELECT * FROM %s`, tblName)
+	createSQLiteTableSQL   = fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER, %s TEXT,%s TEXT,%s INTEGER PRIMARY KEY)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyBall, ballset, machine, drawNo)
+	insertSQLiteDrawSQL    = fmt.Sprintf(`INSERT INTO %s (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyBall, ballset, machine, drawNo)
+	selectSQLiteAllDrawSQL = fmt.Sprintf(`SELECT * FROM %s`, tblName)
 )
 
-func createTable(ctx context.Context, db *sql.DB) error {
-	_, err := db.ExecContext(ctx, createTableStmtStr)
+func createSQLiteTable(ctx context.Context, db *sql.DB) error {
+	_, err := db.ExecContext(ctx, createSQLiteTableSQL)
 	if err != nil {
 		return fmt.Errorf("%w-%s", dbutil.ErrDBCreateTbl, err.Error())
 	}
 	return nil
 }
 
-func persistsDrawChan(ctx context.Context, db *sql.DB, dc <-chan DrawChan) error {
-	stmt, err := prepareInsertDrawStmt(ctx, db)
+func persistsSQLiteDraw(ctx context.Context, db *sql.DB, dc <-chan DrawChan) error {
+	stmt, err := prepareInsertSQLiteDrawStmt(ctx, db)
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func persistsDrawChan(ctx context.Context, db *sql.DB, dc <-chan DrawChan) error
 		if c.Err != nil {
 			continue
 		}
-		_, err = insertDraw(ctx, stmt, c.Draw)
+		_, err = insertSQLiteDraw(ctx, stmt, c.Draw)
 		if err != nil {
 			continue
 		}
@@ -54,9 +54,9 @@ func persistsDrawChan(ctx context.Context, db *sql.DB, dc <-chan DrawChan) error
 	return nil
 }
 
-func listAll(ctx context.Context, db *sql.DB) ([]Draw, error) {
+func listSQLiteAllDraw(ctx context.Context, db *sql.DB) ([]Draw, error) {
 	var draws []Draw
-	row, err := db.QueryContext(ctx, selectAllDrawStmtStr)
+	row, err := db.QueryContext(ctx, selectSQLiteAllDrawSQL)
 	if err != nil {
 		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBQueryTbl, err.Error())
 	}
@@ -73,15 +73,15 @@ func listAll(ctx context.Context, db *sql.DB) ([]Draw, error) {
 	return draws, nil
 }
 
-func prepareInsertDrawStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
-	stmt, err := db.PrepareContext(ctx, insertDrawStmtStr)
+func prepareInsertSQLiteDrawStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
+	stmt, err := db.PrepareContext(ctx, insertSQLiteDrawSQL)
 	if err != nil {
 		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBPrepareStmt, err.Error())
 	}
 	return stmt, nil
 }
 
-func insertDraw(ctx context.Context, stmt *sql.Stmt, d Draw) (sql.Result, error) {
+func insertSQLiteDraw(ctx context.Context, stmt *sql.Stmt, d Draw) (sql.Result, error) {
 	result, err := stmt.ExecContext(ctx, d.DrawDate.Unix(), d.DayOfWeek, d.Ball1, d.Ball2, d.Ball3, d.Ball4, d.Ball5, d.LifeBall, d.BallSet, d.Machine, d.DrawNo)
 	if err != nil {
 		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBInsertTbl, err.Error())

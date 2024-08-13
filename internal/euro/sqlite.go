@@ -24,13 +24,13 @@ const (
 )
 
 var (
-	createTableStmtStr = fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s TEXT,%s INTEGER PRIMARY KEY)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyStar1, luckyStar2, ukMarker, drawNo)
-	insertDrawStmtStr  = fmt.Sprintf(`INSERT INTO %s (%s,%s,%s,%s,%s, %s,%s,%s,%s,%s,%s) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyStar1, luckyStar2, ukMarker, drawNo)
-	selectAllStmtStr   = fmt.Sprintf(`SELECT * FROM %s`, tblName)
+	createTableSQLiteSQL = fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s TEXT,%s INTEGER PRIMARY KEY)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyStar1, luckyStar2, ukMarker, drawNo)
+	insertDrawSQLiteSQL  = fmt.Sprintf(`INSERT INTO %s (%s,%s,%s,%s,%s, %s,%s,%s,%s,%s,%s) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyStar1, luckyStar2, ukMarker, drawNo)
+	selectAllSQLiteSQL   = fmt.Sprintf(`SELECT * FROM %s`, tblName)
 )
 
-func createTable(ctx context.Context, db *sql.DB) error {
-	_, err := db.ExecContext(ctx, createTableStmtStr)
+func createSQLiteTable(ctx context.Context, db *sql.DB) error {
+	_, err := db.ExecContext(ctx, createTableSQLiteSQL)
 	if err != nil {
 		return fmt.Errorf("%w-%s", dbutil.ErrDBCreateTbl, err.Error())
 	}
@@ -57,7 +57,7 @@ func persistsDrawChan(ctx context.Context, db *sql.DB, dc <-chan DrawChan) error
 
 func listAllDraw(ctx context.Context, db *sql.DB) ([]Draw, error) {
 	var draws []Draw
-	row, err := db.QueryContext(ctx, selectAllStmtStr)
+	row, err := db.QueryContext(ctx, selectAllSQLiteSQL)
 	if err != nil {
 		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBQueryTbl, err.Error())
 	}
@@ -75,7 +75,7 @@ func listAllDraw(ctx context.Context, db *sql.DB) ([]Draw, error) {
 }
 
 func prepareInsertDrawStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
-	stmt, err := db.PrepareContext(ctx, insertDrawStmtStr)
+	stmt, err := db.PrepareContext(ctx, insertDrawSQLiteSQL)
 	if err != nil {
 		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBPrepareStmt, err.Error())
 	}

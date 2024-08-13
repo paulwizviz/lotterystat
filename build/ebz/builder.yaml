@@ -1,0 +1,18 @@
+# version: '3.7'
+
+services:
+
+  ebz:
+    build:
+      context: ../../
+      dockerfile: ./build/ebz/ebz.dockerfile
+      args:
+        GO_VER: ${GO_VER}
+    environment:
+      - APP_NAME=${APP_NAME}
+    image: ${EBZ_BUILD_IMAGE:-lotterystat/ebz-builder:current}
+    container_name: ${EBZ_BUILD_CONTAINER:-ebz-container}
+    command: /opt/ebznative.sh
+    volumes:
+      - ./ebznative.sh:/opt/ebznative.sh
+      - $PWD/package:/opt/build/package
