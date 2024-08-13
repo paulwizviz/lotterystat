@@ -33,12 +33,12 @@ type DrawChan struct {
 	Err  error
 }
 
-func CreateTable(ctx context.Context, db *sql.DB) error {
-	return createTable(ctx, db)
+func CreateSQLiteTable(ctx context.Context, db *sql.DB) error {
+	return createSQLiteTable(ctx, db)
 }
 
 func PersistsCSV(ctx context.Context, db *sql.DB, nworkers int) error {
-	return persistsCSV(ctx, db, nworkers)
+	return persistsSQLiteCSV(ctx, db, nworkers)
 }
 
 func IsValidBet(arg string) bool {

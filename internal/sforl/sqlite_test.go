@@ -39,7 +39,7 @@ func Example_listTable() {
 		return
 	}
 	defer db.Close()
-	err = createTable(context.TODO(), db)
+	err = createSQLiteTable(context.TODO(), db)
 	if err != nil {
 		fmt.Printf("Create table error: %v", err)
 		return
@@ -66,13 +66,13 @@ func Example_listAllDraw() {
 	}
 	defer db.Close()
 
-	err = CreateTable(context.TODO(), db)
+	err = CreateSQLiteTable(context.TODO(), db)
 	if errors.Is(err, dbutil.ErrDBCreateTbl) {
 		fmt.Printf("Unable to create table: %v", err)
 		return
 	}
 
-	stmt, err := prepareInsertDrawStmt(context.TODO(), db)
+	stmt, err := prepareInsertSQLiteDrawStmt(context.TODO(), db)
 	if errors.Is(err, dbutil.ErrDBPrepareStmt) {
 		fmt.Printf("Prepare insert statement: %v ", err)
 		return
@@ -92,9 +92,9 @@ func Example_listAllDraw() {
 		Machine:   "machine",
 		DrawNo:    1234,
 	}
-	_, err = insertDraw(context.TODO(), stmt, d)
+	_, err = insertSQLiteDraw(context.TODO(), stmt, d)
 
-	draws, err := listAll(context.TODO(), db)
+	draws, err := listSQLiteAllDraw(context.TODO(), db)
 	if errors.Is(err, dbutil.ErrDBQueryTbl) {
 		fmt.Printf("Query table. %v", err)
 	}

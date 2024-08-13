@@ -39,7 +39,7 @@ func Example_listTable() {
 		return
 	}
 	defer db.Close()
-	err = createTable(context.TODO(), db)
+	err = createSQLiteTable(context.TODO(), db)
 	if err != nil {
 		fmt.Printf("Create table error: %v", err)
 		return
@@ -58,7 +58,7 @@ func Example_listTable() {
 	// euro
 }
 
-func Example_listAllDraw() {
+func Example_insertDraw() {
 	db, err := dbConn()
 	if err != nil {
 		fmt.Printf("Unable to connect to DB: %v", err)
@@ -66,7 +66,7 @@ func Example_listAllDraw() {
 	}
 	defer db.Close()
 
-	err = CreateTable(context.TODO(), db)
+	err = CreateSQLiteTable(context.TODO(), db)
 	if errors.Is(err, dbutil.ErrDBCreateTbl) {
 		fmt.Printf("Unable to create table: %v", err)
 		return
@@ -112,4 +112,72 @@ func Example_listAllDraw() {
 
 	// Output:
 	// draw: {2023-01-20 12:00:00 +0000 GMT Friday 1 2 3 4 5 1 2 uk marker 1234}
+}
+
+func Example_insertDuplicateDraw() {
+	db, err := dbConn()
+	if err != nil {
+		fmt.Printf("Unable to connect to DB: %v", err)
+		return
+	}
+	defer db.Close()
+
+	err = CreateSQLiteTable(context.TODO(), db)
+	if errors.Is(err, dbutil.ErrDBCreateTbl) {
+		fmt.Printf("Unable to create table: %v", err)
+		return
+	}
+
+	stmt, err := prepareInsertDrawStmt(context.TODO(), db)
+	if errors.Is(err, dbutil.ErrDBPrepareStmt) {
+		fmt.Printf("Prepare insert statement: %v ", err)
+		return
+	}
+	defer stmt.Close()
+
+	draws := []Draw{
+		{
+			DrawDate:  time.Date(2023, time.January, 20, 12, 0, 0, 0, time.UTC),
+			DayOfWeek: time.Date(2023, time.January, 20, 12, 0, 0, 0, time.UTC).Weekday(),
+			Ball1:     1,
+			Ball2:     2,
+			Ball3:     3,
+			Ball4:     4,
+			Ball5:     5,
+			LS1:       1,
+			LS2:       2,
+			UKMarker:  "uk marker",
+			DrawNo:    1234,
+		},
+		{
+			DrawDate:  time.Date(2023, time.January, 20, 12, 0, 0, 0, time.UTC),
+			DayOfWeek: time.Date(2023, time.January, 20, 12, 0, 0, 0, time.UTC).Weekday(),
+			Ball1:     1,
+			Ball2:     2,
+			Ball3:     3,
+			Ball4:     4,
+			Ball5:     5,
+			LS1:       1,
+			LS2:       2,
+			UKMarker:  "uk marker",
+			DrawNo:    1234,
+		},
+	}
+
+	for _, d := range draws {
+		_, err = insertDraw(context.TODO(), stmt, d)
+		if errors.Is(err, dbutil.ErrDBInsertTbl) {
+			fmt.Printf("Error-insert draw: %v", err)
+		}
+
+		results, err := listAllDraw(context.TODO(), db)
+		if errors.Is(err, dbutil.ErrDBQueryTbl) {
+			fmt.Printf("Query table. %v", err)
+		}
+		fmt.Println(results)
+	}
+
+	// Output:
+	// [{2023-01-20 12:00:00 +0000 GMT Friday 1 2 3 4 5 1 2 uk marker 1234}]
+	// Error-insert draw: unable to write to table-UNIQUE constraint failed: euro.draw_no[{2023-01-20 12:00:00 +0000 GMT Friday 1 2 3 4 5 1 2 uk marker 1234}]
 }

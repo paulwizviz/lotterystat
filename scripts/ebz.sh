@@ -1,46 +1,60 @@
 #!/bin/bash
 
-export GO_VER=golang:1.21-bullseye
+if [ "$(basename $(realpath .))" != "lotterystat" ]; then
+    echo "You are outside the scope of the project"
+    exit 0
+fi
+
+export GO_VER=1.22.6-alpine3.19
 export APP_NAME=ebz
 
-export EBZ_BUILD_IMAGE=lotterystat/ebz:current
-export EBZ_BUILD_CONTAINER=ebz_container
+export EBZ_BUILD_IMAGE=lotterystat/ebz-builder:current
+export EBZ_BUILD_CONTAINER=ebz-container
 
 COMMAND=$1
+SUBCOMMAND=$2
 
-function build(){
-    # docker-compose -f ./build/ebenezer/builder.yml build
-    # docker-compose -f ./build/ebenezer/builder.yml up
-    go test -v ./...
-    if [ "$(uname)" == "Darwin" ]; then
-        echo "build for mac"
-        env GOOS=darwin GOARCH=amd64 go build -o ./build/ebenezer/package/macOS/${APP_NAME} ./cmd/ebenezer/prod
+# This is not use at the moment
+function linuxBuild(){
+    local cmd=$1
+    case $cmd in
+        "build")
+            docker compose -f ./build/ebz/builder.yaml build
+            docker compose -f ./build/ebz/builder.yaml up
+            docker rm -f ${EBZ_BUILD_CONTAINER}
+            docker rmi -f ${EBZ_IMAGE}
+            docker rmi -f $(docker images --filter "dangling=true" -q)
+            ;;
+        "clean")
+            docker rmi -f ${EBZ_IMAGE}
+            docker rmi -f $(docker images --filter "dangling=true" -q)
+            ;;
+    esac
+}
+
+function macBuild(){
+    if [ ! -d ./package/macOS ]; then
+        mkdir ./package/macOS
     fi
-    if [ "$(uname)" == "Linux" ]; then
-        echo "build for linux"
-        env GOOS=linux GOARCH=amd64 go build -o ./build/ebenezer/package/linux/${APP_NAME} ./cmd/ebenezer/prod
-    fi
+    env GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 go build -o ./package/macOS/ebz ./cmd/ebz
 }
 
 function clean(){
-    docker rm -f ${EBZCLI_BUILD_CONTAINER}
-    docker rmi -f ${EBZCLI_BUILD_IMAGE}
-    docker rmi -f $(docker images --filter "dangling=true" -q)
-    rm -rf ./build/ebenezer/package
+    if [ -d ./package ]; then
+        rm -rf ./package
+    fi
+    # linuxBuild clean
 }
 
 case $COMMAND in
     "build")
-        build
+        macBuild
+        # linuxBuild build
         ;;
     "clean")
         clean
         ;;
     *)
-        echo "Usage: $0 [commands]
-
-command:
-    build  native cli app
-    clean  remove containers, images and native packages"
+        echo "Usage: $0 [ build | clean ]"
         ;;
 esac
