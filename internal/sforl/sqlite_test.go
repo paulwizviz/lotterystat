@@ -72,7 +72,7 @@ func Example_listAllDraw() {
 		return
 	}
 
-	stmt, err := prepareInsertSQLiteDrawStmt(context.TODO(), db)
+	stmt, err := prepInsertSQLiteDrawStmt(context.TODO(), db)
 	if errors.Is(err, dbutil.ErrDBPrepareStmt) {
 		fmt.Printf("Prepare insert statement: %v ", err)
 		return

@@ -4,23 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"paulwizviz/lotterystat/internal/dbutil"
 	"time"
-)
-
-const (
-	tblName   = "set_for_life"
-	drawDate  = "draw_date"
-	dayOfWeek = "day_of_week"
-	ball1     = "ball1"
-	ball2     = "ball2"
-	ball3     = "ball3"
-	ball4     = "ball4"
-	ball5     = "ball5"
-	luckyBall = "lb"
-	ballset   = "ball_set"
-	machine   = "machine"
-	drawNo    = "draw_no"
 )
 
 var (
@@ -28,6 +14,10 @@ var (
 	insertSQLiteDrawSQL    = fmt.Sprintf(`INSERT INTO %s (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyBall, ballset, machine, drawNo)
 	selectSQLiteAllDrawSQL = fmt.Sprintf(`SELECT * FROM %s`, tblName)
 )
+
+func CreateSQLiteTable(ctx context.Context, db *sql.DB) error {
+	return createSQLiteTable(ctx, db)
+}
 
 func createSQLiteTable(ctx context.Context, db *sql.DB) error {
 	_, err := db.ExecContext(ctx, createSQLiteTableSQL)
@@ -37,21 +27,8 @@ func createSQLiteTable(ctx context.Context, db *sql.DB) error {
 	return nil
 }
 
-func persistsSQLiteDraw(ctx context.Context, db *sql.DB, dc <-chan DrawChan) error {
-	stmt, err := prepareInsertSQLiteDrawStmt(ctx, db)
-	if err != nil {
-		return err
-	}
-	for c := range dc {
-		if c.Err != nil {
-			continue
-		}
-		_, err = insertSQLiteDraw(ctx, stmt, c.Draw)
-		if err != nil {
-			continue
-		}
-	}
-	return nil
+func PersistsCSV(ctx context.Context, db *sql.DB, nworkers int) error {
+	return persistsCSV(ctx, db, nworkers)
 }
 
 func listSQLiteAllDraw(ctx context.Context, db *sql.DB) ([]Draw, error) {
@@ -73,7 +50,25 @@ func listSQLiteAllDraw(ctx context.Context, db *sql.DB) ([]Draw, error) {
 	return draws, nil
 }
 
-func prepareInsertSQLiteDrawStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
+func persistsSQLiteDraw(ctx context.Context, db *sql.DB, dc <-chan DrawChan) error {
+	stmt, err := prepInsertSQLiteDrawStmt(ctx, db)
+	if err != nil {
+		return err
+	}
+	for c := range dc {
+		if c.Err != nil {
+			continue
+		}
+		_, err = insertSQLiteDraw(ctx, stmt, c.Draw)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+	}
+	return nil
+}
+
+func prepInsertSQLiteDrawStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
 	stmt, err := db.PrepareContext(ctx, insertSQLiteDrawSQL)
 	if err != nil {
 		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBPrepareStmt, err.Error())

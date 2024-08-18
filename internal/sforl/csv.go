@@ -124,7 +124,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 	return c
 }
 
-func persistsSQLiteCSV(ctx context.Context, sqlite *sql.DB, nworkers int) error {
+func persistsCSV(ctx context.Context, sqlite *sql.DB, nworkers int) error {
 	r, err := csvutil.DownloadFrom(CSVUrl)
 	if err != nil {
 		return err
@@ -136,6 +136,28 @@ func persistsSQLiteCSV(ctx context.Context, sqlite *sql.DB, nworkers int) error 
 		go func() {
 			defer wg.Done()
 			err := persistsSQLiteDraw(ctx, sqlite, ch)
+			if err != nil {
+				log.Println(err)
+			}
+
+		}()
+	}
+	wg.Wait()
+	return nil
+}
+
+func persistsPSQLCSV(ctx context.Context, sqlite *sql.DB, nworkers int) error {
+	r, err := csvutil.DownloadFrom(CSVUrl)
+	if err != nil {
+		return err
+	}
+	ch := processCSV(ctx, r)
+	var wg sync.WaitGroup
+	wg.Add(nworkers)
+	for i := 0; i < nworkers; i++ {
+		go func() {
+			defer wg.Done()
+			err := persistsPSQLDraw(ctx, sqlite, ch)
 			if err != nil {
 				log.Println(err)
 			}
