@@ -2,8 +2,7 @@
 package sforl
 
 import (
-	"context"
-	"database/sql"
+	"fmt"
 	"log"
 	"regexp"
 	"time"
@@ -11,6 +10,21 @@ import (
 
 const (
 	CSVUrl = "https://www.national-lottery.co.uk/results/set-for-life/draw-history/csv"
+)
+
+const (
+	tblName   = "set_for_life"
+	drawDate  = "draw_date"
+	dayOfWeek = "day_of_week"
+	ball1     = "ball1"
+	ball2     = "ball2"
+	ball3     = "ball3"
+	ball4     = "ball4"
+	ball5     = "ball5"
+	luckyBall = "lb"
+	ballset   = "ball_set"
+	machine   = "machine"
+	drawNo    = "draw_no"
 )
 
 // Draw represents a draw from Set for Life
@@ -33,14 +47,6 @@ type DrawChan struct {
 	Err  error
 }
 
-func CreateSQLiteTable(ctx context.Context, db *sql.DB) error {
-	return createSQLiteTable(ctx, db)
-}
-
-func PersistsCSV(ctx context.Context, db *sql.DB, nworkers int) error {
-	return persistsSQLiteCSV(ctx, db, nworkers)
-}
-
 func IsValidBet(arg string) bool {
 	pattern := `^\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-7])\b,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-7])\b,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-7])\b,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-7])\b,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-7])\b,\b([1-9]|10)\b$`
 	matched, err := regexp.MatchString(pattern, arg)
@@ -48,4 +54,8 @@ func IsValidBet(arg string) bool {
 		log.Println(err)
 	}
 	return matched
+}
+
+func freqBallSQL(b uint8) string {
+	return fmt.Sprintf("SELECT COUNT(*) FROM %[1]s WHERE %[2]s=%[7]d AND %[3]s=%[7]d AND %[4]s=%[7]d AND %[5]s=%[7]d AND %[6]s=%[7]d", tblName, ball1, ball2, ball3, ball4, ball5, b)
 }

@@ -16,6 +16,7 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	initDBCmd()
+	persistDBCmd()
 	rootCmd.AddCommand(dbCmd)
 }
 

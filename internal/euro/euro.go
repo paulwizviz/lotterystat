@@ -36,9 +36,9 @@ func CreateSQLiteTable(ctx context.Context, db *sql.DB) error {
 	return createSQLiteTable(ctx, db)
 }
 
-// func PersistsCSV(ctx context.Context, db *sql.DB, nworkers int) error {
-// 	return persistsCSV(ctx, db, nworkers)
-// }
+func PersistsSQLiteCSV(ctx context.Context, db *sql.DB, nworkers int) error {
+	return persistsSQLiteCSV(ctx, db, nworkers)
+}
 
 func IsValidBall(arg string) bool {
 	pattern := `^\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b(,\b([1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|50)\b)*$`
