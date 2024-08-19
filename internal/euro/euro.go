@@ -1,8 +1,6 @@
 package euro
 
 import (
-	"context"
-	"database/sql"
 	"log"
 	"regexp"
 	"time"
@@ -30,14 +28,6 @@ type Draw struct {
 type DrawChan struct {
 	Draw Draw
 	Err  error
-}
-
-func CreateSQLiteTable(ctx context.Context, db *sql.DB) error {
-	return createSQLiteTable(ctx, db)
-}
-
-func PersistsSQLiteCSV(ctx context.Context, db *sql.DB, nworkers int) error {
-	return persistsSQLiteCSV(ctx, db, nworkers)
 }
 
 func IsValidBall(arg string) bool {

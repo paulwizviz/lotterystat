@@ -93,7 +93,7 @@ func Example_insertDraw() {
 		DrawNo:    1234,
 	}
 
-	_, err = insertDraw(context.TODO(), stmt, d)
+	_, err = insertSQLiteDraw(context.TODO(), stmt, d)
 	if errors.Is(err, dbutil.ErrDBInsertTbl) {
 		fmt.Printf("Insert draw. %v", err)
 	}
@@ -165,7 +165,7 @@ func Example_insertDuplicateDraw() {
 	}
 
 	for _, d := range draws {
-		_, err = insertDraw(context.TODO(), stmt, d)
+		_, err = insertSQLiteDraw(context.TODO(), stmt, d)
 		if errors.Is(err, dbutil.ErrDBInsertTbl) {
 			fmt.Printf("Error-insert draw: %v", err)
 		}
@@ -180,20 +180,4 @@ func Example_insertDuplicateDraw() {
 	// Output:
 	// [{2023-01-20 12:00:00 +0000 GMT Friday 1 2 3 4 5 1 2 uk marker 1234}]
 	// Error-insert draw: unable to write to table-UNIQUE constraint failed: euro.draw_no[{2023-01-20 12:00:00 +0000 GMT Friday 1 2 3 4 5 1 2 uk marker 1234}]
-}
-
-func Example_freqBallSQLiteSQL() {
-	sql := freqBallSQLiteSQL(1)
-	fmt.Println(sql)
-
-	// Output:
-	// SELECT COUNT(*) FROM euro WHERE ball1=1 AND ball2=1 AND ball3=1 AND ball4=1 AND ball5=1
-}
-
-func Example_freqTwoBallsSQLiteSQL() {
-	sql := freqTwoBallsSQLiteSQL(1, 2)
-	fmt.Println(sql)
-
-	// Output:
-	// SELECT COUNT(*) FROM euro WHERE (ball1=1 OR ball1=2) AND (ball2=1 OR ball2=2) AND (ball3=1 OR ball3=2) AND (ball4=1 OR ball4=2) AND (ball5=1 OR ball5=2)
 }
