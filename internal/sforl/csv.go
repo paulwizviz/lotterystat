@@ -124,7 +124,11 @@ func processCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 	return c
 }
 
-func persistsCSV(ctx context.Context, sqlite *sql.DB, nworkers int) error {
+func PersistsCSVSQLite(ctx context.Context, db *sql.DB, nworkers int) error {
+	return persistsCSVSQLite(ctx, db, nworkers)
+}
+
+func persistsCSVSQLite(ctx context.Context, sqlite *sql.DB, nworkers int) error {
 	r, err := csvutil.DownloadFrom(CSVUrl)
 	if err != nil {
 		return err
@@ -146,7 +150,11 @@ func persistsCSV(ctx context.Context, sqlite *sql.DB, nworkers int) error {
 	return nil
 }
 
-func persistsPSQLCSV(ctx context.Context, sqlite *sql.DB, nworkers int) error {
+func PersistsCSVPSQL(ctx context.Context, db *sql.DB, nworkers int) error {
+	return persistsCSVPSQL(ctx, db, nworkers)
+}
+
+func persistsCSVPSQL(ctx context.Context, sqlite *sql.DB, nworkers int) error {
 	r, err := csvutil.DownloadFrom(CSVUrl)
 	if err != nil {
 		return err
