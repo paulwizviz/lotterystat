@@ -12,21 +12,6 @@ const (
 	CSVUrl = "https://www.national-lottery.co.uk/results/set-for-life/draw-history/csv"
 )
 
-const (
-	tblName   = "set_for_life"
-	drawDate  = "draw_date"
-	dayOfWeek = "day_of_week"
-	ball1     = "ball1"
-	ball2     = "ball2"
-	ball3     = "ball3"
-	ball4     = "ball4"
-	ball5     = "ball5"
-	luckyBall = "lb"
-	ballset   = "ball_set"
-	machine   = "machine"
-	drawNo    = "draw_no"
-)
-
 // Draw represents a draw from Set for Life
 type Draw struct {
 	DrawDate  time.Time    `json:"draw_date"`
