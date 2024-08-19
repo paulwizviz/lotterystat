@@ -86,7 +86,7 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			err = sforl.PersistsCSV(context.TODO(), db, 3)
+			err = sforl.PersistsCSVSQLite(context.TODO(), db, 3)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -130,7 +130,11 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			err = sforl.PersistsPSQLCSV(context.TODO(), db, 3)
+			err = euro.PersistsCSVPSQL(context.TODO(), db, 3)
+			if err != nil {
+				log.Fatal(err)
+			}
+			err = sforl.PersistsCSVPSQL(context.TODO(), db, 3)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -177,6 +181,11 @@ func initPSQLDB(username string, password string, host string, port int, dbname 
 		log.Fatal(err)
 	}
 	defer db.Close()
+
+	err = euro.CreatePSQLTable(context.TODO(), db)
+	if err != nil {
+		return err
+	}
 
 	err = sforl.CreatePSQLTable(context.TODO(), db)
 	if err != nil {

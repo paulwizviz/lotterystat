@@ -132,6 +132,10 @@ func processCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 	return c
 }
 
+func PersistsSQLiteCSV(ctx context.Context, db *sql.DB, nworkers int) error {
+	return persistsSQLiteCSV(ctx, db, nworkers)
+}
+
 func persistsSQLiteCSV(ctx context.Context, db *sql.DB, nworkers int) error {
 	r, err := csvutil.DownloadFrom(CSVUrl)
 	if err != nil {
@@ -154,100 +158,28 @@ func persistsSQLiteCSV(ctx context.Context, db *sql.DB, nworkers int) error {
 	return nil
 }
 
-// func processCSV(recs chan csvutil.CSVRec) chan DrawChan {
-// 	c := make(chan DrawChan)
-// 	go func(ch chan DrawChan) {
-// 		defer close(ch)
-// 		for rec := range recs {
-// 			dt, err := csvutil.ParseDateTime(rec.Record[0])
-// 			if err != nil {
-// 				ch <- DrawChan{
-// 					Draw: Draw{},
-// 					Err:  err,
-// 				}
-// 				continue
-// 			}
-// 			b1, err := csvutil.ParseDrawNum(rec.Record[1], 50)
-// 			if err != nil {
-// 				ch <- DrawChan{
-// 					Draw: Draw{},
-// 					Err:  err,
-// 				}
-// 				continue
-// 			}
-// 			b2, err := csvutil.ParseDrawNum(rec.Record[2], 50)
-// 			if err != nil {
-// 				ch <- DrawChan{
-// 					Draw: Draw{},
-// 					Err:  err,
-// 				}
-// 				continue
-// 			}
-// 			b3, err := csvutil.ParseDrawNum(rec.Record[3], 50)
-// 			if err != nil {
-// 				ch <- DrawChan{
-// 					Draw: Draw{},
-// 					Err:  err,
-// 				}
-// 				continue
-// 			}
-// 			b4, err := csvutil.ParseDrawNum(rec.Record[4], 50)
-// 			if err != nil {
-// 				ch <- DrawChan{
-// 					Draw: Draw{},
-// 					Err:  err,
-// 				}
-// 				continue
-// 			}
-// 			b5, err := csvutil.ParseDrawNum(rec.Record[5], 50)
-// 			if err != nil {
-// 				ch <- DrawChan{
-// 					Draw: Draw{},
-// 					Err:  err,
-// 				}
-// 				continue
-// 			}
-// 			s1, err := csvutil.ParseDrawNum(rec.Record[6], 12)
-// 			if err != nil {
-// 				ch <- DrawChan{
-// 					Draw: Draw{},
-// 					Err:  err,
-// 				}
-// 				continue
-// 			}
-// 			s2, err := csvutil.ParseDrawNum(rec.Record[7], 12)
-// 			if err != nil {
-// 				ch <- DrawChan{
-// 					Draw: Draw{},
-// 					Err:  err,
-// 				}
-// 				continue
-// 			}
-// 			ukMarker := rec.Record[8]
-// 			dn, err := csvutil.ParseDrawSeq(rec.Record[9])
-// 			if err != nil {
-// 				ch <- DrawChan{
-// 					Draw: Draw{},
-// 					Err:  fmt.Errorf("%w-%s", csvutil.ErrCSVInvalidDrawDigit, err.Error()),
-// 				}
-// 				continue
-// 			}
-// 			ch <- DrawChan{
-// 				Draw: Draw{
-// 					DrawDate:  dt,
-// 					DayOfWeek: dt.Weekday(),
-// 					Ball1:     b1,
-// 					Ball2:     b2,
-// 					Ball3:     b3,
-// 					Ball4:     b4,
-// 					Ball5:     b5,
-// 					LS1:       s1,
-// 					LS2:       s2,
-// 					UKMarker:  ukMarker,
-// 					DrawNo:    dn,
-// 				},
-// 			}
-// 		}
-// 	}(c)
-// 	return c
-// }
+func PersistsCSVPSQL(ctx context.Context, db *sql.DB, nworkers int) error {
+	return persistsCSVPSQL(ctx, db, nworkers)
+}
+
+func persistsCSVPSQL(ctx context.Context, sqlite *sql.DB, nworkers int) error {
+	r, err := csvutil.DownloadFrom(CSVUrl)
+	if err != nil {
+		return err
+	}
+	ch := processCSV(ctx, r)
+	var wg sync.WaitGroup
+	wg.Add(nworkers)
+	for i := 0; i < nworkers; i++ {
+		go func() {
+			defer wg.Done()
+			err := persistsPSQLDraw(ctx, sqlite, ch)
+			if err != nil {
+				log.Println(err)
+			}
+
+		}()
+	}
+	wg.Wait()
+	return nil
+}
