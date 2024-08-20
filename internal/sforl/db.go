@@ -26,9 +26,9 @@ const (
 // SQLite
 
 var (
-	createSQLiteTableSQL   = fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER, %s TEXT,%s TEXT,%s INTEGER PRIMARY KEY)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyBall, ballset, machine, drawNo)
-	insertSQLiteDrawSQL    = fmt.Sprintf(`INSERT INTO %s (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyBall, ballset, machine, drawNo)
-	selectSQLiteAllDrawSQL = fmt.Sprintf(`SELECT * FROM %s`, tblName)
+	createSQLiteTableSQL = fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER, %s TEXT,%s TEXT,%s INTEGER PRIMARY KEY)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyBall, ballset, machine, drawNo)
+	insertSQLiteDrawSQL  = fmt.Sprintf(`INSERT INTO %s (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyBall, ballset, machine, drawNo)
+	//selectSQLiteAllDrawSQL = fmt.Sprintf(`SELECT * FROM %s`, tblName)
 )
 
 func CreateSQLiteTable(ctx context.Context, db *sql.DB) error {
@@ -129,4 +129,34 @@ func insertPSQLDraw(ctx context.Context, stmt *sql.Stmt, d Draw) (sql.Result, er
 		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBInsertTbl, err.Error())
 	}
 	return result, nil
+}
+
+// Common for SQLite and PSQL
+
+func freqBallSQLiteSQL() string {
+	return fmt.Sprintf("SELECT COUNT(*) FROM %[1]s WHERE %[2]s=$1 OR %[3]s=$1 OR %[4]s=$1 OR %[5]s=$1 OR %[6]s=$1;", tblName, ball1, ball2, ball3, ball4, ball5)
+}
+
+func prepSQLiteBallCountStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
+	stmt, err := db.PrepareContext(ctx, freqBallSQLiteSQL())
+	if err != nil {
+		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBPrepareStmt, err.Error())
+	}
+	return stmt, nil
+}
+
+func ballCount(ctx context.Context, stmt *sql.Stmt, b uint8) (int, error) {
+	rows, err := stmt.QueryContext(ctx, b)
+	if err != nil {
+		return 0, err
+	}
+
+	var count int
+	for rows.Next() {
+		err = rows.Scan(&count)
+		if err != nil {
+			break
+		}
+	}
+	return count, nil
 }

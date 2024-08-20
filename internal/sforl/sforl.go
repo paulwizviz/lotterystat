@@ -2,7 +2,6 @@
 package sforl
 
 import (
-	"fmt"
 	"log"
 	"regexp"
 	"time"
@@ -39,8 +38,4 @@ func IsValidBet(arg string) bool {
 		log.Println(err)
 	}
 	return matched
-}
-
-func freqBallSQL(b uint8) string {
-	return fmt.Sprintf("SELECT COUNT(*) FROM %[1]s WHERE %[2]s=%[7]d AND %[3]s=%[7]d AND %[4]s=%[7]d AND %[5]s=%[7]d AND %[6]s=%[7]d", tblName, ball1, ball2, ball3, ball4, ball5, b)
 }
