@@ -1,33 +1,10 @@
 package main
 
-import (
-	"log"
-
-	"github.com/spf13/cobra"
-)
-
-var rootCmd = &cobra.Command{
-	Use:   "ebz",
-	Short: "ebz is a cli app to help you analyze UK National Lottery.",
-	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
-	},
-}
-
-func init() {
-	initDBCmd()
-	persistDBCmd()
-	rootCmd.AddCommand(dbCmd)
-}
-
-func execute() error {
-	return rootCmd.Execute()
-}
+import "paulwizviz/lotterystat/internal/ebzcli"
 
 func main() {
-	log.Println("Hello")
 
-	execute()
+	ebzcli.Execute()
 
 	// c := make(chan os.Signal, 1)
 	// signal.Notify(c, os.Interrupt)

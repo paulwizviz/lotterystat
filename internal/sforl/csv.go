@@ -149,29 +149,3 @@ func persistsCSV(ctx context.Context, sqlite *sql.DB, nworkers int) error {
 	wg.Wait()
 	return nil
 }
-
-func PersistsCSVPSQL(ctx context.Context, db *sql.DB, nworkers int) error {
-	return persistsCSVPSQL(ctx, db, nworkers)
-}
-
-func persistsCSVPSQL(ctx context.Context, sqlite *sql.DB, nworkers int) error {
-	r, err := csvutil.DownloadFrom(CSVUrl)
-	if err != nil {
-		return err
-	}
-	ch := processCSV(ctx, r)
-	var wg sync.WaitGroup
-	wg.Add(nworkers)
-	for i := 0; i < nworkers; i++ {
-		go func() {
-			defer wg.Done()
-			err := persistsDraw(ctx, sqlite, ch)
-			if err != nil {
-				log.Println(err)
-			}
-
-		}()
-	}
-	wg.Wait()
-	return nil
-}

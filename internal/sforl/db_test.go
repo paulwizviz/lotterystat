@@ -89,7 +89,7 @@ func Example_ballCount() {
 		Ball3:     3,
 		Ball4:     4,
 		Ball5:     5,
-		LifeBall:  1,
+		LifeBall:  9,
 		BallSet:   "abc",
 		Machine:   "efg",
 		DrawNo:    1,
@@ -99,12 +99,23 @@ func Example_ballCount() {
 	if err != nil {
 		fmt.Printf("Ball count statement error: %v", err)
 	}
-	result, err := countBall(context.TODO(), stmt2, 1)
+	ballCount, err := countChoice(context.TODO(), stmt2, 1)
 	if err != nil {
 		fmt.Printf("Ball count error: %v", err)
 	}
-	fmt.Println(result)
+	stmt3, err := prepCountLuckyStmt(context.TODO(), db)
+	if err != nil {
+		fmt.Printf("Lucky count statement error: %v", err)
+	}
+	luckyCount, err := countChoice(context.TODO(), stmt3, 9)
+	if err != nil {
+		fmt.Printf("Ball count error: %v", err)
+	}
+
+	fmt.Printf("Number of Ball numbered 1: %d\n", ballCount)
+	fmt.Printf("Number of Lucky star numbered 9: %d\n", luckyCount)
 
 	// Output:
-	// 1
+	// Number of Ball numbered 1: 1
+	// Number of Lucky star numbered 9: 1
 }

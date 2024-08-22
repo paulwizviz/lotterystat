@@ -114,13 +114,24 @@ func prepCountBallStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
 	return stmt, nil
 }
 
-func countBall(ctx context.Context, stmt *sql.Stmt, num uint8) (int, error) {
+func countLuckySQL() string {
+	return fmt.Sprintf("SELECT COUNT(*) FROM %[1]s WHERE %[2]s=$1;", tblName, luckyBall)
+}
+
+func prepCountLuckyStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
+	stmt, err := db.PrepareContext(ctx, countLuckySQL())
+	if err != nil {
+		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBPrepareStmt, err.Error())
+	}
+	return stmt, nil
+}
+
+func countChoice(ctx context.Context, stmt *sql.Stmt, num uint8) (uint, error) {
 	rows, err := stmt.QueryContext(ctx, num)
 	if err != nil {
 		return 0, err
 	}
-
-	var count int
+	var count uint
 	for rows.Next() {
 		err = rows.Scan(&count)
 		if err != nil {
