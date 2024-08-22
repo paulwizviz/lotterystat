@@ -57,7 +57,7 @@ func Example_listSQLiteTable() {
 }
 
 func Example_freqBallSQLiteSQL() {
-	s := freqBallSQLiteSQL()
+	s := countBallSQL()
 	fmt.Println(s)
 
 	// Output:
@@ -76,7 +76,7 @@ func Example_ballCount() {
 		fmt.Printf("Create table error: %v", err)
 		return
 	}
-	stmt1, err := prepInsertSQLiteDrawStmt(context.TODO(), db)
+	stmt1, err := prepInsertDrawStmt(context.TODO(), db)
 	if err != nil {
 		fmt.Printf("Insert table error: %v", err)
 		return
@@ -94,12 +94,12 @@ func Example_ballCount() {
 		Machine:   "efg",
 		DrawNo:    1,
 	}
-	insertSQLiteDraw(context.TODO(), stmt1, d)
-	stmt2, err := prepSQLiteBallCountStmt(context.TODO(), db)
+	insertDraw(context.TODO(), stmt1, d)
+	stmt2, err := prepCountBallStmt(context.TODO(), db)
 	if err != nil {
 		fmt.Printf("Ball count statement error: %v", err)
 	}
-	result, err := ballCount(context.TODO(), stmt2, 1)
+	result, err := countBall(context.TODO(), stmt2, 1)
 	if err != nil {
 		fmt.Printf("Ball count error: %v", err)
 	}

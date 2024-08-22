@@ -82,11 +82,11 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			err = euro.PersistsSQLiteCSV(context.TODO(), db, 3)
+			err = euro.PersistsCSV(context.TODO(), db, 3)
 			if err != nil {
 				log.Fatal(err)
 			}
-			err = sforl.PersistsCSVSQLite(context.TODO(), db, 3)
+			err = sforl.PersistsCSV(context.TODO(), db, 3)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -105,7 +105,7 @@ var (
 		Use:   "psql",
 		Short: "psql db",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("-- Initialise Postgres db --")
+			fmt.Println("-- Initialise Postgres --")
 			p, err := strconv.Atoi(port)
 			if err != nil {
 				log.Fatal(err)
@@ -130,11 +130,11 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			err = euro.PersistsCSVPSQL(context.TODO(), db, 3)
+			err = euro.PersistsCSV(context.TODO(), db, 3)
 			if err != nil {
 				log.Fatal(err)
 			}
-			err = sforl.PersistsCSVPSQL(context.TODO(), db, 3)
+			err = sforl.PersistsCSV(context.TODO(), db, 3)
 			if err != nil {
 				log.Fatal(err)
 			}
