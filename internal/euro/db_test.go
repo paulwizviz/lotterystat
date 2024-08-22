@@ -72,7 +72,7 @@ func Example_insertDraw() {
 		return
 	}
 
-	stmt, err := prepSQLiteInsertDrawStmt(context.TODO(), db)
+	stmt, err := prepInsertDrawStmt(context.TODO(), db)
 	if errors.Is(err, dbutil.ErrDBPrepareStmt) {
 		fmt.Printf("Prepare insert statement: %v ", err)
 		return
@@ -93,7 +93,7 @@ func Example_insertDraw() {
 		DrawNo:    1234,
 	}
 
-	_, err = insertSQLiteDraw(context.TODO(), stmt, d)
+	_, err = insertDraw(context.TODO(), stmt, d)
 	if errors.Is(err, dbutil.ErrDBInsertTbl) {
 		fmt.Printf("Insert draw. %v", err)
 	}
@@ -128,7 +128,7 @@ func Example_insertDuplicateDraw() {
 		return
 	}
 
-	stmt, err := prepSQLiteInsertDrawStmt(context.TODO(), db)
+	stmt, err := prepInsertDrawStmt(context.TODO(), db)
 	if errors.Is(err, dbutil.ErrDBPrepareStmt) {
 		fmt.Printf("Prepare insert statement: %v ", err)
 		return
@@ -165,7 +165,7 @@ func Example_insertDuplicateDraw() {
 	}
 
 	for _, d := range draws {
-		_, err = insertSQLiteDraw(context.TODO(), stmt, d)
+		_, err = insertDraw(context.TODO(), stmt, d)
 		if errors.Is(err, dbutil.ErrDBInsertTbl) {
 			fmt.Printf("Error-insert draw: %v", err)
 		}
