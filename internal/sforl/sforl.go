@@ -2,6 +2,8 @@
 package sforl
 
 import (
+	"context"
+	"database/sql"
 	"log"
 	"regexp"
 	"time"
@@ -38,4 +40,54 @@ func IsValidBet(arg string) bool {
 		log.Println(err)
 	}
 	return matched
+}
+
+type BallCount struct {
+	Ball  uint8
+	Count uint
+}
+
+func BallFreq(ctx context.Context, db *sql.DB) ([]BallCount, error) {
+	stmt, err := prepCountBallStmt(ctx, db)
+	if err != nil {
+		return nil, err
+	}
+
+	ballcounts := []BallCount{}
+	for i := 1; i < 48; i++ {
+		var bc BallCount
+		bc.Ball = uint8(i)
+		count, err := countChoice(ctx, stmt, uint8(i))
+		if err != nil {
+			continue
+		}
+		bc.Count = count
+		ballcounts = append(ballcounts, bc)
+	}
+	return ballcounts, nil
+}
+
+type StarCount struct {
+	Star  uint8
+	Count uint
+}
+
+func StarFreq(ctx context.Context, db *sql.DB) ([]StarCount, error) {
+	stmt, err := prepCountLuckyStmt(ctx, db)
+	if err != nil {
+		return nil, err
+	}
+
+	starCounts := []StarCount{}
+	for i := 1; i < 11; i++ {
+		var bc StarCount
+		bc.Star = uint8(i)
+		count, err := countChoice(ctx, stmt, uint8(i))
+		if err != nil {
+			continue
+		}
+		bc.Count = count
+		starCounts = append(starCounts, bc)
+	}
+	return starCounts, nil
 }

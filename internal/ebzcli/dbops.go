@@ -1,4 +1,4 @@
-package main
+package ebzcli
 
 import (
 	"context"
@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
 	"paulwizviz/lotterystat/internal/dbutil"
 	"paulwizviz/lotterystat/internal/euro"
 	"paulwizviz/lotterystat/internal/sforl"
@@ -27,7 +26,7 @@ var (
 		},
 	}
 
-	dbinitCmd = &cobra.Command{
+	dbInitCmd = &cobra.Command{
 		Use:   "init",
 		Short: "Initialise DB",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -35,7 +34,7 @@ var (
 		},
 	}
 
-	dbpersistsCmd = &cobra.Command{
+	dbPersistsCmd = &cobra.Command{
 		Use:   "persists",
 		Short: "Persist DB",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -51,13 +50,6 @@ var (
 		Use:   "sqlite",
 		Short: "sqlite db",
 		Run: func(cmd *cobra.Command, args []string) {
-			if sqliteFile == "" {
-				pwd, err := os.Getwd()
-				if err != nil {
-					log.Fatal(err)
-				}
-				sqliteFile = path.Join(pwd, "dbfiles", "sqlite", "data.db")
-			}
 			fmt.Println("-- Initialising SQLite db --")
 			err := initSQLiteDB(sqliteFile)
 			if err != nil {
@@ -70,13 +62,6 @@ var (
 		Use:   "sqlite",
 		Short: "sqlite db",
 		Run: func(cmd *cobra.Command, args []string) {
-			if sqliteFile == "" {
-				pwd, err := os.Getwd()
-				if err != nil {
-					log.Fatal(err)
-				}
-				sqliteFile = path.Join(pwd, "dbfiles", "sqlite", "data.db")
-			}
 			fmt.Println("-- Persist to SQLite --")
 			db, err := dbutil.SQLiteConnectFile(sqliteFile)
 			if err != nil {
@@ -142,18 +127,20 @@ var (
 	}
 )
 
-func initDBCmd() {
-	dbCmd.AddCommand(dbinitCmd)
-	dbinitCmd.AddCommand(sqliteInitCmd)
-	sqliteInitCmd.Flags().StringVarP(&sqliteFile, "file", "f", "", "SQLite file")
-	dbinitCmd.AddCommand(psqlInitCmd)
-}
+func dbCmdInit() {
 
-func persistDBCmd() {
-	dbCmd.AddCommand(dbpersistsCmd)
-	dbpersistsCmd.AddCommand(sqlitePersistsCmd)
+	// Init command
+	dbInitCmd.AddCommand(sqliteInitCmd)
+	sqliteInitCmd.Flags().StringVarP(&sqliteFile, "file", "f", "", "SQLite file")
+	dbInitCmd.AddCommand(psqlInitCmd)
+
+	// Persists command
+	dbPersistsCmd.AddCommand(sqlitePersistsCmd)
 	sqlitePersistsCmd.Flags().StringVarP(&sqliteFile, "file", "f", "", "SQLite file")
-	dbpersistsCmd.AddCommand(psqlPersistsCmd)
+	dbPersistsCmd.AddCommand(psqlPersistsCmd)
+
+	dbCmd.AddCommand(dbInitCmd)
+	dbCmd.AddCommand(dbPersistsCmd)
 }
 
 func initSQLiteDB(file string) error {
