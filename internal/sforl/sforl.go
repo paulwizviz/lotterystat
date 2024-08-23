@@ -4,6 +4,7 @@ package sforl
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"regexp"
 	"time"
@@ -42,33 +43,33 @@ func IsValidBet(arg string) bool {
 	return matched
 }
 
-type BallCount struct {
-	Ball  uint8
+type MainCount struct {
+	Num   uint8
 	Count uint
 }
 
-func BallFreq(ctx context.Context, db *sql.DB) ([]BallCount, error) {
+func MainFreq(ctx context.Context, db *sql.DB) ([]MainCount, error) {
 	stmt, err := prepCountBallStmt(ctx, db)
 	if err != nil {
 		return nil, err
 	}
 
-	ballcounts := []BallCount{}
+	mainCounts := []MainCount{}
 	for i := 1; i < 48; i++ {
-		var bc BallCount
-		bc.Ball = uint8(i)
+		var bc MainCount
+		bc.Num = uint8(i)
 		count, err := countChoice(ctx, stmt, uint8(i))
 		if err != nil {
 			continue
 		}
 		bc.Count = count
-		ballcounts = append(ballcounts, bc)
+		mainCounts = append(mainCounts, bc)
 	}
-	return ballcounts, nil
+	return mainCounts, nil
 }
 
 type StarCount struct {
-	Star  uint8
+	Num   uint8
 	Count uint
 }
 
@@ -80,14 +81,74 @@ func StarFreq(ctx context.Context, db *sql.DB) ([]StarCount, error) {
 
 	starCounts := []StarCount{}
 	for i := 1; i < 11; i++ {
-		var bc StarCount
-		bc.Star = uint8(i)
+		var sc StarCount
+		sc.Num = uint8(i)
 		count, err := countChoice(ctx, stmt, uint8(i))
 		if err != nil {
 			continue
 		}
-		bc.Count = count
-		starCounts = append(starCounts, bc)
+		sc.Count = count
+		starCounts = append(starCounts, sc)
 	}
 	return starCounts, nil
+}
+
+type TwoCombo struct {
+	Combo [2]uint8
+	Count uint
+}
+
+func twoMainComboFreqWorker(ctx context.Context, stmt *sql.Stmt, input <-chan [2]uint8, result chan<- TwoCombo) {
+	for i := range input {
+		tc := TwoCombo{}
+		count, err := countTwoMain(ctx, stmt, i[0], i[1])
+		if err != nil {
+			continue
+		}
+		tc.Combo = i
+		tc.Count = count
+		result <- tc
+	}
+}
+
+func twoMainComboFreq(ctx context.Context, stmt *sql.Stmt) []TwoCombo {
+
+	numOfJob := 1081
+	set := []uint8{
+		1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+		11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+		21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+		31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+		41, 42, 43, 44, 45, 46, 47,
+	}
+
+	jobs := make(chan [2]uint8, numOfJob)
+	output := make(chan TwoCombo, numOfJob)
+
+	for i := 0; i < 3; i++ {
+		go twoMainComboFreqWorker(ctx, stmt, jobs, output)
+	}
+
+	for i := 0; i < len(set); i++ {
+		for j := i + 1; j < len(set); j++ {
+			d := [2]uint8{}
+			d[0], d[1] = set[i], set[j]
+			jobs <- d
+		}
+	}
+
+	results := []TwoCombo{}
+	for i := 0; i < numOfJob; i++ {
+		results = append(results, <-output)
+	}
+	return results
+}
+
+func TwoMainComboFreq(ctx context.Context, db *sql.DB) []TwoCombo {
+	stmt, err := prepTwoMainStmt(context.TODO(), db)
+	if err != nil {
+		fmt.Printf("Two main statement error: %v", err)
+	}
+	defer stmt.Close()
+	return twoMainComboFreq(ctx, stmt)
 }

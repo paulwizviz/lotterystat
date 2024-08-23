@@ -30,7 +30,7 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			bf, err := sforl.BallFreq(context.TODO(), db)
+			bf, err := sforl.MainFreq(context.TODO(), db)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -46,6 +46,7 @@ var (
 			outPath := path.Join(pwd, "tmp")
 			starCSVFile := path.Join(outPath, "sforl-star.csv")
 			ballCSVFile := path.Join(outPath, "sforl-ball.csv")
+			comboCSVFile := path.Join(outPath, "sforl-combo.csv")
 			f1, err := os.Create(starCSVFile)
 			if err != nil {
 				log.Fatal(err)
@@ -56,6 +57,11 @@ var (
 				log.Fatal(err)
 			}
 			defer f2.Close()
+			f3, err := os.Create(comboCSVFile)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer f3.Close()
 
 			w1 := csv.NewWriter(f1)
 			defer w1.Flush()
@@ -64,7 +70,7 @@ var (
 			var starData [][]string
 			for _, r := range sf {
 				d := []string{}
-				d = append(d, fmt.Sprintf("%v", r.Star))
+				d = append(d, fmt.Sprintf("%v", r.Num))
 				d = append(d, fmt.Sprintf("%v", r.Count))
 				starData = append(starData, d)
 			}
@@ -79,7 +85,7 @@ var (
 			var ballData [][]string
 			for _, r := range bf {
 				d := []string{}
-				d = append(d, fmt.Sprintf("%v", r.Ball))
+				d = append(d, fmt.Sprintf("%v", r.Num))
 				d = append(d, fmt.Sprintf("%v", r.Count))
 				ballData = append(ballData, d)
 			}
@@ -87,6 +93,27 @@ var (
 			for _, row := range ballData {
 				w2.Write(row)
 			}
+
+			w3 := csv.NewWriter(f3)
+			defer w3.Flush()
+
+			comboFreq := sforl.TwoMainComboFreq(context.TODO(), db)
+
+			comboHeaders := []string{"Star", "Count"}
+			var comboData [][]string
+			for _, cf := range comboFreq {
+				d := []string{}
+				if cf.Count != 0 {
+					d = append(d, fmt.Sprintf("%v", cf.Combo))
+					d = append(d, fmt.Sprintf("%v", cf.Count))
+					comboData = append(comboData, d)
+				}
+			}
+			w3.Write(comboHeaders)
+			for _, row := range comboData {
+				w3.Write(row)
+			}
+
 		},
 	}
 )
