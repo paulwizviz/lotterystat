@@ -64,7 +64,11 @@ func CreatePSQLTable(ctx context.Context, db *sql.DB) error {
 // Common for SQLite and PSQL
 
 var (
-	inserDrawSQL = fmt.Sprintf(`INSERT INTO %s (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyBall, ballset, machine, drawNo)
+	inserDrawSQL    = fmt.Sprintf(`INSERT INTO %s (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyBall, ballset, machine, drawNo)
+	countLuckySQL   = fmt.Sprintf("SELECT COUNT(*) FROM %[1]s WHERE %[2]s=$1;", tblName, luckyBall)
+	countTwoMainSQL = fmt.Sprintf(`SELECT COUNT(*) FROM  %[1]s 
+	     WHERE (%[2]s=$1 OR %[3]s=$1 OR %[4]s=$1 OR %[5]s=$1 OR %[6]s=$1)
+		 AND (%[2]s=$2 OR %[3]s=$2 OR %[4]s=$2 OR %[5]s=$2 OR %[6]s=$2)`, tblName, ball1, ball2, ball3, ball4, ball5)
 )
 
 func prepInsertDrawStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
@@ -114,12 +118,8 @@ func prepCountBallStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
 	return stmt, nil
 }
 
-func countLuckySQL() string {
-	return fmt.Sprintf("SELECT COUNT(*) FROM %[1]s WHERE %[2]s=$1;", tblName, luckyBall)
-}
-
 func prepCountLuckyStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
-	stmt, err := db.PrepareContext(ctx, countLuckySQL())
+	stmt, err := db.PrepareContext(ctx, countLuckySQL)
 	if err != nil {
 		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBPrepareStmt, err.Error())
 	}
@@ -128,6 +128,29 @@ func prepCountLuckyStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
 
 func countChoice(ctx context.Context, stmt *sql.Stmt, num uint8) (uint, error) {
 	rows, err := stmt.QueryContext(ctx, num)
+	if err != nil {
+		return 0, err
+	}
+	var count uint
+	for rows.Next() {
+		err = rows.Scan(&count)
+		if err != nil {
+			break
+		}
+	}
+	return count, nil
+}
+
+func prepTwoMainStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
+	stmt, err := db.PrepareContext(ctx, countTwoMainSQL)
+	if err != nil {
+		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBPrepareStmt, err.Error())
+	}
+	return stmt, nil
+}
+
+func countTwoMain(ctx context.Context, stmt *sql.Stmt, num1 uint8, num2 uint8) (uint, error) {
+	rows, err := stmt.QueryContext(ctx, num1, num2)
 	if err != nil {
 		return 0, err
 	}
