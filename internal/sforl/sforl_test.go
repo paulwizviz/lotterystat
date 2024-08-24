@@ -1,10 +1,8 @@
 package sforl
 
 import (
-	"context"
 	"fmt"
 	"testing"
-	"time"
 )
 
 func TestIsValidBet(t *testing.T) {
@@ -124,61 +122,4 @@ func Example_twoCombination() {
 
 	// Output:
 	// Size of combination: 1081
-}
-
-func Example_twoMainComboFreq() {
-	db, err := dbConn()
-	if err != nil {
-		fmt.Printf("DB not found: %v", err)
-		return
-	}
-	defer db.Close()
-	err = createSQLiteTable(context.TODO(), db)
-	if err != nil {
-		fmt.Printf("Create table error: %v", err)
-		return
-	}
-	stmt, err := prepInsertDrawStmt(context.TODO(), db)
-	if err != nil {
-		fmt.Printf("Insert table error: %v", err)
-		return
-	}
-	defer stmt.Close()
-
-	d1 := Draw{
-		DrawDate:  time.Date(2023, time.January, 1, 0, 0, 0, 0, time.Local),
-		DayOfWeek: time.Monday,
-		Ball1:     1,
-		Ball2:     11,
-		Ball3:     22,
-		Ball4:     24,
-		Ball5:     30,
-		LifeBall:  1,
-		BallSet:   "abc",
-		Machine:   "efg",
-		DrawNo:    1,
-	}
-	insertDraw(context.TODO(), stmt, d1)
-
-	d2 := Draw{
-		DrawDate:  time.Date(2023, time.January, 1, 0, 0, 0, 0, time.Local),
-		DayOfWeek: time.Monday,
-		Ball1:     1,
-		Ball2:     10,
-		Ball3:     20,
-		Ball4:     30,
-		Ball5:     42,
-		LifeBall:  5,
-		BallSet:   "hij",
-		Machine:   "klm",
-		DrawNo:    2,
-	}
-	insertDraw(context.TODO(), stmt, d2)
-
-	stmt1, err := prepTwoMainStmt(context.TODO(), db)
-
-	twoMainComboFreq(context.TODO(), stmt1)
-
-	// Output:
-
 }

@@ -111,7 +111,7 @@ func twoMainComboFreqWorker(ctx context.Context, stmt *sql.Stmt, input <-chan [2
 	}
 }
 
-func twoMainComboFreq(ctx context.Context, stmt *sql.Stmt) []TwoCombo {
+func twoMainComboFreq(ctx context.Context, stmt *sql.Stmt, numworkers int) []TwoCombo {
 
 	numOfJob := 1081
 	set := []uint8{
@@ -125,7 +125,7 @@ func twoMainComboFreq(ctx context.Context, stmt *sql.Stmt) []TwoCombo {
 	jobs := make(chan [2]uint8, numOfJob)
 	output := make(chan TwoCombo, numOfJob)
 
-	for i := 0; i < 3; i++ {
+	for i := 0; i < numworkers; i++ {
 		go twoMainComboFreqWorker(ctx, stmt, jobs, output)
 	}
 
@@ -150,5 +150,5 @@ func TwoMainComboFreq(ctx context.Context, db *sql.DB) []TwoCombo {
 		fmt.Printf("Two main statement error: %v", err)
 	}
 	defer stmt.Close()
-	return twoMainComboFreq(ctx, stmt)
+	return twoMainComboFreq(ctx, stmt, 4)
 }
