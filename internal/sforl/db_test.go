@@ -56,12 +56,12 @@ func Example_listSQLiteTable() {
 	// set_for_life
 }
 
-func Example_freqBallSQLiteSQL() {
-	s := countBallSQL()
+func Example_countBallSQL() {
+	s := countBallSQL
 	fmt.Println(s)
 
 	// Output:
-	// SELECT COUNT(*) FROM set_for_life WHERE ball1=? OR ball2=? OR ball3=? OR ball4=? OR ball5=?;
+	// SELECT COUNT(*) FROM set_for_life WHERE ball1=$1 OR ball2=$1 OR ball3=$1 OR ball4=$1 OR ball5=$1;
 }
 
 func Example_countChoice() {
@@ -192,4 +192,52 @@ func Example_countTwoMain() {
 
 	// Output:
 	// Combination of 1,30 count: 2
+}
+
+func Example_selectAllDraws() {
+	db, err := dbConn()
+	if err != nil {
+		fmt.Printf("DB not found: %v", err)
+		return
+	}
+	defer db.Close()
+	err = createSQLiteTable(context.TODO(), db)
+	if err != nil {
+		fmt.Printf("Create table error: %v", err)
+		return
+	}
+	stmt, err := prepInsertDrawStmt(context.TODO(), db)
+	if err != nil {
+		fmt.Printf("Insert table error: %v", err)
+		return
+	}
+	defer stmt.Close()
+
+	d := Draw{
+		DrawDate:  time.Date(2023, time.January, 1, 0, 0, 0, 0, time.Local),
+		DayOfWeek: time.Monday,
+		Ball1:     1,
+		Ball2:     2,
+		Ball3:     3,
+		Ball4:     4,
+		Ball5:     5,
+		LifeBall:  9,
+		BallSet:   "abc",
+		Machine:   "efg",
+		DrawNo:    1,
+	}
+	insertDraw(context.TODO(), stmt, d)
+
+	rows, err := selectAllDrawRows(context.TODO(), db)
+	if err != nil {
+		fmt.Printf("selectAllDrawRows error: %v", err)
+	}
+
+	draw := selectAllDraw(rows)
+	for d := range draw {
+		fmt.Println(d)
+	}
+
+	// Output:
+	// {2023-01-01 00:00:00 +0000 GMT Monday 1 2 3 4 5 9 abc efg 1}
 }

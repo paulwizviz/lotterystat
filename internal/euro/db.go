@@ -28,7 +28,6 @@ const (
 
 var (
 	createTableSQLiteSQL = fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s TEXT,%s INTEGER PRIMARY KEY)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyStar1, luckyStar2, ukMarker, drawNo)
-	selectAllSQLiteSQL   = fmt.Sprintf(`SELECT * FROM %s`, tblName)
 )
 
 func CreateSQLiteTable(ctx context.Context, db *sql.DB) error {
@@ -41,25 +40,6 @@ func createSQLiteTable(ctx context.Context, db *sql.DB) error {
 		return fmt.Errorf("%w-%s", dbutil.ErrDBCreateTbl, err.Error())
 	}
 	return nil
-}
-
-func listSQLiteAllDraw(ctx context.Context, db *sql.DB) ([]Draw, error) {
-	var draws []Draw
-	row, err := db.QueryContext(ctx, selectAllSQLiteSQL)
-	if err != nil {
-		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBQueryTbl, err.Error())
-	}
-	for row.Next() {
-		d := Draw{}
-		var drawDate int
-		err := row.Scan(&drawDate, &d.DayOfWeek, &d.Ball1, &d.Ball2, &d.Ball3, &d.Ball4, &d.Ball5, &d.LS1, &d.LS2, &d.UKMarker, &d.DrawNo)
-		if err != nil {
-			return nil, fmt.Errorf("%w-%s", dbutil.ErrDBQueryTbl, err.Error())
-		}
-		d.DrawDate = time.Unix(int64(drawDate), 0)
-		draws = append(draws, d)
-	}
-	return draws, nil
 }
 
 // PSQL
@@ -83,8 +63,36 @@ func createPSQLTable(ctx context.Context, db *sql.DB) error {
 // Common to SQLite and PSQL
 
 var (
-	insertDrawSQL = fmt.Sprintf(`INSERT INTO %s (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyStar1, luckyStar2, ukMarker, drawNo)
+	insertDrawSQL    = fmt.Sprintf(`INSERT INTO %s (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyStar1, luckyStar2, ukMarker, drawNo)
+	selectAllDrawSQL = fmt.Sprintf(`SELECT * FROM %s`, tblName)
 )
+
+func selectAllDrawRows(ctx context.Context, db *sql.DB) (*sql.Rows, error) {
+	rows, err := db.QueryContext(ctx, selectAllDrawSQL)
+	if err != nil {
+		return nil, err
+	}
+	return rows, nil
+}
+
+func selectAllDraw(rows *sql.Rows) chan Draw {
+	c := make(chan Draw)
+	go func(ch chan Draw) {
+		for rows.Next() {
+			d := Draw{}
+			var unixTime int64
+			err := rows.Scan(&unixTime, &d.DayOfWeek, &d.Ball1, &d.Ball2, &d.Ball3, &d.Ball4, &d.Ball5, &d.LS1, &d.LS2, &d.UKMarker, &d.DrawNo)
+			if err != nil {
+				break
+			}
+			d.DrawDate = time.Unix(unixTime, 0)
+			ch <- d
+		}
+		rows.Close()
+		close(ch)
+	}(c)
+	return c
+}
 
 func persistsDraw(ctx context.Context, db *sql.DB, dc <-chan DrawChan) error {
 	stmt, err := prepInsertDrawStmt(ctx, db)

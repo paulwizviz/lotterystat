@@ -111,15 +111,20 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			db, err := dbutil.PSQLConnect(username, password, host, p, dbName)
+			psqlDB, err := dbutil.PSQLConnect(username, password, host, p, dbName)
 			if err != nil {
 				log.Fatal(err)
 			}
-			err = euro.PersistsCSV(context.TODO(), db, 3)
+			sqliteDBFile := os.Getenv("SQLITE_DB")
+			sqliteDB, err := dbutil.SQLiteConnectFile(sqliteDBFile)
 			if err != nil {
 				log.Fatal(err)
 			}
-			err = sforl.PersistsCSV(context.TODO(), db, 3)
+			err = euro.DuplicateData(context.TODO(), sqliteDB, psqlDB)
+			if err != nil {
+				log.Fatal(err)
+			}
+			err = sforl.DuplicateData(context.TODO(), sqliteDB, psqlDB)
 			if err != nil {
 				log.Fatal(err)
 			}

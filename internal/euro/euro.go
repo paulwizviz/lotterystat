@@ -1,6 +1,8 @@
 package euro
 
 import (
+	"context"
+	"database/sql"
 	"log"
 	"regexp"
 	"time"
@@ -47,4 +49,28 @@ func IsValidStars(arg string) bool {
 		log.Println(err)
 	}
 	return matched
+}
+
+func DuplicateData(ctx context.Context, sqliteDB *sql.DB, psqlDB *sql.DB) error {
+
+	rows, err := selectAllDrawRows(ctx, sqliteDB)
+	if err != nil {
+		return err
+	}
+
+	psqlStmt, err := prepInsertDrawStmt(ctx, psqlDB)
+	if err != nil {
+		return err
+	}
+
+	draws := selectAllDraw(rows)
+
+	for d := range draws {
+		_, err := insertDraw(ctx, psqlStmt, d)
+		if err != nil {
+			log.Println(err)
+		}
+	}
+
+	return nil
 }

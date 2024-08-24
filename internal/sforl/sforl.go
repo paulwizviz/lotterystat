@@ -152,3 +152,27 @@ func TwoMainComboFreq(ctx context.Context, db *sql.DB, numworkers int) []TwoComb
 	defer stmt.Close()
 	return twoMainComboFreq(ctx, stmt, numworkers)
 }
+
+func DuplicateData(ctx context.Context, sqliteDB *sql.DB, psqlDB *sql.DB) error {
+
+	rows, err := selectAllDrawRows(ctx, sqliteDB)
+	if err != nil {
+		return err
+	}
+
+	psqlStmt, err := prepInsertDrawStmt(ctx, psqlDB)
+	if err != nil {
+		return err
+	}
+
+	draws := selectAllDraw(rows)
+
+	for d := range draws {
+		_, err := insertDraw(ctx, psqlStmt, d)
+		if err != nil {
+			log.Println(err)
+		}
+	}
+
+	return nil
+}
