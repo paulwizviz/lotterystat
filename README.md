@@ -3,14 +3,29 @@
 
 The objective of this project is to demonstrate software engineering principles by developing an example application in Go that applies *concurrent programming* and *database integration* techniques.
 
-The example application, named `ebz`, extracts UK national lottery results in CSV format, persists data into SQLite and PostgreSQL, and performs simple statistical analyses, such as frequency analysis (see Figure 1).
+The example application, named `ebz`, extracts UK national lottery results in CSV format, persists data into SQLite and PostgreSQL, and performs simple statistical analyses, such as frequency analysis (see Figure 1). SQLite is the primary database whilst PostgreSQL is the secondary database.
 
 ![ebz functionality](./assets/img/ebz.png)
 <figcaption>Figure 1 - ebz Functionalities</figcaption>
 
-## Project Layout
+## Project Layout and Setup
 
 The layout of this project is based on the principles articulated in [this article](https://paulwizviz.github.io/go/2022/12/23/go-proverb-architecture.html).
+
+The project requires the following environmental variables:
+
+```sh
+export SQLITE_DB=<path to sqlite file>
+
+export PGADMIN_DEFAULT_EMAIL=<email>
+export PGADMIN_DEFAULT_PASSWORD=<password>
+
+export POSTGRES_USER=<username>
+export POSTGRES_PASSWORD=<password>
+export POSTGRES_HOST=localhost
+export POSTGRES_PORT=5432
+export POSTGRES_DBNAME=default
+```
 
 ## Architecture Patterns
 
