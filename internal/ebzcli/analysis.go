@@ -95,7 +95,8 @@ var (
 			}
 
 			// Two combination frequencies
-			comboFreq := sforl.TwoMainComboFreq(context.TODO(), db)
+			numworkers := 4
+			comboFreq := sforl.TwoMainComboFreq(context.TODO(), db, numworkers)
 
 			comboCSVFile := path.Join(outPath, "sforl-combo.csv")
 			f3, err := os.Create(comboCSVFile)

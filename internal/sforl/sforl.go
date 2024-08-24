@@ -144,11 +144,11 @@ func twoMainComboFreq(ctx context.Context, stmt *sql.Stmt, numworkers int) []Two
 	return results
 }
 
-func TwoMainComboFreq(ctx context.Context, db *sql.DB) []TwoCombo {
+func TwoMainComboFreq(ctx context.Context, db *sql.DB, numworkers int) []TwoCombo {
 	stmt, err := prepTwoMainStmt(context.TODO(), db)
 	if err != nil {
 		fmt.Printf("Two main statement error: %v", err)
 	}
 	defer stmt.Close()
-	return twoMainComboFreq(ctx, stmt, 4)
+	return twoMainComboFreq(ctx, stmt, numworkers)
 }
