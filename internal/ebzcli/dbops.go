@@ -129,16 +129,17 @@ var (
 
 func dbCmdInit() {
 
-	// Init command
+	// Configure Init commands
 	dbInitCmd.AddCommand(sqliteInitCmd)
 	sqliteInitCmd.Flags().StringVarP(&sqliteFile, "file", "f", "", "SQLite file")
 	dbInitCmd.AddCommand(psqlInitCmd)
 
-	// Persists command
+	// Configure Persists command
 	dbPersistsCmd.AddCommand(sqlitePersistsCmd)
 	sqlitePersistsCmd.Flags().StringVarP(&sqliteFile, "file", "f", "", "SQLite file")
 	dbPersistsCmd.AddCommand(psqlPersistsCmd)
 
+	// Add sub commands to db command root
 	dbCmd.AddCommand(dbInitCmd)
 	dbCmd.AddCommand(dbPersistsCmd)
 }
