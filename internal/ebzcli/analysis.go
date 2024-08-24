@@ -26,43 +26,31 @@ var (
 		Use:   "freq",
 		Short: "Frequency analsysis",
 		Run: func(cmd *cobra.Command, args []string) {
+			// Obtaining DB connection
 			db, err := dbutil.SQLiteConnectFile(sqliteFile)
 			if err != nil {
 				log.Fatal(err)
 			}
-			bf, err := sforl.MainFreq(context.TODO(), db)
-			if err != nil {
-				log.Fatal(err)
-			}
-			sf, err := sforl.StarFreq(context.TODO(), db)
-			if err != nil {
-				log.Fatal(err)
-			}
 
+			// Path to location for CSV files
 			pwd, err := os.Getwd()
 			if err != nil {
 				log.Fatal(err)
 			}
 			outPath := path.Join(pwd, "tmp")
+
+			// Star frequencies.
+			sf, err := sforl.StarFreq(context.TODO(), db)
+			if err != nil {
+				log.Fatal(err)
+			}
+
 			starCSVFile := path.Join(outPath, "sforl-star.csv")
-			ballCSVFile := path.Join(outPath, "sforl-ball.csv")
-			comboCSVFile := path.Join(outPath, "sforl-combo.csv")
 			f1, err := os.Create(starCSVFile)
 			if err != nil {
 				log.Fatal(err)
 			}
 			defer f1.Close()
-			f2, err := os.Create(ballCSVFile)
-			if err != nil {
-				log.Fatal(err)
-			}
-			defer f2.Close()
-			f3, err := os.Create(comboCSVFile)
-			if err != nil {
-				log.Fatal(err)
-			}
-			defer f3.Close()
-
 			w1 := csv.NewWriter(f1)
 			defer w1.Flush()
 
@@ -79,6 +67,18 @@ var (
 				w1.Write(row)
 			}
 
+			// Main balls frequencies
+			bf, err := sforl.MainFreq(context.TODO(), db)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			ballCSVFile := path.Join(outPath, "sforl-ball.csv")
+			f2, err := os.Create(ballCSVFile)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer f2.Close()
 			w2 := csv.NewWriter(f2)
 			defer w2.Flush()
 			ballHeaders := []string{"Ball", "Count"}
@@ -94,12 +94,19 @@ var (
 				w2.Write(row)
 			}
 
+			// Two combination frequencies
+			comboFreq := sforl.TwoMainComboFreq(context.TODO(), db)
+
+			comboCSVFile := path.Join(outPath, "sforl-combo.csv")
+			f3, err := os.Create(comboCSVFile)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer f3.Close()
 			w3 := csv.NewWriter(f3)
 			defer w3.Flush()
 
-			comboFreq := sforl.TwoMainComboFreq(context.TODO(), db)
-
-			comboHeaders := []string{"Star", "Count"}
+			comboHeaders := []string{"Combination", "Count"}
 			var comboData [][]string
 			for _, cf := range comboFreq {
 				d := []string{}
@@ -113,7 +120,6 @@ var (
 			for _, row := range comboData {
 				w3.Write(row)
 			}
-
 		},
 	}
 )
