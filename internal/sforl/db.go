@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"paulwizviz/lotterystat/internal/dbutil"
+	"time"
 )
 
 const (
@@ -27,8 +28,6 @@ const (
 
 var (
 	createSQLiteTableSQL = fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER, %s TEXT,%s TEXT,%s INTEGER PRIMARY KEY)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyBall, ballset, machine, drawNo)
-	//insertSQLiteDrawSQL  = fmt.Sprintf(`INSERT INTO %s (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyBall, ballset, machine, drawNo)
-	//selectSQLiteAllDrawSQL = fmt.Sprintf(`SELECT * FROM %s`, tblName)
 )
 
 func CreateSQLiteTable(ctx context.Context, db *sql.DB) error {
@@ -64,12 +63,41 @@ func CreatePSQLTable(ctx context.Context, db *sql.DB) error {
 // Common for SQLite and PSQL
 
 var (
-	inserDrawSQL    = fmt.Sprintf(`INSERT INTO %s (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyBall, ballset, machine, drawNo)
-	countLuckySQL   = fmt.Sprintf("SELECT COUNT(*) FROM %[1]s WHERE %[2]s=$1;", tblName, luckyBall)
-	countTwoMainSQL = fmt.Sprintf(`SELECT COUNT(*) FROM  %[1]s 
+	selectAllDrawSQL = fmt.Sprintf(`SELECT * FROM %s`, tblName)
+	inserDrawSQL     = fmt.Sprintf(`INSERT INTO %s (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyBall, ballset, machine, drawNo)
+	countBallSQL     = fmt.Sprintf("SELECT COUNT(*) FROM %[1]s WHERE %[2]s=$1 OR %[3]s=$1 OR %[4]s=$1 OR %[5]s=$1 OR %[6]s=$1;", tblName, ball1, ball2, ball3, ball4, ball5)
+	countLuckySQL    = fmt.Sprintf("SELECT COUNT(*) FROM %[1]s WHERE %[2]s=$1;", tblName, luckyBall)
+	countTwoMainSQL  = fmt.Sprintf(`SELECT COUNT(*) FROM  %[1]s 
 	     WHERE (%[2]s=$1 OR %[3]s=$1 OR %[4]s=$1 OR %[5]s=$1 OR %[6]s=$1)
 		 AND (%[2]s=$2 OR %[3]s=$2 OR %[4]s=$2 OR %[5]s=$2 OR %[6]s=$2)`, tblName, ball1, ball2, ball3, ball4, ball5)
 )
+
+func selectAllDrawRows(ctx context.Context, db *sql.DB) (*sql.Rows, error) {
+	rows, err := db.QueryContext(ctx, selectAllDrawSQL)
+	if err != nil {
+		return nil, err
+	}
+	return rows, nil
+}
+
+func selectAllDraw(rows *sql.Rows) chan Draw {
+	c := make(chan Draw)
+	go func(ch chan Draw) {
+		for rows.Next() {
+			d := Draw{}
+			var unixTime int64
+			err := rows.Scan(&unixTime, &d.DayOfWeek, &d.Ball1, &d.Ball2, &d.Ball3, &d.Ball4, &d.Ball5, &d.LifeBall, &d.BallSet, &d.Machine, &d.DrawNo)
+			if err != nil {
+				break
+			}
+			d.DrawDate = time.Unix(unixTime, 0)
+			ch <- d
+		}
+		rows.Close()
+		close(ch)
+	}(c)
+	return c
+}
 
 func prepInsertDrawStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
 	stmt, err := db.PrepareContext(ctx, inserDrawSQL)
@@ -106,12 +134,8 @@ func persistsDraw(ctx context.Context, db *sql.DB, dc <-chan DrawChan) error {
 	return nil
 }
 
-func countBallSQL() string {
-	return fmt.Sprintf("SELECT COUNT(*) FROM %[1]s WHERE %[2]s=$1 OR %[3]s=$1 OR %[4]s=$1 OR %[5]s=$1 OR %[6]s=$1;", tblName, ball1, ball2, ball3, ball4, ball5)
-}
-
 func prepCountBallStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
-	stmt, err := db.PrepareContext(ctx, countBallSQL())
+	stmt, err := db.PrepareContext(ctx, countBallSQL)
 	if err != nil {
 		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBPrepareStmt, err.Error())
 	}
