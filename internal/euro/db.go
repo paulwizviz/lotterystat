@@ -63,8 +63,10 @@ func createPSQLTable(ctx context.Context, db *sql.DB) error {
 // Common to SQLite and PSQL
 
 var (
-	insertDrawSQL    = fmt.Sprintf(`INSERT INTO %s (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyStar1, luckyStar2, ukMarker, drawNo)
 	selectAllDrawSQL = fmt.Sprintf(`SELECT * FROM %s`, tblName)
+	insertDrawSQL    = fmt.Sprintf(`INSERT INTO %s (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyStar1, luckyStar2, ukMarker, drawNo)
+	countBallSQL     = fmt.Sprintf("SELECT COUNT(*) FROM %[1]s WHERE %[2]s=$1 OR %[3]s=$1 OR %[4]s=$1 OR %[5]s=$1 OR %[6]s=$1;", tblName, ball1, ball2, ball3, ball4, ball5)
+	countLuckySQL    = fmt.Sprintf("SELECT COUNT(*) FROM %[1]s WHERE %[2]s=$1 OR %[3]s=$1;", tblName, luckyStar1, luckyStar2)
 )
 
 func selectAllDrawRows(ctx context.Context, db *sql.DB) (*sql.Rows, error) {
@@ -127,4 +129,35 @@ func insertDraw(ctx context.Context, stmt *sql.Stmt, d Draw) (sql.Result, error)
 		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBInsertTbl, err.Error())
 	}
 	return result, nil
+}
+
+func prepCountBallStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
+	stmt, err := db.PrepareContext(ctx, countBallSQL)
+	if err != nil {
+		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBPrepareStmt, err.Error())
+	}
+	return stmt, nil
+}
+
+func countChoice(ctx context.Context, stmt *sql.Stmt, num uint8) (uint, error) {
+	rows, err := stmt.QueryContext(ctx, num)
+	if err != nil {
+		return 0, err
+	}
+	var count uint
+	for rows.Next() {
+		err = rows.Scan(&count)
+		if err != nil {
+			break
+		}
+	}
+	return count, nil
+}
+
+func prepCountLuckyStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
+	stmt, err := db.PrepareContext(ctx, countLuckySQL)
+	if err != nil {
+		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBPrepareStmt, err.Error())
+	}
+	return stmt, nil
 }

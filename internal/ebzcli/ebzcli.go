@@ -17,10 +17,12 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	dbCmdInit()
-	sforlCmdInit()
+	dbCmdSetup()
+	sforlCmdSetup()
+	euroCmdSetup()
 	rootCmd.AddCommand(dbCmd)
 	rootCmd.AddCommand(sforlCmd)
+	rootCmd.AddCommand(euroCmd)
 }
 
 func Execute() error {

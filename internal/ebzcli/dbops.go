@@ -132,7 +132,7 @@ var (
 	}
 )
 
-func dbCmdInit() {
+func dbCmdSetup() {
 
 	// Configure Init commands
 	dbInitCmd.AddCommand(sqliteInitCmd)
