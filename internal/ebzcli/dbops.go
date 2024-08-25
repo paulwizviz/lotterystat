@@ -120,11 +120,11 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
-			err = euro.DuplicateData(context.TODO(), sqliteDB, psqlDB)
+			err = euro.DuplicateData(context.TODO(), sqliteDB, psqlDB, 4)
 			if err != nil {
 				log.Fatal(err)
 			}
-			err = sforl.DuplicateData(context.TODO(), sqliteDB, psqlDB)
+			err = sforl.DuplicateData(context.TODO(), sqliteDB, psqlDB, 4)
 			if err != nil {
 				log.Fatal(err)
 			}

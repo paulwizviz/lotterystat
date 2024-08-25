@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"sync"
 	"time"
 )
 
@@ -153,7 +154,7 @@ func TwoMainComboFreq(ctx context.Context, db *sql.DB, numworkers int) []TwoComb
 	return twoMainComboFreq(ctx, stmt, numworkers)
 }
 
-func DuplicateData(ctx context.Context, sqliteDB *sql.DB, psqlDB *sql.DB) error {
+func DuplicateData(ctx context.Context, sqliteDB *sql.DB, psqlDB *sql.DB, numworkers int) error {
 
 	rows, err := selectAllDrawRows(ctx, sqliteDB)
 	if err != nil {
@@ -167,12 +168,21 @@ func DuplicateData(ctx context.Context, sqliteDB *sql.DB, psqlDB *sql.DB) error 
 
 	draws := selectAllDraw(rows)
 
-	for d := range draws {
-		_, err := insertDraw(ctx, psqlStmt, d)
-		if err != nil {
-			log.Println(err)
-		}
+	var wg sync.WaitGroup
+	for w := 0; w < numworkers; w++ {
+		wg.Add(1)
+		go func() {
+			for d := range draws {
+				_, err := insertDraw(ctx, psqlStmt, d)
+				if err != nil {
+					log.Println(err)
+				}
+			}
+			wg.Done()
+		}()
 	}
+
+	wg.Wait()
 
 	return nil
 }
