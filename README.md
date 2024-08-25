@@ -32,7 +32,6 @@ export POSTGRES_DBNAME=default
 This project has incorporated the following architecture patterns:
 
 * [Fan-in and Fan-out](./docs/fan-in-out.md)
-* [Worker Pool](./docs/worker-pool.md)
 
 ## Disclaimer
 
