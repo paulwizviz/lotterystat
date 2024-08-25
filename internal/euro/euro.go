@@ -84,3 +84,53 @@ func DuplicateData(ctx context.Context, sqliteDB *sql.DB, psqlDB *sql.DB, numwor
 
 	return nil
 }
+
+type MainCount struct {
+	Num   uint8
+	Count uint
+}
+
+func MainFreq(ctx context.Context, db *sql.DB) ([]MainCount, error) {
+	stmt, err := prepCountBallStmt(ctx, db)
+	if err != nil {
+		return nil, err
+	}
+
+	mainCounts := []MainCount{}
+	for i := 1; i < 50; i++ {
+		var bc MainCount
+		bc.Num = uint8(i)
+		count, err := countChoice(ctx, stmt, uint8(i))
+		if err != nil {
+			continue
+		}
+		bc.Count = count
+		mainCounts = append(mainCounts, bc)
+	}
+	return mainCounts, nil
+}
+
+type LuckyCount struct {
+	Num   uint8
+	Count uint
+}
+
+func LuckyFreq(ctx context.Context, db *sql.DB) ([]LuckyCount, error) {
+	stmt, err := prepCountLuckyStmt(ctx, db)
+	if err != nil {
+		return nil, err
+	}
+
+	starCounts := []LuckyCount{}
+	for i := 1; i < 11; i++ {
+		var lc LuckyCount
+		lc.Num = uint8(i)
+		count, err := countChoice(ctx, stmt, uint8(i))
+		if err != nil {
+			continue
+		}
+		lc.Count = count
+		starCounts = append(starCounts, lc)
+	}
+	return starCounts, nil
+}
