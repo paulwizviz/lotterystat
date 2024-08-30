@@ -86,15 +86,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 					}
 					continue loop
 				}
-				ls1, err := csvutil.ParseDrawNum(rec[6], 12)
-				if err != nil {
-					c <- DrawChan{
-						Draw: Draw{},
-						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
-					}
-					continue loop
-				}
-				ls2, err := csvutil.ParseDrawNum(rec[7], 12)
+				tb, err := csvutil.ParseDrawNum(rec[6], 12)
 				if err != nil {
 					c <- DrawChan{
 						Draw: Draw{},
@@ -119,9 +111,9 @@ func processCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 						Ball3:     uint8(b3),
 						Ball4:     uint8(b4),
 						Ball5:     uint8(b5),
-						LS1:       uint8(ls1),
-						LS2:       uint8(ls2),
-						UKMarker:  rec[8],
+						TBall:     uint8(tb),
+						BallSet:   rec[7],
+						Machine:   rec[8],
 						DrawNo:    dn,
 					},
 					Err: nil,

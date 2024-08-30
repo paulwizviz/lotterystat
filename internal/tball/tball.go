@@ -23,8 +23,8 @@ type Draw struct {
 	Ball4     uint8        `json:"ball4"`
 	Ball5     uint8        `json:"ball5"`
 	TBall     uint8        `json:"tball"`
-	UKMarker  string       `json:"uk_marker"`
 	BallSet   string       `json:"ball_set"`
+	Machine   string       `json:"machine"`
 	DrawNo    uint64       `json:"draw_no"`
 }
 
@@ -97,7 +97,7 @@ func MainFreq(ctx context.Context, db *sql.DB) ([]MainCount, error) {
 	}
 
 	mainCounts := []MainCount{}
-	for i := 1; i < 50; i++ {
+	for i := 1; i < 40; i++ {
 		var bc MainCount
 		bc.Num = uint8(i)
 		count, err := countChoice(ctx, stmt, uint8(i))
@@ -110,27 +110,27 @@ func MainFreq(ctx context.Context, db *sql.DB) ([]MainCount, error) {
 	return mainCounts, nil
 }
 
-type LuckyCount struct {
+type TballCount struct {
 	Num   uint8
 	Count uint
 }
 
-func LuckyFreq(ctx context.Context, db *sql.DB) ([]LuckyCount, error) {
-	stmt, err := prepCountLuckyStmt(ctx, db)
+func TballFreq(ctx context.Context, db *sql.DB) ([]TballCount, error) {
+	stmt, err := prepCountTBallStmt(ctx, db)
 	if err != nil {
 		return nil, err
 	}
 
-	starCounts := []LuckyCount{}
-	for i := 1; i < 11; i++ {
-		var lc LuckyCount
+	tballCounts := []TballCount{}
+	for i := 1; i < 15; i++ {
+		var lc TballCount
 		lc.Num = uint8(i)
 		count, err := countChoice(ctx, stmt, uint8(i))
 		if err != nil {
 			continue
 		}
 		lc.Count = count
-		starCounts = append(starCounts, lc)
+		tballCounts = append(tballCounts, lc)
 	}
-	return starCounts, nil
+	return tballCounts, nil
 }

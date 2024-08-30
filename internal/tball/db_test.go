@@ -87,9 +87,9 @@ func Example_insertDraw() {
 		Ball3:     3,
 		Ball4:     4,
 		Ball5:     5,
-		LS1:       1,
-		LS2:       2,
-		UKMarker:  "uk marker",
+		TBall:     1,
+		BallSet:   "ball set",
+		Machine:   "machine",
 		DrawNo:    1234,
 	}
 
@@ -132,9 +132,9 @@ func Example_insertDuplicateDraw() {
 			Ball3:     3,
 			Ball4:     4,
 			Ball5:     5,
-			LS1:       1,
-			LS2:       2,
-			UKMarker:  "uk marker",
+			TBall:     1,
+			BallSet:   "ball set",
+			Machine:   "uk marker",
 			DrawNo:    1234,
 		},
 		{
@@ -145,9 +145,9 @@ func Example_insertDuplicateDraw() {
 			Ball3:     3,
 			Ball4:     4,
 			Ball5:     5,
-			LS1:       1,
-			LS2:       2,
-			UKMarker:  "uk marker",
+			TBall:     1,
+			BallSet:   "ball set",
+			Machine:   "machine",
 			DrawNo:    1234,
 		},
 	}
@@ -160,7 +160,7 @@ func Example_insertDuplicateDraw() {
 	}
 
 	// Output:
-	// Error-insert draw: unable to write to table-UNIQUE constraint failed: euro.draw_no[{2023-01-20 12:00:00 +0000 GMT Friday 1 2 3 4 5 1 2 uk marker 1234}]
+	// Error-insert draw: unable to write to table-UNIQUE constraint failed: tball.draw_no
 }
 
 func Example_selectAllDraw() {
@@ -194,9 +194,9 @@ func Example_selectAllDraw() {
 			Ball3:     3,
 			Ball4:     4,
 			Ball5:     5,
-			LS1:       1,
-			LS2:       2,
-			UKMarker:  "uk marker",
+			TBall:     1,
+			BallSet:   "ball set",
+			Machine:   "uk marker",
 			DrawNo:    1234,
 		},
 	}

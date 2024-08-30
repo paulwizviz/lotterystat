@@ -20,9 +20,11 @@ func init() {
 	dbCmdSetup()
 	sforlCmdSetup()
 	euroCmdSetup()
+	tballCmdSetup()
 	rootCmd.AddCommand(dbCmd)
 	rootCmd.AddCommand(sforlCmd)
 	rootCmd.AddCommand(euroCmd)
+	rootCmd.AddCommand(tballCmd)
 }
 
 func Execute() error {
