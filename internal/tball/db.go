@@ -10,24 +10,24 @@ import (
 )
 
 const (
-	tblName    = "euro"
-	drawDate   = "draw_date"
-	dayOfWeek  = "day_of_week"
-	ball1      = "ball1"
-	ball2      = "ball2"
-	ball3      = "ball3"
-	ball4      = "ball4"
-	ball5      = "ball5"
-	luckyStar1 = "ls1"
-	luckyStar2 = "ls2"
-	ukMarker   = "uk_marker"
-	drawNo     = "draw_no"
+	tblName   = "tball"
+	drawDate  = "draw_date"
+	dayOfWeek = "day_of_week"
+	ball1     = "ball1"
+	ball2     = "ball2"
+	ball3     = "ball3"
+	ball4     = "ball4"
+	ball5     = "ball5"
+	tball     = "tball"
+	ballset   = "ball_set"
+	machine   = "machine"
+	drawNo    = "draw_no"
 )
 
 // SQLite
 
 var (
-	createTableSQLiteSQL = fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s TEXT,%s INTEGER PRIMARY KEY)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyStar1, luckyStar2, ukMarker, drawNo)
+	createTableSQLiteSQL = fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s INTEGER,%s TEXT,%s INTEGER PRIMARY KEY)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, tball, ballset, machine, drawNo)
 )
 
 func CreateSQLiteTable(ctx context.Context, db *sql.DB) error {
@@ -45,7 +45,7 @@ func createSQLiteTable(ctx context.Context, db *sql.DB) error {
 // PSQL
 
 var (
-	createPSQLTableSQL = fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (%s INT,%s INT,%s INT,%s INT,%s INT,%s INT,%s INT,%s INT,%s INT,%s VARCHAR(256),%s INT PRIMARY KEY)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyStar1, luckyStar2, ukMarker, drawNo)
+	createPSQLTableSQL = fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (%s INT,%s INT,%s INT,%s INT,%s INT,%s INT,%s INT,%s INT,%s INT,%s VARCHAR(256),%s INT PRIMARY KEY)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, tball, ballset, machine, drawNo)
 )
 
 func CreatePSQLTable(ctx context.Context, db *sql.DB) error {
@@ -64,9 +64,9 @@ func createPSQLTable(ctx context.Context, db *sql.DB) error {
 
 var (
 	selectAllDrawSQL = fmt.Sprintf(`SELECT * FROM %s`, tblName)
-	insertDrawSQL    = fmt.Sprintf(`INSERT INTO %s (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, luckyStar1, luckyStar2, ukMarker, drawNo)
+	insertDrawSQL    = fmt.Sprintf(`INSERT INTO %s (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, tball, ballset, machine, drawNo)
 	countBallSQL     = fmt.Sprintf("SELECT COUNT(*) FROM %[1]s WHERE %[2]s=$1 OR %[3]s=$1 OR %[4]s=$1 OR %[5]s=$1 OR %[6]s=$1;", tblName, ball1, ball2, ball3, ball4, ball5)
-	countLuckySQL    = fmt.Sprintf("SELECT COUNT(*) FROM %[1]s WHERE %[2]s=$1 OR %[3]s=$1;", tblName, luckyStar1, luckyStar2)
+	countTBallSQL    = fmt.Sprintf("SELECT COUNT(*) FROM %[1]s WHERE %[2]s=$1;", tblName, tball)
 )
 
 func selectAllDrawRows(ctx context.Context, db *sql.DB) (*sql.Rows, error) {
@@ -83,7 +83,7 @@ func selectAllDraw(rows *sql.Rows) chan Draw {
 		for rows.Next() {
 			d := Draw{}
 			var unixTime int64
-			err := rows.Scan(&unixTime, &d.DayOfWeek, &d.Ball1, &d.Ball2, &d.Ball3, &d.Ball4, &d.Ball5, &d.LS1, &d.LS2, &d.UKMarker, &d.DrawNo)
+			err := rows.Scan(&unixTime, &d.DayOfWeek, &d.Ball1, &d.Ball2, &d.Ball3, &d.Ball4, &d.Ball5, &d.TBall, &d.BallSet, &d.Machine, &d.DrawNo)
 			if err != nil {
 				break
 			}
@@ -124,7 +124,7 @@ func prepInsertDrawStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
 }
 
 func insertDraw(ctx context.Context, stmt *sql.Stmt, d Draw) (sql.Result, error) {
-	result, err := stmt.ExecContext(ctx, d.DrawDate.Unix(), d.DayOfWeek, d.Ball1, d.Ball2, d.Ball3, d.Ball4, d.Ball5, d.LS1, d.LS2, d.UKMarker, d.DrawNo)
+	result, err := stmt.ExecContext(ctx, d.DrawDate.Unix(), d.DayOfWeek, d.Ball1, d.Ball2, d.Ball3, d.Ball4, d.Ball5, d.TBall, d.BallSet, d.Machine, d.DrawNo)
 	if err != nil {
 		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBInsertTbl, err.Error())
 	}
@@ -154,8 +154,8 @@ func countChoice(ctx context.Context, stmt *sql.Stmt, num uint8) (uint, error) {
 	return count, nil
 }
 
-func prepCountLuckyStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
-	stmt, err := db.PrepareContext(ctx, countLuckySQL)
+func prepCountTBallStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
+	stmt, err := db.PrepareContext(ctx, countTBallSQL)
 	if err != nil {
 		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBPrepareStmt, err.Error())
 	}

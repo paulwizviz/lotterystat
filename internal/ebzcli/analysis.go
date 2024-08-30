@@ -10,6 +10,7 @@ import (
 	"paulwizviz/lotterystat/internal/dbutil"
 	"paulwizviz/lotterystat/internal/euro"
 	"paulwizviz/lotterystat/internal/sforl"
+	"paulwizviz/lotterystat/internal/tball"
 
 	"github.com/spf13/cobra"
 )
@@ -218,4 +219,93 @@ var (
 
 func euroCmdSetup() {
 	euroCmd.AddCommand(euroFreqCmd)
+}
+
+// Tball
+var (
+	tballCmd = &cobra.Command{
+		Use:   "tball",
+		Short: "thunder ball lottery data",
+		Run: func(cmd *cobra.Command, args []string) {
+			cmd.Help()
+		},
+	}
+
+	tballFreqCmd = &cobra.Command{
+		Use:   "freq",
+		Short: "Frequency analsysis",
+		Run: func(cmd *cobra.Command, args []string) {
+			// Obtaining DB connection
+			db, err := dbutil.SQLiteConnectFile(sqliteFile)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			// Path to location for CSV files
+			pwd, err := os.Getwd()
+			if err != nil {
+				log.Fatal(err)
+			}
+			outPath := path.Join(pwd, "tmp")
+
+			// tball frequencies.
+			lf, err := tball.TballFreq(context.TODO(), db)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			tballCSVFile := path.Join(outPath, "thunderball-tball.csv")
+			f1, err := os.Create(tballCSVFile)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer f1.Close()
+			w1 := csv.NewWriter(f1)
+			defer w1.Flush()
+
+			tballHeaders := []string{"Thuderball Ball", "Count"}
+			var tballData [][]string
+			for _, r := range lf {
+				d := []string{}
+				d = append(d, fmt.Sprintf("%v", r.Num))
+				d = append(d, fmt.Sprintf("%v", r.Count))
+				tballData = append(tballData, d)
+			}
+			w1.Write(tballHeaders)
+			for _, row := range tballData {
+				w1.Write(row)
+			}
+
+			// Main balls frequencies
+			bf, err := tball.MainFreq(context.TODO(), db)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			ballCSVFile := path.Join(outPath, "thunderball-ball.csv")
+			f2, err := os.Create(ballCSVFile)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer f2.Close()
+			w2 := csv.NewWriter(f2)
+			defer w2.Flush()
+			ballHeaders := []string{"Ball", "Count"}
+			var ballData [][]string
+			for _, r := range bf {
+				d := []string{}
+				d = append(d, fmt.Sprintf("%v", r.Num))
+				d = append(d, fmt.Sprintf("%v", r.Count))
+				ballData = append(ballData, d)
+			}
+			w2.Write(ballHeaders)
+			for _, row := range ballData {
+				w2.Write(row)
+			}
+		},
+	}
+)
+
+func tballCmdSetup() {
+	tballCmd.AddCommand(tballFreqCmd)
 }

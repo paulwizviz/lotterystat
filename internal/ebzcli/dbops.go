@@ -9,6 +9,7 @@ import (
 	"paulwizviz/lotterystat/internal/dbutil"
 	"paulwizviz/lotterystat/internal/euro"
 	"paulwizviz/lotterystat/internal/sforl"
+	"paulwizviz/lotterystat/internal/tball"
 	"strconv"
 
 	"github.com/spf13/cobra"
@@ -75,6 +76,10 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
+			err = tball.PersistsCSV(context.TODO(), db, 3)
+			if err != nil {
+				log.Fatal(err)
+			}
 		},
 	}
 )
@@ -128,6 +133,10 @@ var (
 			if err != nil {
 				log.Fatal(err)
 			}
+			err = tball.DuplicateData(context.TODO(), sqliteDB, psqlDB, 4)
+			if err != nil {
+				log.Fatal(err)
+			}
 		},
 	}
 )
@@ -164,6 +173,10 @@ func initSQLiteDB(file string) error {
 	if err != nil {
 		return err
 	}
+	err = tball.CreateSQLiteTable(context.TODO(), db)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -181,6 +194,10 @@ func initPSQLDB(username string, password string, host string, port int, dbname 
 	}
 
 	err = sforl.CreatePSQLTable(context.TODO(), db)
+	if err != nil {
+		return err
+	}
+	err = tball.CreatePSQLTable(context.TODO(), db)
 	if err != nil {
 		return err
 	}
