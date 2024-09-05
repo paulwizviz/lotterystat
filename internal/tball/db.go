@@ -45,7 +45,7 @@ func createSQLiteTable(ctx context.Context, db *sql.DB) error {
 // PSQL
 
 var (
-	createPSQLTableSQL = fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (%s INT,%s INT,%s INT,%s INT,%s INT,%s INT,%s INT,%s INT,%s INT,%s VARCHAR(256),%s INT PRIMARY KEY)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, tball, ballset, machine, drawNo)
+	createPSQLTableSQL = fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (%s INT,%s INT,%s INT,%s INT,%s INT,%s INT,%s INT,%s INT,%s VARCHAR(256),%s VARCHAR(256),%s INT PRIMARY KEY)`, tblName, drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, tball, ballset, machine, drawNo)
 )
 
 func CreatePSQLTable(ctx context.Context, db *sql.DB) error {
