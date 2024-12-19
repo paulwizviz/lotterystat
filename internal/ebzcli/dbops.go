@@ -8,13 +8,10 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/paulwizviz/lotterystat/internal/tball"
-
-	"github.com/paulwizviz/lotterystat/internal/sforl"
-
-	"github.com/paulwizviz/lotterystat/internal/euro"
-
 	"github.com/paulwizviz/lotterystat/internal/dbutil"
+	"github.com/paulwizviz/lotterystat/internal/euro"
+	"github.com/paulwizviz/lotterystat/internal/sforl"
+	"github.com/paulwizviz/lotterystat/internal/tball"
 
 	"github.com/spf13/cobra"
 
