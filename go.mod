@@ -1,4 +1,4 @@
-module paulwizviz/lotterystat
+module github.com/paulwizviz/lotterystat
 
 go 1.21
 

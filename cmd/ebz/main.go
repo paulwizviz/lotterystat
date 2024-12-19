@@ -1,6 +1,6 @@
 package main
 
-import "paulwizviz/lotterystat/internal/ebzcli"
+import "github.com/paulwizviz/lotterystat/internal/ebzcli"
 
 func main() {
 
