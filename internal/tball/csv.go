@@ -8,8 +8,9 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"paulwizviz/lotterystat/internal/csvutil"
 	"sync"
+
+	"github.com/paulwizviz/lotterystat/internal/csvutil"
 )
 
 func processCSV(ctx context.Context, r io.Reader) <-chan DrawChan {

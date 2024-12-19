@@ -5,8 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"paulwizviz/lotterystat/internal/dbutil"
 	"time"
+
+	"github.com/paulwizviz/lotterystat/internal/dbutil"
 )
 
 const (

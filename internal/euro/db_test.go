@@ -5,8 +5,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"paulwizviz/lotterystat/internal/dbutil"
 	"time"
+
+	"github.com/paulwizviz/lotterystat/internal/dbutil"
 
 	_ "github.com/mattn/go-sqlite3"
 )
