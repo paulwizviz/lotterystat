@@ -39,7 +39,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 					}
 					continue loop
 				}
-				drawDate, err := csvops.ParseDateTime(rec[0])
+				drawDate, err := csvops.ParseDate(rec[0])
 				if err != nil {
 					c <- DrawChan{
 						Draw: Draw{},

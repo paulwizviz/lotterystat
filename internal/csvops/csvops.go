@@ -27,7 +27,7 @@ var (
 	ErrCSVInvalidURL         = errors.New("invalid url")
 )
 
-func ParseDateTime(dt string) (time.Time, error) {
+func ParseDate(dt string) (time.Time, error) {
 	elm := strings.Split(dt, "-")
 
 	day, err := strconv.Atoi(elm[0])

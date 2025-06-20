@@ -3,9 +3,7 @@ module github.com/paulwizviz/lotterystat
 go 1.24
 
 require (
-	github.com/lib/pq v1.10.9
 	github.com/mattn/go-sqlite3 v1.14.17
-	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.3
 	gopkg.in/yaml.v2 v2.2.8
@@ -15,7 +13,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
