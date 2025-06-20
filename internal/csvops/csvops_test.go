@@ -1,4 +1,4 @@
-package csvutil
+package csvops
 
 import (
 	"bytes"
@@ -343,10 +343,12 @@ func TestParseDateTime(t *testing.T) {
 	}
 
 	for i, tc := range tcases {
-		actual, err := ParseDateTime(tc.input)
-		if assert.True(t, errors.Is(err, tc.expected.err), fmt.Sprintf("Case: %d Description: %s", i, tc.description)) {
-			assert.Equal(t, tc.expected.dt, actual, fmt.Sprintf("Case: %d Description: %s", i, tc.description))
-		}
+		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
+			actual, err := ParseDateTime(tc.input)
+			if assert.True(t, errors.Is(err, tc.expected.err)) {
+				assert.Equal(t, tc.expected.dt, actual)
+			}
+		})
 	}
 }
 
@@ -411,10 +413,12 @@ func TestParseDrawNum(t *testing.T) {
 	}
 
 	for i, tc := range testcases {
-		actual, err := ParseDrawNum(tc.input, 10)
-		if assert.True(t, errors.Is(err, tc.expected.err), fmt.Sprintf("Case: %d Error: %v", i, err)) {
-			assert.Equal(t, int(tc.expected.result), int(actual), fmt.Sprintf("Case: %d Compare value", i))
-		}
+		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
+			actual, err := ParseDrawNum(tc.input, 10)
+			if assert.True(t, errors.Is(err, tc.expected.err)) {
+				assert.Equal(t, int(tc.expected.result), int(actual))
+			}
+		})
 	}
 }
 
@@ -459,10 +463,12 @@ func TestParseDrawSeq(t *testing.T) {
 	}
 
 	for i, tc := range testcases {
-		actual, err := ParseDrawSeq(tc.input)
-		if assert.True(t, errors.Is(err, tc.expected.err), fmt.Sprintf("Case: %d Error: %v", i, err)) {
-			assert.Equal(t, int(tc.expected.result), int(actual), fmt.Sprintf("Case: %d Check value", i))
-		}
+		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
+			actual, err := ParseDrawSeq(tc.input)
+			if assert.True(t, errors.Is(err, tc.expected.err)) {
+				assert.Equal(t, int(tc.expected.result), int(actual))
+			}
+		})
 	}
 }
 
@@ -499,7 +505,7 @@ func TestExtractRec(t *testing.T) {
 	}
 }
 
-func Example_processCSV_cancel() {
+func Example_extractCSV_cancel() {
 	data := []byte(`d1,d2,d3
 1,a,c
 2,2,7

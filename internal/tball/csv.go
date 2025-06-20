@@ -10,7 +10,7 @@ import (
 	"log"
 	"sync"
 
-	"github.com/paulwizviz/lotterystat/internal/csvutil"
+	"github.com/paulwizviz/lotterystat/internal/csvops"
 )
 
 func processCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
@@ -39,7 +39,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 					}
 					continue loop
 				}
-				drawDate, err := csvutil.ParseDateTime(rec[0])
+				drawDate, err := csvops.ParseDateTime(rec[0])
 				if err != nil {
 					c <- DrawChan{
 						Draw: Draw{},
@@ -47,7 +47,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 					}
 					continue loop
 				}
-				b1, err := csvutil.ParseDrawNum(rec[1], 50)
+				b1, err := csvops.ParseDrawNum(rec[1], 50)
 				if err != nil {
 					c <- DrawChan{
 						Draw: Draw{},
@@ -55,7 +55,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 					}
 					continue loop
 				}
-				b2, err := csvutil.ParseDrawNum(rec[2], 50)
+				b2, err := csvops.ParseDrawNum(rec[2], 50)
 				if err != nil {
 					c <- DrawChan{
 						Draw: Draw{},
@@ -63,7 +63,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 					}
 					continue loop
 				}
-				b3, err := csvutil.ParseDrawNum(rec[3], 50)
+				b3, err := csvops.ParseDrawNum(rec[3], 50)
 				if err != nil {
 					c <- DrawChan{
 						Draw: Draw{},
@@ -71,7 +71,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 					}
 					continue loop
 				}
-				b4, err := csvutil.ParseDrawNum(rec[4], 50)
+				b4, err := csvops.ParseDrawNum(rec[4], 50)
 				if err != nil {
 					c <- DrawChan{
 						Draw: Draw{},
@@ -79,7 +79,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 					}
 					continue loop
 				}
-				b5, err := csvutil.ParseDrawNum(rec[5], 50)
+				b5, err := csvops.ParseDrawNum(rec[5], 50)
 				if err != nil {
 					c <- DrawChan{
 						Draw: Draw{},
@@ -87,7 +87,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 					}
 					continue loop
 				}
-				tb, err := csvutil.ParseDrawNum(rec[6], 12)
+				tb, err := csvops.ParseDrawNum(rec[6], 12)
 				if err != nil {
 					c <- DrawChan{
 						Draw: Draw{},
@@ -95,7 +95,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 					}
 					continue loop
 				}
-				dn, err := csvutil.ParseDrawSeq(rec[9])
+				dn, err := csvops.ParseDrawSeq(rec[9])
 				if err != nil {
 					c <- DrawChan{
 						Draw: Draw{},
@@ -126,7 +126,7 @@ func processCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
 }
 
 func persistsCSV(ctx context.Context, sqlite *sql.DB, nworkers int) error {
-	r, err := csvutil.DownloadFrom(CSVUrl)
+	r, err := csvops.DownloadFrom(CSVUrl)
 	if err != nil {
 		return err
 	}

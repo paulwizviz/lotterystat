@@ -1,4 +1,4 @@
-package csvutil
+package csvops
 
 import (
 	"bytes"
