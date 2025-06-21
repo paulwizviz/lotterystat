@@ -8,104 +8,113 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
 )
 
 var (
-	ErrCSVContentMissing     = errors.New("empty csv content")
-	ErrCSVDownloadFromURL    = errors.New("unable to download from url")
-	ErrCSVInvalidDayFmt      = errors.New("invalid day format")
-	ErrCSVInvalidYearFmt     = errors.New("invalid year format")
-	ErrCSVInvalidDaysInMonth = errors.New("invalid day in the month")
-	ErrInvalidMonth          = errors.New("invalid month")
-	ErrCSVLine               = errors.New("unable to process line")
-	ErrCSVInvalidDrawDigit   = errors.New("invalid draw digit")
-	ErrCSVInvalidDrawRange   = errors.New("draw out of range")
-	ErrCSVInvalidDrawSeq     = errors.New("invalid draw seq")
-	ErrCSVInvalidURL         = errors.New("invalid url")
+	// CSV File
+	ErrDownloadFromURL = errors.New("unable to download from url")
+	ErrInvalidURL      = errors.New("invalid url")
+	// Date
+	ErrInvalidDateFmt     = errors.New("invalid date format")
+	ErrInvalidDayFmt      = errors.New("invalid day format")
+	ErrInvalidDaysInMonth = errors.New("invalid day in the month")
+	ErrInvalidMonth       = errors.New("invalid month")
+	ErrInvalidYearFmt     = errors.New("invalid year format")
+	// Content
+	ErrContentMissing   = errors.New("empty csv content")
+	ErrLine             = errors.New("unable to process line")
+	ErrInvalidDrawDigit = errors.New("invalid draw digit")
+	ErrInvalidDrawRange = errors.New("draw out of range")
+	ErrInvalidDrawSeq   = errors.New("invalid draw seq")
 )
 
-func ParseDate(dt string) (time.Time, error) {
-	elm := strings.Split(dt, "-")
+func ParseDate(date string) (time.Time, error) {
+	regex := regexp.MustCompile(`(?i)^\d{1,2}-(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-\d{4}$`)
+	if !regex.MatchString(date) {
+		return time.Time{}, fmt.Errorf("%w: invalid date format", ErrInvalidDateFmt)
+	}
+	elm := strings.Split(date, "-")
 
 	day, err := strconv.Atoi(elm[0])
 	if err != nil {
-		return time.Time{}, fmt.Errorf("%w: improper day format", ErrCSVInvalidDayFmt)
+		return time.Time{}, fmt.Errorf("%w: improper day format", ErrInvalidDayFmt)
 	}
 
 	year, err := strconv.Atoi(elm[2])
 	if err != nil {
-		return time.Time{}, fmt.Errorf("%w: improper year format", ErrCSVInvalidYearFmt)
+		return time.Time{}, fmt.Errorf("%w: improper year format", ErrInvalidYearFmt)
 	}
 
 	var mth time.Month
-	switch elm[1] {
-	case "Jan":
+	switch strings.ToLower(elm[1]) {
+	case "jan":
 		if day < 1 || day > 31 {
-			return time.Time{}, fmt.Errorf("%w: %d January %d", ErrCSVInvalidDaysInMonth, day, year)
+			return time.Time{}, fmt.Errorf("%w: %d January %d", ErrInvalidDaysInMonth, day, year)
 		}
 		mth = time.January
-	case "Feb":
+	case "feb":
 		if year%4 == 0 {
 			if day < 1 || day > 29 {
-				return time.Time{}, fmt.Errorf("%w: %d February leap year %d", ErrCSVInvalidDaysInMonth, day, year)
+				return time.Time{}, fmt.Errorf("%w: %d February leap year %d", ErrInvalidDaysInMonth, day, year)
 			}
 		} else {
 			if day < 1 || day > 28 {
-				return time.Time{}, fmt.Errorf("%w: %d February %d", ErrCSVInvalidDaysInMonth, day, year)
+				return time.Time{}, fmt.Errorf("%w: %d February %d", ErrInvalidDaysInMonth, day, year)
 			}
 		}
 		mth = time.February
-	case "Mar":
+	case "mar":
 		if day < 1 || day > 31 {
-			return time.Time{}, fmt.Errorf("%w: %d Feb %d", ErrCSVInvalidDaysInMonth, day, year)
+			return time.Time{}, fmt.Errorf("%w: %d Feb %d", ErrInvalidDaysInMonth, day, year)
 		}
 		mth = time.March
-	case "Apr":
+	case "apr":
 		if day < 1 || day > 30 {
-			return time.Time{}, fmt.Errorf("%w: %d April %d", ErrCSVInvalidDaysInMonth, day, year)
+			return time.Time{}, fmt.Errorf("%w: %d April %d", ErrInvalidDaysInMonth, day, year)
 		}
 		mth = time.April
-	case "May":
+	case "may":
 		if day < 1 || day > 31 {
-			return time.Time{}, fmt.Errorf("%w: %d May %d", ErrCSVInvalidDaysInMonth, day, year)
+			return time.Time{}, fmt.Errorf("%w: %d May %d", ErrInvalidDaysInMonth, day, year)
 		}
 		mth = time.May
-	case "Jun":
+	case "jun":
 		if day < 1 || day > 30 {
-			return time.Time{}, fmt.Errorf("%w: %d June %d", ErrCSVInvalidDaysInMonth, day, year)
+			return time.Time{}, fmt.Errorf("%w: %d June %d", ErrInvalidDaysInMonth, day, year)
 		}
 		mth = time.June
-	case "Jul":
+	case "jul":
 		if day < 1 || day > 31 {
-			return time.Time{}, fmt.Errorf("%w: %d July %d", ErrCSVInvalidDaysInMonth, day, year)
+			return time.Time{}, fmt.Errorf("%w: %d July %d", ErrInvalidDaysInMonth, day, year)
 		}
 		mth = time.July
-	case "Aug":
+	case "aug":
 		if day < 1 || day > 31 {
-			return time.Time{}, fmt.Errorf("%w: %d August %d", ErrCSVInvalidDaysInMonth, day, year)
+			return time.Time{}, fmt.Errorf("%w: %d August %d", ErrInvalidDaysInMonth, day, year)
 		}
 		mth = time.August
-	case "Sep":
+	case "sep":
 		if day < 1 || day > 30 {
-			return time.Time{}, fmt.Errorf("%w: %d September %d", ErrCSVInvalidDaysInMonth, day, year)
+			return time.Time{}, fmt.Errorf("%w: %d September %d", ErrInvalidDaysInMonth, day, year)
 		}
 		mth = time.September
-	case "Oct":
+	case "oct":
 		if day < 1 || day > 31 {
-			return time.Time{}, fmt.Errorf("%w: %d October %d", ErrCSVInvalidDaysInMonth, day, year)
+			return time.Time{}, fmt.Errorf("%w: %d October %d", ErrInvalidDaysInMonth, day, year)
 		}
 		mth = time.October
-	case "Nov":
+	case "nov":
 		if day < 1 || day > 30 {
-			return time.Time{}, fmt.Errorf("%w: %d November %d", ErrCSVInvalidDaysInMonth, day, year)
+			return time.Time{}, fmt.Errorf("%w: %d November %d", ErrInvalidDaysInMonth, day, year)
 		}
 		mth = time.November
-	case "Dec":
+	case "dec":
 		if day < 1 || day > 31 {
-			return time.Time{}, fmt.Errorf("%w: %d December %d", ErrCSVInvalidDaysInMonth, day, year)
+			return time.Time{}, fmt.Errorf("%w: %d December %d", ErrInvalidDaysInMonth, day, year)
 		}
 		mth = time.December
 	default:
@@ -120,24 +129,24 @@ func ParseDate(dt string) (time.Time, error) {
 func ParseDrawNum(value string, maxval int) (uint8, error) {
 	result, err := strconv.Atoi(value)
 	if err != nil {
-		return 0, fmt.Errorf("%w-%s", ErrCSVInvalidDrawDigit, err.Error())
+		return 0, fmt.Errorf("%w-%s", ErrInvalidDrawDigit, err.Error())
 	}
 	if result < 1 {
-		return 0, fmt.Errorf("%w-%s", ErrCSVInvalidDrawRange, fmt.Sprintf("got %v max %v", result, maxval))
+		return 0, fmt.Errorf("%w-%s", ErrInvalidDrawRange, fmt.Sprintf("got %v max %v", result, maxval))
 	}
 	if result > maxval {
-		return 0, fmt.Errorf("%w-%s", ErrCSVInvalidDrawRange, fmt.Sprintf("got %v max %v", result, maxval))
+		return 0, fmt.Errorf("%w-%s", ErrInvalidDrawRange, fmt.Sprintf("got %v max %v", result, maxval))
 	}
 	return uint8(result), nil
 }
 
-func ParseDrawSeq(value string) (uint64, error) {
+func ParseSeq(value string) (uint64, error) {
 	result, err := strconv.Atoi(value)
 	if err != nil {
-		return 0, fmt.Errorf("%w-%s", ErrCSVInvalidDrawSeq, err.Error())
+		return 0, fmt.Errorf("%w-%s", ErrInvalidDrawSeq, err.Error())
 	}
 	if result < 0 {
-		return 0, fmt.Errorf("%w-Less than 0", ErrCSVInvalidDrawSeq)
+		return 0, fmt.Errorf("%w-Less than 0", ErrInvalidDrawSeq)
 	}
 	return uint64(result), nil
 }
@@ -183,7 +192,7 @@ func ExtractRec(ctx context.Context, r io.Reader) chan CSVRec {
 					ch <- CSVRec{
 						Record: rec,
 						Line:   ln,
-						Err:    fmt.Errorf("%w-%s", ErrCSVLine, err.Error()),
+						Err:    fmt.Errorf("%w-%s", ErrLine, err.Error()),
 					}
 					continue loop
 				}

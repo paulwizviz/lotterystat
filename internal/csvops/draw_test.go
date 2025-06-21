@@ -50,7 +50,7 @@ var (
 				err    error
 			}{
 				result: 0,
-				err:    ErrCSVInvalidDrawRange,
+				err:    ErrInvalidDrawRange,
 			},
 		},
 		{
@@ -67,7 +67,7 @@ var (
 				err    error
 			}{
 				result: 0,
-				err:    ErrCSVInvalidDrawRange,
+				err:    ErrInvalidDrawRange,
 			},
 		},
 		{
@@ -84,7 +84,7 @@ var (
 				err    error
 			}{
 				result: 0,
-				err:    ErrCSVInvalidDrawDigit,
+				err:    ErrInvalidDrawDigit,
 			},
 		},
 	}

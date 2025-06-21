@@ -9,6 +9,104 @@ import (
 )
 
 var (
+	dateScenarios = []struct {
+		name     string
+		input    string
+		expected struct {
+			dt  time.Time
+			err error
+		}
+	}{
+		{
+			name:  "Single day number, valid format",
+			input: "1-Jan-2022",
+			expected: struct {
+				dt  time.Time
+				err error
+			}{
+				dt:  time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC),
+				err: nil,
+			},
+		},
+		{
+			name:  "Single day number, valid format",
+			input: "01-Jan-2022",
+			expected: struct {
+				dt  time.Time
+				err error
+			}{
+				dt:  time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC),
+				err: nil,
+			},
+		},
+		{
+			name:  "Invalid year format",
+			input: "29-Dec-abc",
+			expected: struct {
+				dt  time.Time
+				err error
+			}{
+				dt:  time.Time{},
+				err: ErrInvalidDateFmt,
+			},
+		},
+		{
+			name:  "Invalid day format",
+			input: "a-Dec-2022",
+			expected: struct {
+				dt  time.Time
+				err error
+			}{
+				dt:  time.Time{},
+				err: ErrInvalidDateFmt,
+			},
+		},
+		{
+			name:  "January fullname",
+			input: "21-January-2022",
+			expected: struct {
+				dt  time.Time
+				err error
+			}{
+				dt:  time.Time{},
+				err: ErrInvalidDateFmt,
+			},
+		},
+		{
+			name:  "Invalid month",
+			input: "29-D-2022",
+			expected: struct {
+				dt  time.Time
+				err error
+			}{
+				dt:  time.Time{},
+				err: ErrInvalidDateFmt,
+			},
+		},
+		{
+			name:  "Numeric",
+			input: "29-01-2022",
+			expected: struct {
+				dt  time.Time
+				err error
+			}{
+				dt:  time.Time{},
+				err: ErrInvalidDateFmt,
+			},
+		},
+		{
+			name:  "Slash separator",
+			input: "29/1/2022",
+			expected: struct {
+				dt  time.Time
+				err error
+			}{
+				dt:  time.Time{},
+				err: ErrInvalidDateFmt,
+			},
+		},
+	}
+
 	dayScenarios = []struct {
 		name     string
 		input    string
@@ -18,17 +116,6 @@ var (
 		}
 	}{
 		{
-			name:  "Invalid day format",
-			input: "a-Dec-2022",
-			expected: struct {
-				dt  time.Time
-				err error
-			}{
-				dt:  time.Time{},
-				err: ErrCSVInvalidDayFmt,
-			},
-		},
-		{
 			name:  "Invalid day in Jan",
 			input: "32-Dec-2022",
 			expected: struct {
@@ -36,18 +123,18 @@ var (
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrCSVInvalidDaysInMonth,
+				err: ErrInvalidDaysInMonth,
 			},
 		},
 		{
 			name:  "Invalid day in Feb leap year",
-			input: "30-Feb-2024",
+			input: "30-Feb-2022",
 			expected: struct {
 				dt  time.Time
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrCSVInvalidDaysInMonth,
+				err: ErrInvalidDaysInMonth,
 			},
 		},
 		{
@@ -58,7 +145,7 @@ var (
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrCSVInvalidDaysInMonth,
+				err: ErrInvalidDaysInMonth,
 			},
 		},
 		{
@@ -69,7 +156,7 @@ var (
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrCSVInvalidDaysInMonth,
+				err: ErrInvalidDaysInMonth,
 			},
 		},
 		{
@@ -80,7 +167,7 @@ var (
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrCSVInvalidDaysInMonth,
+				err: ErrInvalidDaysInMonth,
 			},
 		},
 		{
@@ -91,7 +178,7 @@ var (
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrCSVInvalidDaysInMonth,
+				err: ErrInvalidDaysInMonth,
 			},
 		},
 		{
@@ -102,7 +189,7 @@ var (
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrCSVInvalidDaysInMonth,
+				err: ErrInvalidDaysInMonth,
 			},
 		},
 		{
@@ -113,7 +200,7 @@ var (
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrCSVInvalidDaysInMonth,
+				err: ErrInvalidDaysInMonth,
 			},
 		},
 		{
@@ -124,7 +211,7 @@ var (
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrCSVInvalidDaysInMonth,
+				err: ErrInvalidDaysInMonth,
 			},
 		},
 		{
@@ -135,7 +222,7 @@ var (
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrCSVInvalidDaysInMonth,
+				err: ErrInvalidDaysInMonth,
 			},
 		},
 		{
@@ -146,7 +233,7 @@ var (
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrCSVInvalidDaysInMonth,
+				err: ErrInvalidDaysInMonth,
 			},
 		},
 		{
@@ -157,7 +244,7 @@ var (
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrCSVInvalidDaysInMonth,
+				err: ErrInvalidDaysInMonth,
 			},
 		},
 		{
@@ -168,7 +255,7 @@ var (
 				err error
 			}{
 				dt:  time.Time{},
-				err: ErrCSVInvalidDaysInMonth,
+				err: ErrInvalidDaysInMonth,
 			},
 		},
 	}
@@ -190,17 +277,6 @@ var (
 			}{
 				dt:  time.Date(2022, time.January, 21, 0, 0, 0, 0, time.UTC),
 				err: nil,
-			},
-		},
-		{
-			name:  "January fullname",
-			input: "21-January-2022",
-			expected: struct {
-				dt  time.Time
-				err error
-			}{
-				dt:  time.Time{},
-				err: ErrInvalidMonth,
 			},
 		},
 		{
@@ -335,62 +411,19 @@ var (
 				err: nil,
 			},
 		},
-		{
-			name:  "December fullname",
-			input: "29-December-2022",
-			expected: struct {
-				dt  time.Time
-				err error
-			}{
-				dt:  time.Time{},
-				err: ErrInvalidMonth,
-			},
-		},
-		{
-			name:  "Invalid month",
-			input: "29-D-2022",
-			expected: struct {
-				dt  time.Time
-				err error
-			}{
-				dt:  time.Time{},
-				err: ErrInvalidMonth,
-			},
-		},
-	}
-
-	yearScenarios = []struct {
-		name     string
-		input    string
-		expected struct {
-			dt  time.Time
-			err error
-		}
-	}{
-		{
-			name:  "Valid year format",
-			input: "29-Dec-2024",
-			expected: struct {
-				dt  time.Time
-				err error
-			}{
-				dt:  time.Date(2024, time.December, 29, 0, 0, 0, 0, time.UTC),
-				err: nil,
-			},
-		},
-		{
-			name:  "Invalid year format",
-			input: "29-Dec-abc",
-			expected: struct {
-				dt  time.Time
-				err error
-			}{
-				dt:  time.Time{},
-				err: ErrCSVInvalidYearFmt,
-			},
-		},
 	}
 )
+
+func TestParseDate(t *testing.T) {
+	for i, scenario := range dateScenarios {
+		t.Run(fmt.Sprintf("case %d-%s", i, scenario.name), func(t *testing.T) {
+			actual, err := ParseDate(scenario.input)
+			if assert.ErrorIs(t, err, scenario.expected.err) {
+				assert.Equal(t, scenario.expected.dt, actual)
+			}
+		})
+	}
+}
 
 func TestParseDate_Day(t *testing.T) {
 	for i, scenario := range dayScenarios {
@@ -405,17 +438,6 @@ func TestParseDate_Day(t *testing.T) {
 
 func TestParseDate_month(t *testing.T) {
 	for i, scenario := range monthScenarios {
-		t.Run(fmt.Sprintf("case %d-%s", i, scenario.name), func(t *testing.T) {
-			actual, err := ParseDate(scenario.input)
-			if assert.ErrorIs(t, err, scenario.expected.err) {
-				assert.Equal(t, scenario.expected.dt, actual)
-			}
-		})
-	}
-}
-
-func TestParseDate_year(t *testing.T) {
-	for i, scenario := range yearScenarios {
 		t.Run(fmt.Sprintf("case %d-%s", i, scenario.name), func(t *testing.T) {
 			actual, err := ParseDate(scenario.input)
 			if assert.ErrorIs(t, err, scenario.expected.err) {
