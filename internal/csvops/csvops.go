@@ -140,7 +140,7 @@ func ParseDrawNum(value string, maxval int) (uint8, error) {
 	return uint8(result), nil
 }
 
-func ParseSeq(value string) (uint64, error) {
+func ParseDrawSeq(value string) (uint64, error) {
 	result, err := strconv.Atoi(value)
 	if err != nil {
 		return 0, fmt.Errorf("%w-%s", ErrInvalidDrawSeq, err.Error())
