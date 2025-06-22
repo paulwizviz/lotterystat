@@ -176,7 +176,7 @@ func ExtractRec(ctx context.Context, r io.Reader) chan CSVRec {
 		defer close(ch)
 		csvr := csv.NewReader(r)
 		csvr.Read() // Remove header
-		ln := uint(1)
+		ln := uint(0)
 	loop:
 		for {
 			select {
