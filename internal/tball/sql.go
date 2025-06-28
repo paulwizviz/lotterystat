@@ -7,7 +7,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/paulwizviz/lotterystat/internal/dbutil"
+	"github.com/paulwizviz/lotterystat/internal/sqlops"
 )
 
 const (
@@ -38,7 +38,7 @@ func CreateSQLiteTable(ctx context.Context, db *sql.DB) error {
 func createSQLiteTable(ctx context.Context, db *sql.DB) error {
 	_, err := db.ExecContext(ctx, createTableSQLiteSQL)
 	if err != nil {
-		return fmt.Errorf("%w-%s", dbutil.ErrDBCreateTbl, err.Error())
+		return fmt.Errorf("%w-%s", sqlops.ErrCreateTbl, err.Error())
 	}
 	return nil
 }
@@ -56,7 +56,7 @@ func CreatePSQLTable(ctx context.Context, db *sql.DB) error {
 func createPSQLTable(ctx context.Context, db *sql.DB) error {
 	_, err := db.ExecContext(ctx, createPSQLTableSQL)
 	if err != nil {
-		return fmt.Errorf("%w-%s", dbutil.ErrDBCreateTbl, err.Error())
+		return fmt.Errorf("%w-%s", sqlops.ErrCreateTbl, err.Error())
 	}
 	return nil
 }
@@ -119,7 +119,7 @@ func prepInsertDrawStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
 	stmt, err := db.PrepareContext(ctx, insertDrawSQL)
 	if err != nil {
 		log.Println(insertDrawSQL)
-		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBPrepareStmt, err.Error())
+		return nil, fmt.Errorf("%w-%s", sqlops.ErrPrepareStmt, err.Error())
 	}
 	return stmt, nil
 }
@@ -127,7 +127,7 @@ func prepInsertDrawStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
 func insertDraw(ctx context.Context, stmt *sql.Stmt, d Draw) (sql.Result, error) {
 	result, err := stmt.ExecContext(ctx, d.DrawDate.Unix(), d.DayOfWeek, d.Ball1, d.Ball2, d.Ball3, d.Ball4, d.Ball5, d.TBall, d.BallSet, d.Machine, d.DrawNo)
 	if err != nil {
-		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBInsertTbl, err.Error())
+		return nil, fmt.Errorf("%w-%s", sqlops.ErrWriteTbl, err.Error())
 	}
 	return result, nil
 }
@@ -135,7 +135,7 @@ func insertDraw(ctx context.Context, stmt *sql.Stmt, d Draw) (sql.Result, error)
 func prepCountBallStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
 	stmt, err := db.PrepareContext(ctx, countBallSQL)
 	if err != nil {
-		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBPrepareStmt, err.Error())
+		return nil, fmt.Errorf("%w-%s", sqlops.ErrPrepareStmt, err.Error())
 	}
 	return stmt, nil
 }
@@ -158,7 +158,7 @@ func countChoice(ctx context.Context, stmt *sql.Stmt, num uint8) (uint, error) {
 func prepCountTBallStmt(ctx context.Context, db *sql.DB) (*sql.Stmt, error) {
 	stmt, err := db.PrepareContext(ctx, countTBallSQL)
 	if err != nil {
-		return nil, fmt.Errorf("%w-%s", dbutil.ErrDBPrepareStmt, err.Error())
+		return nil, fmt.Errorf("%w-%s", sqlops.ErrPrepareStmt, err.Error())
 	}
 	return stmt, nil
 }
