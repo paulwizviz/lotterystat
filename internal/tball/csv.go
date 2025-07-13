@@ -1,152 +1,109 @@
 package tball
 
 import (
-	"context"
-	"database/sql"
-	"encoding/csv"
 	"errors"
 	"fmt"
-	"io"
-	"log"
 	"sync"
 
 	"github.com/paulwizviz/lotterystat/internal/csvops"
 )
 
-func processCSV(ctx context.Context, r io.Reader) <-chan DrawChan {
-	c := make(chan DrawChan)
-	go func() {
-		cr := csv.NewReader(r)
-		cr.Read() // remove titles
-		ln := 1
-		defer close(c)
-
-	loop:
-		for {
-			select {
-			case <-ctx.Done():
-				break loop
-			default:
-				ln++
-				rec, err := cr.Read()
-				if errors.Is(err, io.EOF) {
-					break loop
-				}
-				if err != nil {
-					c <- DrawChan{
-						Draw: Draw{},
-						Err:  err,
-					}
-					continue loop
-				}
-				drawDate, err := csvops.ParseDate(rec[0])
-				if err != nil {
-					c <- DrawChan{
-						Draw: Draw{},
-						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
-					}
-					continue loop
-				}
-				b1, err := csvops.ParseDrawNum(rec[1], 50)
-				if err != nil {
-					c <- DrawChan{
-						Draw: Draw{},
-						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
-					}
-					continue loop
-				}
-				b2, err := csvops.ParseDrawNum(rec[2], 50)
-				if err != nil {
-					c <- DrawChan{
-						Draw: Draw{},
-						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
-					}
-					continue loop
-				}
-				b3, err := csvops.ParseDrawNum(rec[3], 50)
-				if err != nil {
-					c <- DrawChan{
-						Draw: Draw{},
-						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
-					}
-					continue loop
-				}
-				b4, err := csvops.ParseDrawNum(rec[4], 50)
-				if err != nil {
-					c <- DrawChan{
-						Draw: Draw{},
-						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
-					}
-					continue loop
-				}
-				b5, err := csvops.ParseDrawNum(rec[5], 50)
-				if err != nil {
-					c <- DrawChan{
-						Draw: Draw{},
-						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
-					}
-					continue loop
-				}
-				tb, err := csvops.ParseDrawNum(rec[6], 12)
-				if err != nil {
-					c <- DrawChan{
-						Draw: Draw{},
-						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
-					}
-					continue loop
-				}
-				dn, err := csvops.ParseDrawSeq(rec[9])
-				if err != nil {
-					c <- DrawChan{
-						Draw: Draw{},
-						Err:  fmt.Errorf("record on line: %d: %w", ln, err),
-					}
-					continue loop
-				}
-				c <- DrawChan{
-					Draw: Draw{
-						DrawDate:  drawDate,
-						DayOfWeek: drawDate.Weekday(),
-						Ball1:     uint8(b1),
-						Ball2:     uint8(b2),
-						Ball3:     uint8(b3),
-						Ball4:     uint8(b4),
-						Ball5:     uint8(b5),
-						TBall:     uint8(tb),
-						BallSet:   rec[7],
-						Machine:   rec[8],
-						DrawNo:    dn,
-					},
-					Err: nil,
-				}
-			}
-		}
-	}()
-	return c
-}
-
-func persistsCSV(ctx context.Context, sqlite *sql.DB, nworkers int) error {
-	r, err := csvops.DownloadFrom(CSVUrl)
-	if err != nil {
-		return err
-	}
-	ch := processCSV(ctx, r)
+func ProcessCSV(recs chan csvops.CSVRec, numWorkers int) []DrawChan {
+	result := make(chan DrawChan)
 	var wg sync.WaitGroup
-	wg.Add(nworkers)
-	for i := 0; i < nworkers; i++ {
+	for range numWorkers {
+		wg.Add(1)
 		go func() {
-			defer wg.Done()
-			err := persistsDraw(ctx, sqlite, ch)
-			if err != nil {
-				log.Println(err)
-			}
-
+			csvWorker(recs, result)
+			wg.Done()
 		}()
 	}
-	wg.Wait()
-	return nil
+	go func() {
+		wg.Wait()
+		close(result)
+	}()
+	drawChans := []DrawChan{}
+	for r := range result {
+		drawChans = append(drawChans, r)
+	}
+	return drawChans
 }
 
-func PersistsCSV(ctx context.Context, db *sql.DB, nworkers int) error {
-	return persistsCSV(ctx, db, nworkers)
+func csvWorker(jobs chan csvops.CSVRec, results chan DrawChan) {
+	for j := range jobs {
+		drawChan := DrawChan{}
+		if errors.Is(j.Err, csvops.ErrLine) {
+			drawChan.Draw = Draw{}
+			drawChan.Err = ErrRec
+			results <- drawChan
+			continue
+		}
+		draw, err := processRecord(j.Record)
+		if err != nil {
+			drawChan.Draw = Draw{}
+			drawChan.Err = err
+			results <- drawChan
+			continue
+		}
+		drawChan.Draw = draw
+		results <- drawChan
+	}
+}
+
+func processRecord(rec []string) (Draw, error) {
+	maxValue := 39
+	draw := Draw{}
+
+	dt, err := csvops.ParseDate(rec[0])
+	if err != nil {
+		return draw, fmt.Errorf("%w-%v", ErrDrawDate, err)
+	}
+	draw.DrawDate = dt
+	draw.DayOfWeek = dt.Weekday()
+
+	ball1, err := csvops.ParseDrawNum(rec[1], maxValue)
+	if err != nil {
+		return draw, fmt.Errorf("%w-%v", ErrBall1, err)
+	}
+	draw.Ball1 = ball1
+
+	ball2, err := csvops.ParseDrawNum(rec[2], maxValue)
+	if err != nil {
+		return draw, fmt.Errorf("%w-%v", ErrBall2, err)
+	}
+	draw.Ball2 = ball2
+
+	ball3, err := csvops.ParseDrawNum(rec[3], maxValue)
+	if err != nil {
+		return draw, fmt.Errorf("%w-%v", ErrBall3, err)
+	}
+	draw.Ball3 = ball3
+
+	ball4, err := csvops.ParseDrawNum(rec[4], maxValue)
+	if err != nil {
+		return draw, fmt.Errorf("%w-%v", ErrBall4, err)
+	}
+	draw.Ball4 = ball4
+
+	ball5, err := csvops.ParseDrawNum(rec[5], maxValue)
+	if err != nil {
+		return draw, fmt.Errorf("%w-%v", ErrBall5, err)
+	}
+	draw.Ball5 = ball5
+
+	tball, err := csvops.ParseDrawNum(rec[6], 14)
+	if err != nil {
+		return draw, fmt.Errorf("%w-%v", ErrTBall, err)
+	}
+	draw.TBall = tball
+
+	draw.BallSet = rec[7]
+	draw.Machine = rec[8]
+
+	seq, err := csvops.ParseDrawSeq(rec[9])
+	if err != nil {
+		return draw, fmt.Errorf("%w-%v", ErrSeq, err)
+	}
+	draw.DrawNo = seq
+	return draw, nil
 }

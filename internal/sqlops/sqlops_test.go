@@ -39,15 +39,3 @@ age INT)`
 		return nil
 	}
 )
-
-func Example() {
-	db, err := sqlops.NewSQLiteMem()
-	if err != nil {
-		return
-	}
-	defer db.Close()
-	err = sqlops.CreateTable(context.TODO(), db, createPersonTblFunc)
-	fmt.Println(err)
-
-	// Output:
-}

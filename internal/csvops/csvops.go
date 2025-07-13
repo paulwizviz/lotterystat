@@ -32,6 +32,7 @@ var (
 	ErrInvalidDrawSeq   = errors.New("invalid draw seq")
 )
 
+// ParseDate converts date in string to
 func ParseDate(date string) (time.Time, error) {
 	regex := regexp.MustCompile(`(?i)^\d{1,2}-(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-\d{4}$`)
 	if !regex.MatchString(date) {
@@ -126,6 +127,8 @@ func ParseDate(date string) (time.Time, error) {
 	return tm, nil
 }
 
+// ParseDrawNum converts ball numbers in string to integer
+// that are not less than 0 or greater than max specified
 func ParseDrawNum(value string, maxval int) (uint8, error) {
 	result, err := strconv.Atoi(value)
 	if err != nil {
@@ -140,6 +143,8 @@ func ParseDrawNum(value string, maxval int) (uint8, error) {
 	return uint8(result), nil
 }
 
+// ParseDrawSeq converts draw sequence number in string
+// to integer
 func ParseDrawSeq(value string) (uint64, error) {
 	result, err := strconv.Atoi(value)
 	if err != nil {
@@ -151,6 +156,7 @@ func ParseDrawSeq(value string) (uint64, error) {
 	return uint64(result), nil
 }
 
+// DownloadFrom connect to the CSV files to a reader
 func DownloadFrom(url string) (io.Reader, error) {
 	resp, err := http.Get(url)
 	if err != nil {
@@ -171,6 +177,11 @@ type CSVRec struct {
 	Err    error
 }
 
+// ExtractRec is an operation convert csv reader to
+// a channel of CSVRec
+//
+// This is a factory to create a Goroutine and channel
+// whilst extracting CSV content
 func ExtractRec(ctx context.Context, r io.Reader) chan CSVRec {
 	c := make(chan CSVRec)
 	go func(ch chan CSVRec) {
