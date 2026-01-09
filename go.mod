@@ -3,8 +3,6 @@ module github.com/paulwizviz/lotterystat
 go 1.24
 
 require (
-	github.com/lib/pq v1.10.9
-	github.com/mattn/go-sqlite3 v1.14.28
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.3
 	gopkg.in/yaml.v2 v2.2.8

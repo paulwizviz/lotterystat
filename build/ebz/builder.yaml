@@ -4,14 +4,17 @@ services:
 
   ebz:
     build:
-      context: ../../
-      dockerfile: ./build/ebz/ebz.dockerfile
+      context: ../../../
+      dockerfile: ./build/package/goreact/native.dockerfile
       args:
-        GO_VER: ${GO_VER}
+        NODE_VER: 13.10.1
+        GO_VER: 1.16.2
+        WEB_FRAMEWORK: reactjs
     environment:
       - APP_NAME=${APP_NAME}
     image: ${EBZ_BUILD_IMAGE:-lotterystat/ebz-builder:current}
     container_name: ${EBZ_BUILD_CONTAINER:-ebz-container}
+    working_dir: /opt
     command: /opt/ebznative.sh
     volumes:
       - ./ebznative.sh:/opt/ebznative.sh
