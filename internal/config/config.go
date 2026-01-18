@@ -22,6 +22,8 @@ var (
 	ErrConfig = errors.New("config err")
 )
 
+var locationFunc = location
+
 const (
 	configType = "yaml"
 	configName = "setting"
@@ -47,7 +49,7 @@ type Detail struct {
 }
 
 func Initilalize() error {
-	p, err := location()
+	p, err := locationFunc()
 	if err != nil {
 		return fmt.Errorf("%w-%s", ErrConfig, err.Error())
 	}
@@ -107,20 +109,24 @@ func initViper(p string) error {
 
 // location returns $HOME/.bz or %APPDATA%/ebz
 func location() (string, error) {
+	return locationForOS(runtime.GOOS)
+}
+
+func locationForOS(goos string) (string, error) {
 	var dir string
-	switch runtime.GOOS {
+	var err error
+	switch goos {
 	case "windows":
-		dir = os.Getenv("AppData")
+		dir = os.Getenv("APPDATA")
 		if dir == "" {
 			return "", fmt.Errorf("%w-APPDATA not set", ErrConfig)
 		}
-		dir = path.Join(dir, "ebz")
 	default:
-		dir = os.Getenv("HOME")
-		if dir == "" {
-			return "", fmt.Errorf("%w-$HOME not set", ErrConfig)
+		dir, err = os.UserHomeDir()
+		if err != nil {
+			return "", fmt.Errorf("%w-unable to get home dir", ErrConfig)
 		}
-		dir = path.Join(dir, ".ebz")
+		dir = path.Join(dir, ".config")
 	}
-	return dir, nil
+	return path.Join(dir, "ebz"), nil
 }
