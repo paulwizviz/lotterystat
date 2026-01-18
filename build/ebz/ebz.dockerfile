@@ -1,4 +1,4 @@
-ARG GO_VER=1.25
+ARG GO_VER=1.22.6-alpine3.19
 
 FROM golang:${GO_VER}
 

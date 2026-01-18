@@ -7,9 +7,7 @@ services:
       context: ../../../
       dockerfile: ./build/package/goreact/native.dockerfile
       args:
-        NODE_VER: 13.10.1
-        GO_VER: 1.16.2
-        WEB_FRAMEWORK: reactjs
+        GO_VER: 1.22.6-alpine3.19
     environment:
       - APP_NAME=${APP_NAME}
     image: ${EBZ_BUILD_IMAGE:-lotterystat/ebz-builder:current}

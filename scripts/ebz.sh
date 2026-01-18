@@ -34,7 +34,7 @@ function linuxBuild(){
 
 function macBuild(){
     if [ ! -d ./package/macOS ]; then
-        mkdir ./package/macOS
+        mkdir -p ./package/macOS
     fi
     env GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 go build -o ./package/macOS/ebz ./cmd/ebz
 }
