@@ -1,2 +1,2 @@
-// Package ebzmux contains implementation of RESTFul API
+// Package ebzmux
 package ebzmux
