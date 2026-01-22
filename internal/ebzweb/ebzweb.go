@@ -1,4 +1,4 @@
-package ebzmux
+package ebzweb
 
 import (
 	"embed"
@@ -56,8 +56,7 @@ func clickedHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func New() *http.ServeMux {
-	mux := http.NewServeMux()
+func New(mux *http.ServeMux) *http.ServeMux {
 	mux.HandleFunc("GET /", homeHandler)
 	mux.HandleFunc("GET /static/htmx.min.js", staticHandler)
 	mux.HandleFunc("GET /css/main.css", cssHandler)
