@@ -1,12 +1,19 @@
 package ebzcli
 
-import "github.com/spf13/cobra"
+import (
+	"fmt"
+
+	"github.com/spf13/cobra"
+)
 
 var rootCmd = &cobra.Command{
 	Use:   "ebz",
 	Short: "ebz is a cli app to help you analyze UK National Lottery results.",
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+		port := availablePort()
+		rawUrl := fmt.Sprintf("http://localhost:%d", port)
+		openBrowser(rawUrl)
+		runWebserver(port)
 	},
 }
 

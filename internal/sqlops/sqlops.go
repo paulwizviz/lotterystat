@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
+	_ "modernc.org/sqlite"
 )
 
 var (
@@ -20,7 +22,7 @@ var (
 
 // NewSQLiteMem instantiate a connection to SQLite
 func NewSQLiteMem() (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", ":memory:")
+	db, err := sql.Open("sqlite", "file::memory:?cache=shared")
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrDBConn, err)
 	}
@@ -29,24 +31,18 @@ func NewSQLiteMem() (*sql.DB, error) {
 
 // NewSQLiteFile instantiate a file based SQLite
 func NewSQLiteFile(f string) (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", f)
+	db, err := sql.Open("sqlite", f)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrDBConn, err)
 	}
 	return db, nil
 }
 
-// TblCreator is an interface type to support
-// the creation of database table
-type TblCreator interface {
-	Create(context.Context, *sql.Tx) error
-}
-
-// TblCreatorFunc is a function type to help create
+// TblCreator is a function type to help create
 // db table
-type TblCreatorFunc func(context.Context, *sql.Tx) error
+type TblCreator func(context.Context, *sql.Tx) error
 
-func (t TblCreatorFunc) Create(ctx context.Context, tx *sql.Tx) error {
+func (t TblCreator) Create(ctx context.Context, tx *sql.Tx) error {
 	return t(ctx, tx)
 }
 
@@ -57,21 +53,57 @@ func CreateTables(ctx context.Context, db *sql.DB, creators ...TblCreator) error
 		Isolation: sql.LevelDefault,
 	})
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrCreateTxn, err)
+		return fmt.Errorf("%w: %w", ErrCreateTxn, err)
 	}
+	committed := false
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
 			panic(r)
-		} else if err != nil {
+		} else if !committed {
 			tx.Rollback()
 		}
 	}()
 
 	for _, creator := range creators {
-		err := creator.Create(ctx, tx)
-		if err != nil {
+		if err = creator.Create(ctx, tx); err != nil {
 			return fmt.Errorf("%w: %v", ErrCreateTbl, err)
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("%w:%w", ErrCreateTbl, err)
+	}
+	committed = true
+
+	return nil
+}
+
+// RowWriter is a function type to support callback to write a row of data
+type RowWriter func(context.Context, *sql.Stmt, any) error
+
+func Writer(ctx context.Context, db *sql.DB, rawStmt string, dataList []any, rowWriter RowWriter) error {
+	if len(dataList) == 0 {
+		return nil
+	}
+
+	stmt, err := db.PrepareContext(ctx, rawStmt)
+	if err != nil {
+		return fmt.Errorf("%w:%w", ErrPrepareStmt, err)
+	}
+	defer stmt.Close()
+
+	tx, err := db.BeginTx(ctx, &sql.TxOptions{
+		Isolation: sql.LevelDefault,
+	})
+	if err != nil {
+		return fmt.Errorf("%w: %w", ErrCreateTxn, err)
+	}
+	for _, data := range dataList {
+		err := rowWriter(ctx, stmt, data)
+		if err != nil {
+			fmt.Println(err)
+			continue
 		}
 	}
 
@@ -79,41 +111,29 @@ func CreateTables(ctx context.Context, db *sql.DB, creators ...TblCreator) error
 	return nil
 }
 
-// StmtBuilder is a builder to support the creation of prepared SQL statement
-type StmtBuilder struct {
-	stmt *sql.Stmt
-}
+// QueryScanner is a function type to support callback to read a row of data
+type QueryScanner func(*sql.Rows) (any, error)
 
-func (s *StmtBuilder) PrepareStatement(ctx context.Context, db *sql.DB, query string) error {
-	stmt, err := db.PrepareContext(ctx, query)
+func Query(ctx context.Context, db *sql.DB, scanner QueryScanner, rawQuery string, args ...any) ([]any, error) {
+	stmt, err := db.PrepareContext(ctx, rawQuery)
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrPrepareStmt, err)
-	}
-	s.stmt = stmt
-	return nil
-}
-
-func (s *StmtBuilder) Close() error {
-	if s.stmt == nil {
-		return nil // Already closed or never prepared, nothing to do
+		return nil, fmt.Errorf("%w:%w", ErrPrepareStmt, err)
 	}
 
-	err := s.stmt.Close()
-	s.stmt = nil // Clear the statement after closing it
+	rows, err := stmt.QueryContext(ctx, args...)
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrCloseStmt, err)
+		return nil, fmt.Errorf("%w:%w", ErrExecuteQuery, err)
 	}
-	return nil
-}
+	defer rows.Close()
 
-type TableWriter struct {
-	*StmtBuilder
-}
-
-func (t *TableWriter) Execute(ctx context.Context, args ...any) error {
-	_, err := t.StmtBuilder.stmt.ExecContext(ctx, args)
-	if err != nil {
-		return err
+	var results []any
+	for rows.Next() {
+		item, err := scanner(rows)
+		if err != nil {
+			continue
+		}
+		results = append(results, item)
 	}
-	return nil
+
+	return results, nil
 }

@@ -4,10 +4,10 @@ services:
 
   ebz:
     build:
-      context: ../../../
-      dockerfile: ./build/package/goreact/native.dockerfile
+      context: ../../
+      dockerfile: ./build/ebz/ebz.dockerfile
       args:
-        GO_VER: 1.22.6-alpine3.19
+        GO_VER: ${GO_VER}
     environment:
       - APP_NAME=${APP_NAME}
     image: ${EBZ_BUILD_IMAGE:-lotterystat/ebz-builder:current}
