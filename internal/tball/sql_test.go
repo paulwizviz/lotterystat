@@ -9,7 +9,7 @@ import (
 	"github.com/paulwizviz/lotterystat/internal/tball"
 )
 
-func Example_insertDraw() {
+func Example_insertListDraw() {
 
 	db, err := sqlops.NewSQLiteMem()
 	if err != nil {
@@ -41,31 +41,32 @@ func Example_insertDraw() {
 		fmt.Println(err)
 	}
 
-	rows, err := db.Query("SELECT * FROM tball")
+	d1 := tball.Draw{
+		DrawDate:  time.Date(2024, time.August, 28, 0, 0, 0, 0, time.UTC),
+		DayOfWeek: time.Date(2024, time.August, 28, 0, 0, 0, 0, time.UTC).Weekday(),
+		Ball1:     10,
+		Ball2:     20,
+		Ball3:     30,
+		Ball4:     40,
+		Ball5:     50,
+		TBall:     11,
+		BallSet:   "ball set",
+		Machine:   "machine",
+		DrawNo:    2,
+	}
+
+	err = tball.PersistsDraw(context.TODO(), db, d1)
 	if err != nil {
 		fmt.Println(err)
 	}
-	defer rows.Close()
 
-	for rows.Next() {
-		var drawDate string
-		var dayOfWeek time.Weekday
-		var ball1 int
-		var ball2 int
-		var ball3 int
-		var ball4 int
-		var ball5 int
-		var tBall int
-		var ballSet string
-		var machine string
-		var drawNo uint64
-		err := rows.Scan(&drawDate, &dayOfWeek, &ball1, &ball2, &ball3, &ball4, &ball5, &tBall, &ballSet, &machine, &drawNo)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		fmt.Println(drawDate, dayOfWeek, ball1, ball2, ball3, ball4, ball5, tBall, machine, drawNo)
+	results, err := tball.ListAllDraws(context.TODO(), db)
+	if err != nil {
+		fmt.Println(err)
 	}
 
+	fmt.Println(results)
+
 	// Output:
+	// [{2024-08-28 00:00:00 +0000 UTC Wednesday 1 2 3 4 5 1 ball set machine 1} {2024-08-28 00:00:00 +0000 UTC Wednesday 10 20 30 40 50 11 ball set machine 2}]
 }

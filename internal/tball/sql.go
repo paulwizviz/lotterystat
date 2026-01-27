@@ -66,17 +66,30 @@ var (
 
 func ListAllDraws(ctx context.Context, db *sql.DB) ([]Draw, error) {
 
-	sqlops.Query(ctx, db, func(rows *sql.Rows) (any, error) {
+	result, err := sqlops.Query(ctx, db, func(rows *sql.Rows) (any, error) {
 		d := Draw{}
 		var drawDate string
-		var dayOfWeek time.Weekday
-		err := rows.Scan(&drawDate, &dayOfWeek, &d.Ball1, &d.Ball2, &d.Ball3, &d.Ball4, &d.Ball5, &d.TBall, &d.BallSet, &d.Machine, &d.DrawNo)
+		err := rows.Scan(&drawDate, &d.DayOfWeek, &d.Ball1, &d.Ball2, &d.Ball3, &d.Ball4, &d.Ball5, &d.TBall, &d.BallSet, &d.Machine, &d.DrawNo)
 		if err != nil {
 			return nil, fmt.Errorf("%w:%w", sqlops.ErrExecuteQuery, err)
 		}
+		d.DrawDate, err = time.Parse("2006-01-02 15:04:05 -0700 MST", drawDate)
+		if err != nil {
+			return nil, err
+		}
 		return d, nil
 	}, selectAllDrawSQL)
-	return nil, nil
+	if err != nil {
+		return nil, err
+	}
+
+	draws := []Draw{}
+	for _, item := range result {
+		d := item.(Draw)
+		draws = append(draws, d)
+	}
+
+	return draws, nil
 }
 
 var (
