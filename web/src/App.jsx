@@ -24,19 +24,12 @@ import {
   useTheme,
   useMediaQuery,
   Grid,
-  TextField,
-  InputAdornment,
-  Avatar,
-  Tooltip,
   alpha
 } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import SearchIcon from '@mui/icons-material/Search';
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import EuroIcon from '@mui/icons-material/Euro';
 import BoltIcon from '@mui/icons-material/Bolt';
@@ -86,7 +79,7 @@ function App() {
       <Toolbar sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', px: [2] }}>
         <DashboardIcon sx={{ color: theme.palette.primary.main, mr: 1 }} />
         <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary' }}>
-          Stat Dashboard
+          Lottery Stats
         </Typography>
         {!isMobile && (
           <IconButton onClick={handleDrawerToggle} sx={{ ml: 'auto' }}>
@@ -170,29 +163,19 @@ function App() {
               <MenuIcon />
             </IconButton>
             {!isMobile && (
-              <TextField
-                size="small"
-                placeholder="Search..."
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon fontSize="small" />
-                    </InputAdornment>
-                  ),
+              <Button
+                variant="contained"
+                startIcon={<CloudUploadIcon />}
+                sx={{ 
+                  borderRadius: 2, 
+                  textTransform: 'none',
+                  px: 3,
+                  boxShadow: theme.shadows[2],
                 }}
-                sx={{ width: 300, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-              />
+              >
+                Upload Data
+              </Button>
             )}
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Tooltip title="Notifications">
-              <IconButton color="inherit">
-                <NotificationsNoneIcon />
-              </IconButton>
-            </Tooltip>
-            <Avatar sx={{ width: 32, height: 32, bgcolor: theme.palette.primary.main }}>
-              <AccountCircleIcon />
-            </Avatar>
           </Box>
         </Toolbar>
       </AppBar>
@@ -267,19 +250,6 @@ function App() {
                 {selectedGame}
               </Typography>
             </Box>
-            <Button
-              variant="contained"
-              startIcon={<CloudUploadIcon />}
-              sx={{ 
-                borderRadius: 2, 
-                textTransform: 'none',
-                px: 3,
-                boxShadow: theme.shadows[2],
-                alignSelf: { xs: 'flex-start', sm: 'center' }
-              }}
-            >
-              Upload Data
-            </Button>
           </Box>
 
           <Grid container spacing={3}>
