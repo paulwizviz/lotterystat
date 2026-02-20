@@ -1,10 +1,15 @@
 # Overview
 
-A project to create an application named `ebz` to extracts UK national lottery results in CSV format, persists data into SQLite, and performs simple statistical analyses, such as frequency analysis.
+A project to create an application named `ebz` that extracts UK National Lottery results in CSV format, persists data into SQLite, and performs simple statistical analysis.
+
+## `ebz` Use Cases
+
+1. Persists draw results on local SQLite database.
+2. Perform statistical analysis of draw.
 
 ## Disclaimer
 
-This project uses UK National Lottery draws for illustrative purposes only. It is intended to demonstrate software engineering principles, **not** to predict lottery results.
+This project uses UK National Lottery draws for illustrative purposes only. It is intended to demonstrate software engineering principles and vibe coding, **not** to predict lottery results.
 
 Please note that this is an evolving project and is subject to changes without prior notice.
 
@@ -12,7 +17,7 @@ Please note that this is an evolving project and is subject to changes without p
 
 Unless otherwise specified, the copyright of this project is assigned as follows.
 
-Copyright 2023 Paul Sitoh
+Copyright 2026 Paul Sitoh
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
