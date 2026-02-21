@@ -8,9 +8,13 @@ This is the runtime architecture of `ebz`:
 
 Operational flow:
 
-- User start `ebz` and is presented with a dashboard via Browser.
-- User download draw csv files from national lottery website.
-- User upload csv file via frontend or via cli.
+- User download csv files from national lottery website.
+- Operations via Frontend
+  - User starts `ebz`, it checks to verify `$HOME/.ebz/lottery.db` exists.
+  - `ebz`presents user with a dashboard.
+  - User upload csv file via the dashboard.
+- Upload csv via cli
+  - User starts `ebz --file <csv file>`, it checks to verify `$HOME/.ebz/lottery.db` exists.
 
 ## Tech Stack
 
@@ -22,7 +26,7 @@ Operational flow:
 ## Code Structure
 
 - `/cmd/ebz/`: Primary Go application entry point.
-- `/internal/config`: Go package to support configuration operations.
+- `/internal/ebzconfig`: Go package to support configuration operations.
 - `/internal/csvops`: Go package of operations to read and process CSV files.
 - `/internal/ebzcli`: Go package to support backend cli commands and flags operations.
 - `/internal/ebzweb`: Go package to support the delivery of Frontend.
