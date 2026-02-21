@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path"
 
@@ -88,11 +87,6 @@ func Initialize() error {
 			}
 		}
 	}
-
-	log.Printf("Thunderball cache is: %v", AppConfig.TballCache)
-	log.Printf("Euro Million cache is: %v", AppConfig.EuromillionCache)
-	log.Printf("Set For Life cache is: %v", AppConfig.SflCache)
-	log.Printf("Lotto cache is: %v", AppConfig.LottoCache)
 
 	if err := createDBTables(context.Background(), AppConfig.DatabasePath); err != nil {
 		return fmt.Errorf("%w: %v", ErrConfig, err)

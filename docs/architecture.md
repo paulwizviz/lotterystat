@@ -10,11 +10,13 @@ Operational flow:
 
 - User download csv files from national lottery website.
 - Operations via Frontend
-  - User starts `ebz`, it checks to verify `$HOME/.ebz/lottery.db` exists.
-  - `ebz`presents user with a dashboard.
+  - User starts `ebz --start` or `ebz -s`, it checks to verify `$HOME/.ebz/lottery.db` exists.
+  - `ebz` presents user with a dashboard.
   - User upload csv file via the dashboard.
-- Upload csv via cli
-  - User starts `ebz --file <csv file>`, it checks to verify `$HOME/.ebz/lottery.db` exists.
+- Upload csv via CLI
+  - User starts `ebz <game> persists -f <csv file>`, it checks to verify `$HOME/.ebz/lottery.db` exists.
+  - Supported games are `tball`, `euro`, `lotto`, and `sflife`.
+  - For example: `ebz tball persists -f thunderball-draw-history.csv`.
 
 ## Tech Stack
 

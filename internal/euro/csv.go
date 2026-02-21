@@ -54,6 +54,10 @@ func processRecord(rec []string) (Draw, error) {
 	maxValue := 50
 	draw := Draw{}
 
+	if len(rec) < 10 {
+		return draw, fmt.Errorf("%w: record too short, need at least 10 fields, got %d", ErrRec, len(rec))
+	}
+
 	dt, err := csvops.ParseDate(rec[0])
 	if err != nil {
 		return draw, fmt.Errorf("%w-%v", ErrDrawDate, err)
@@ -104,14 +108,22 @@ func processRecord(rec []string) (Draw, error) {
 	draw.Star2 = star2
 
 	draw.UKMaker = rec[8]
-	draw.EUMaker = rec[9]
-	draw.BallSet = rec[10]
-	draw.Machine = rec[11]
-
-	seq, err := csvops.ParseDrawSeq(rec[12])
-	if err != nil {
-		return draw, fmt.Errorf("%w-%v", ErrSeq, err)
+	if len(rec) > 12 {
+		draw.EUMaker = rec[9]
+		draw.BallSet = rec[10]
+		draw.Machine = rec[11]
+		seq, err := csvops.ParseDrawSeq(rec[12])
+		if err != nil {
+			return draw, fmt.Errorf("%w-%v", ErrSeq, err)
+		}
+		draw.DrawNo = seq
+	} else {
+		seq, err := csvops.ParseDrawSeq(rec[9])
+		if err != nil {
+			return draw, fmt.Errorf("%w-%v", ErrSeq, err)
+		}
+		draw.DrawNo = seq
 	}
-	draw.DrawNo = seq
+
 	return draw, nil
 }
