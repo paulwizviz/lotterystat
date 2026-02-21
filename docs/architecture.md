@@ -30,9 +30,22 @@ Operational flow:
 - `/internal/csvops`: Go package of operations to read and process CSV files.
 - `/internal/ebzcli`: Go package to support backend cli commands and flags operations.
 - `/internal/ebzweb`: Go package to support the delivery of Frontend.
+- `/internal/euro`: Shared Go package to support analysis of past EuroMillions results.
+- `/internal/lotto`: Shared Go package to support analysis of past Lotto results.
+- `/internal/sflife`: Shared Go package to support analysis of past Set For Life results.
 - `/internal/sqlops`: Go package containing common SQL operations.
 - `/internal/tball`: Shared Go package to support analysis of past Thunderball results.
 - `/web`: Folder containing JavaScript, ReactJS and Material UI.
+
+## CSV Processing Architecture
+
+The processing of CSV data from the National Lottery involves a fan-out-fan-in pattern to improve performance by parsing records in parallel:
+
+![img fan-out-fan-in](../assets/img/fan-out-fan-in.png)
+
+1. **Fan-out:** The `ProcessCSV` function in each game-specific package (`tball`, `euro`, etc.) spawns a pool of worker goroutines.
+2. **Parallel Processing:** Each worker reads a `CSVRec` from the shared channel and parses it into a game-specific `Draw` structure.
+3. **Fan-in:** The results are sent to a shared result channel, which is then collected into a slice and returned.
 
 ## Build Architecture
 

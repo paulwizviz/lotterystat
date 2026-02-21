@@ -9,6 +9,9 @@ import (
 	"os"
 	"path"
 
+	"github.com/paulwizviz/lotterystat/internal/euro"
+	"github.com/paulwizviz/lotterystat/internal/lotto"
+	"github.com/paulwizviz/lotterystat/internal/sflife"
 	"github.com/paulwizviz/lotterystat/internal/sqlops"
 	"github.com/paulwizviz/lotterystat/internal/tball"
 	"github.com/spf13/viper"
@@ -104,7 +107,14 @@ func createDBTables(ctx context.Context, dbFile string) error {
 		return err
 	}
 	defer db.Close()
-	if err := sqlops.CreateTables(ctx, db, tball.CreateTableFn); err != nil {
+	tblCreators := []sqlops.TblCreator{
+		tball.CreateTableFn,
+		euro.CreateTableFn,
+		lotto.CreateTableFn,
+		sflife.CreateTableFn,
+	}
+
+	if err := sqlops.CreateTables(ctx, db, tblCreators...); err != nil {
 		return err
 	}
 
