@@ -24,10 +24,15 @@ import {
   useTheme,
   useMediaQuery,
   Grid,
-  alpha
+  alpha,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions
 } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -69,9 +74,18 @@ function App() {
   // Start closed on mobile, open on larger screens
   const [open, setOpen] = useState(!isMobile);
   const [selectedGame, setSelectedGame] = useState('Thunderball');
+  const [openUploadDialog, setOpenUploadDialog] = useState(false);
 
   const handleDrawerToggle = () => {
     setOpen(!open);
+  };
+
+  const handleUploadClick = () => {
+    setOpenUploadDialog(true);
+  };
+
+  const handleUploadClose = () => {
+    setOpenUploadDialog(false);
   };
 
   const drawerContent = (
@@ -162,20 +176,6 @@ function App() {
             >
               <MenuIcon />
             </IconButton>
-            {!isMobile && (
-              <Button
-                variant="contained"
-                startIcon={<CloudUploadIcon />}
-                sx={{ 
-                  borderRadius: 2, 
-                  textTransform: 'none',
-                  px: 3,
-                  boxShadow: theme.shadows[2],
-                }}
-              >
-                Upload Data
-              </Button>
-            )}
           </Box>
         </Toolbar>
       </AppBar>
@@ -250,6 +250,20 @@ function App() {
                 {selectedGame}
               </Typography>
             </Box>
+            <Button
+              variant="contained"
+              startIcon={<FileUploadIcon />}
+              onClick={handleUploadClick}
+              sx={{ 
+                borderRadius: 2, 
+                textTransform: 'none',
+                px: 3,
+                py: 1,
+                boxShadow: theme.shadows[2],
+              }}
+            >
+              Upload Data
+            </Button>
           </Box>
 
           <Grid container spacing={3}>
@@ -337,6 +351,43 @@ function App() {
           </Grid>
         </Container>
       </Box>
+      <Dialog open={openUploadDialog} onClose={handleUploadClose} maxWidth="sm" fullWidth>
+        <DialogTitle>Upload Data for {selectedGame}</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 2 }}>
+            Select a CSV file from your local machine to update the draw history for {selectedGame}.
+          </DialogContentText>
+          <Box 
+            sx={{ 
+              border: '2px dashed', 
+              borderColor: 'divider', 
+              borderRadius: 2, 
+              p: 4, 
+              textAlign: 'center',
+              bgcolor: alpha(theme.palette.primary.main, 0.02),
+              cursor: 'pointer',
+              '&:hover': {
+                bgcolor: alpha(theme.palette.primary.main, 0.05),
+                borderColor: theme.palette.primary.main
+              }
+            }}
+          >
+            <FileUploadIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
+            <Typography variant="body1" fontWeight={500}>
+              Click or drag file to this area to upload
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Support for single CSV file upload.
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button onClick={handleUploadClose} sx={{ textTransform: 'none' }}>Cancel</Button>
+          <Button onClick={handleUploadClose} variant="contained" sx={{ textTransform: 'none', px: 3 }}>
+            Upload
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
