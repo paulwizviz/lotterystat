@@ -1,10 +1,11 @@
-package config
+package ebzconfig
 
 import (
 	"os"
 	"path"
 	"testing"
 
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -34,20 +35,33 @@ func TestInitialize(t *testing.T) {
 	}
 	t.Cleanup(func() {
 		locationFunc = oldLocationFunc
+		viper.Reset()
 	})
 
-	err = Initilalize()
+	err = Initialize()
 	if err != nil {
-		t.Fatalf("Initilalize failed: %v", err)
+		t.Fatalf("Initialize failed: %v", err)
 	}
 
 	// Verify config file and directory
 	configDir := path.Join(tmpDir, ".ebz")
+	configFile := path.Join(configDir, "ebz.yaml")
 
-	dbFile := path.Join(configDir, "lottery.db")
-	_, err = os.Stat(dbFile)
+	_, err = os.Stat(configFile)
 	if err != nil {
-		t.Fatalf("db file not created: %v", err)
+		t.Fatalf("config file not created: %v", err)
 	}
 
+	// Verify database file is created
+	_, err = os.Stat(AppConfig.DatabasePath)
+	if err != nil {
+		t.Fatalf("database file not created: %v", err)
+	}
+
+	// Verify default values in struct
+	assert.Contains(t, AppConfig.TballCache, path.Join(configDir, "cache", "tball"))
+	assert.Contains(t, AppConfig.EuromillionCache, path.Join(configDir, "cache", "euro"))
+	assert.Contains(t, AppConfig.SflCache, path.Join(configDir, "cache", "sfl"))
+	assert.Contains(t, AppConfig.LottoCache, path.Join(configDir, "cache", "lotto"))
+	assert.Equal(t, path.Join(configDir, "lottery.db"), AppConfig.DatabasePath)
 }
