@@ -95,13 +95,13 @@ func processRecord(rec []string) (Draw, error) {
 	}
 	draw.Ball5 = ball5
 
-	star1, err := csvops.ParseDrawNum(rec[6], 12)
+	star1, err := csvops.ParseDrawNum(rec[6], 13)
 	if err != nil {
 		return draw, fmt.Errorf("%w-%v", ErrStar1, err)
 	}
 	draw.Star1 = star1
 
-	star2, err := csvops.ParseDrawNum(rec[7], 12)
+	star2, err := csvops.ParseDrawNum(rec[7], 13)
 	if err != nil {
 		return draw, fmt.Errorf("%w-%v", ErrStar2, err)
 	}

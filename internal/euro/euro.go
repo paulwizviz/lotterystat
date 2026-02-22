@@ -58,7 +58,7 @@ func IsValidBall(arg string) bool {
 }
 
 func IsValidStars(arg string) bool {
-	pattern := `^\b([1-9]|1[0-2])\b(,\b([1-9]|1[0-2])\b)*$`
+	pattern := `^\b([1-9]|1[0-3])\b(,\b([1-9]|1[0-3])\b)*$`
 	matched, err := regexp.MatchString(pattern, arg)
 	if err != nil {
 		log.Println(err)
