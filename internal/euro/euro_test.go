@@ -52,8 +52,13 @@ func TestIsValidStars(t *testing.T) {
 		},
 		{
 			input:       "13",
+			expected:    true,
+			description: "One valid star (13)",
+		},
+		{
+			input:       "14",
 			expected:    false,
-			description: "One invalid star",
+			description: "One invalid star (14)",
 		},
 		{
 			input:       "1,12",

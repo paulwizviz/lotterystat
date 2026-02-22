@@ -3,11 +3,144 @@ package euro_test
 import (
 	"context"
 	"fmt"
+	"testing"
 	"time"
 
 	"github.com/paulwizviz/lotterystat/internal/euro"
 	"github.com/paulwizviz/lotterystat/internal/sqlops"
 )
+
+func TestCalculateBallFreq(t *testing.T) {
+	db, err := sqlops.NewSQLiteMem()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	ctx := context.TODO()
+	err = sqlops.CreateTables(ctx, db, euro.CreateTableFn)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Insert some draws
+	draws := []euro.Draw{
+		{
+			DrawDate: time.Date(2026, time.February, 20, 0, 0, 0, 0, time.UTC),
+			Ball1:    1, Ball2: 2, Ball3: 3, Ball4: 4, Ball5: 5, Star1: 1, Star2: 2,
+			DrawNo: 1,
+		},
+		{
+			DrawDate: time.Date(2026, time.February, 21, 0, 0, 0, 0, time.UTC),
+			Ball1:    1, Ball2: 10, Ball3: 20, Ball4: 30, Ball5: 50, Star1: 1, Star2: 12,
+			DrawNo: 2,
+		},
+	}
+
+	for _, d := range draws {
+		err = euro.PersistsDraw(ctx, db, d)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	freqs, err := euro.CalculateBallFreq(ctx, db)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(freqs) != 50 {
+		t.Fatalf("expected 50 frequencies, got %d", len(freqs))
+	}
+
+	// Check specific frequencies
+	expectedFreqs := map[uint]uint{
+		1:  2,
+		2:  1,
+		3:  1,
+		4:  1,
+		5:  1,
+		10: 1,
+		20: 1,
+		30: 1,
+		50: 1,
+	}
+
+	for _, bf := range freqs {
+		if expected, ok := expectedFreqs[bf.Ball]; ok {
+			if bf.Frequency != expected {
+				t.Errorf("ball %d: expected frequency %d, got %d", bf.Ball, expected, bf.Frequency)
+			}
+		} else {
+			if bf.Frequency != 0 {
+				t.Errorf("ball %d: expected frequency 0, got %d", bf.Ball, bf.Frequency)
+			}
+		}
+	}
+}
+
+func TestCalculateStarFreq(t *testing.T) {
+	db, err := sqlops.NewSQLiteMem()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	ctx := context.TODO()
+	err = sqlops.CreateTables(ctx, db, euro.CreateTableFn)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Insert some draws
+	draws := []euro.Draw{
+		{
+			DrawDate: time.Date(2026, time.February, 20, 0, 0, 0, 0, time.UTC),
+			Ball1:    1, Ball2: 2, Ball3: 3, Ball4: 4, Ball5: 5, Star1: 1, Star2: 2,
+			DrawNo: 1,
+		},
+		{
+			DrawDate: time.Date(2026, time.February, 21, 0, 0, 0, 0, time.UTC),
+			Ball1:    1, Ball2: 10, Ball3: 20, Ball4: 30, Ball5: 50, Star1: 1, Star2: 12,
+			DrawNo: 2,
+		},
+	}
+
+	for _, d := range draws {
+		err = euro.PersistsDraw(ctx, db, d)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	freqs, err := euro.CalculateStarFreq(ctx, db)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(freqs) != 12 {
+		t.Fatalf("expected 12 frequencies, got %d", len(freqs))
+	}
+
+	// Check specific frequencies
+	expectedFreqs := map[uint]uint{
+		1:  2,
+		2:  1,
+		12: 1,
+	}
+
+	for _, sf := range freqs {
+		if expected, ok := expectedFreqs[sf.Star]; ok {
+			if sf.Frequency != expected {
+				t.Errorf("star %d: expected frequency %d, got %d", sf.Star, expected, sf.Frequency)
+			}
+		} else {
+			if sf.Frequency != 0 {
+				t.Errorf("star %d: expected frequency 0, got %d", sf.Star, sf.Frequency)
+			}
+		}
+	}
+}
 
 func Example_insertListDraw() {
 

@@ -91,3 +91,77 @@ func ListAllDraws(ctx context.Context, db *sql.DB) ([]Draw, error) {
 
 	return draws, nil
 }
+
+var (
+	countBallSQL = fmt.Sprintf(`SELECT COUNT(*) FROM %[1]s 
+	    WHERE %[2]s=$1 OR %[3]s=$1 OR %[4]s=$1 OR %[5]s=$1 OR %[6]s=$1;`,
+		tblName, ball1, ball2, ball3, ball4, ball5)
+)
+
+type BallFrequency struct {
+	Ball      uint
+	Frequency uint
+}
+
+func CalculateBallFreq(ctx context.Context, db *sql.DB) ([]BallFrequency, error) {
+
+	ballFreqs := []BallFrequency{}
+	ball := 0
+	for range 47 {
+		ball = ball + 1
+
+		bf := BallFrequency{
+			Ball: uint(ball),
+		}
+
+		result, err := sqlops.Query(ctx, db, func(r *sql.Rows) (any, error) {
+			var count int
+			if err := r.Scan(&count); err != nil {
+				return nil, fmt.Errorf("%w: %v", sqlops.ErrExecuteQuery, err)
+			}
+			return count, nil
+		}, countBallSQL, bf.Ball)
+
+		if err != nil {
+			return nil, err
+		}
+
+		bf.Frequency = uint(result[0].(int))
+		ballFreqs = append(ballFreqs, bf)
+	}
+
+	return ballFreqs, nil
+}
+
+var (
+	countLBallSQL = fmt.Sprintf("SELECT COUNT(*) FROM %[1]s WHERE %[2]s=$1;", tblName, lball)
+)
+
+type LBallFrequency struct {
+	LBall     uint
+	Frequency uint
+}
+
+func CalculateLBallFreq(ctx context.Context, db *sql.DB) ([]LBallFrequency, error) {
+	lballFreqs := []LBallFrequency{}
+	lBall := 0
+	for range 10 {
+		lBall = lBall + 1
+		lballFreq := LBallFrequency{
+			LBall: uint(lBall),
+		}
+		result, err := sqlops.Query(ctx, db, func(r *sql.Rows) (any, error) {
+			var count int
+			if err := r.Scan(&count); err != nil {
+				return nil, fmt.Errorf("%w: %v", sqlops.ErrExecuteQuery, err)
+			}
+			return count, nil
+		}, countLBallSQL, lballFreq.LBall)
+		if err != nil {
+			return nil, err
+		}
+		lballFreq.Frequency = uint(result[0].(int))
+		lballFreqs = append(lballFreqs, lballFreq)
+	}
+	return lballFreqs, nil
+}

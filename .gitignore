@@ -21,3 +21,5 @@ dbfiles/
 .$*.drawio.bkp
 
 .envrc
+
+coverage.out

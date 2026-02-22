@@ -71,7 +71,7 @@ func ListAllDraws(ctx context.Context, db *sql.DB) ([]Draw, error) {
 		var drawDate string
 		err := rows.Scan(&drawDate, &d.DayOfWeek, &d.Ball1, &d.Ball2, &d.Ball3, &d.Ball4, &d.Ball5, &d.TBall, &d.BallSet, &d.Machine, &d.DrawNo)
 		if err != nil {
-			return nil, fmt.Errorf("%w:%w", sqlops.ErrExecuteQuery, err)
+			return nil, fmt.Errorf("%w: %v", sqlops.ErrExecuteQuery, err)
 		}
 		d.DrawDate, err = time.Parse("2006-01-02 15:04:05 -0700 MST", drawDate)
 		if err != nil {
@@ -98,6 +98,70 @@ var (
 		tblName, ball1, ball2, ball3, ball4, ball5)
 )
 
+type BallFrequency struct {
+	Ball      uint
+	Frequency uint
+}
+
+func CalculateBallFreq(ctx context.Context, db *sql.DB) ([]BallFrequency, error) {
+
+	ballFreqs := []BallFrequency{}
+	ball := 0
+	for range 39 {
+		ball = ball + 1
+
+		bf := BallFrequency{
+			Ball: uint(ball),
+		}
+
+		result, err := sqlops.Query(ctx, db, func(r *sql.Rows) (any, error) {
+			var count int
+			if err := r.Scan(&count); err != nil {
+				return nil, fmt.Errorf("%w: %v", sqlops.ErrExecuteQuery, err)
+			}
+			return count, nil
+		}, countBallSQL, bf.Ball)
+
+		if err != nil {
+			return nil, err
+		}
+
+		bf.Frequency = uint(result[0].(int))
+		ballFreqs = append(ballFreqs, bf)
+	}
+
+	return ballFreqs, nil
+}
+
 var (
 	countTBallSQL = fmt.Sprintf("SELECT COUNT(*) FROM %[1]s WHERE %[2]s=$1;", tblName, tball)
 )
+
+type TBallFrequency struct {
+	TBall     uint
+	Frequency uint
+}
+
+func CalculateTBallFreq(ctx context.Context, db *sql.DB) ([]TBallFrequency, error) {
+	tballFreqs := []TBallFrequency{}
+	tBall := 0
+	for range 14 {
+		tBall = tBall + 1
+		tballFreq := TBallFrequency{
+			TBall: uint(tBall),
+		}
+		result, err := sqlops.Query(ctx, db, func(r *sql.Rows) (any, error) {
+			var count int
+			if err := r.Scan(&count); err != nil {
+				return nil, fmt.Errorf("%w: %v", sqlops.ErrExecuteQuery, err)
+			}
+			return count, nil
+		}, countTBallSQL, tballFreq.TBall)
+		if err != nil {
+			return nil, err
+		}
+		tballFreq.Frequency = uint(result[0].(int))
+		tballFreqs = append(tballFreqs, tballFreq)
+	}
+	return tballFreqs, nil
+}

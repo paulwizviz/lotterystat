@@ -94,3 +94,77 @@ func ListAllDraws(ctx context.Context, db *sql.DB) ([]Draw, error) {
 
 	return draws, nil
 }
+
+var (
+	countBallSQL = fmt.Sprintf(`SELECT COUNT(*) FROM %[1]s 
+	    WHERE %[2]s=$1 OR %[3]s=$1 OR %[4]s=$1 OR %[5]s=$1 OR %[6]s=$1;`,
+		tblName, ball1, ball2, ball3, ball4, ball5)
+)
+
+type BallFrequency struct {
+	Ball      uint
+	Frequency uint
+}
+
+func CalculateBallFreq(ctx context.Context, db *sql.DB) ([]BallFrequency, error) {
+
+	ballFreqs := []BallFrequency{}
+	ball := 0
+	for range 50 {
+		ball = ball + 1
+
+		bf := BallFrequency{
+			Ball: uint(ball),
+		}
+
+		result, err := sqlops.Query(ctx, db, func(r *sql.Rows) (any, error) {
+			var count int
+			if err := r.Scan(&count); err != nil {
+				return nil, fmt.Errorf("%w: %v", sqlops.ErrExecuteQuery, err)
+			}
+			return count, nil
+		}, countBallSQL, bf.Ball)
+
+		if err != nil {
+			return nil, err
+		}
+
+		bf.Frequency = uint(result[0].(int))
+		ballFreqs = append(ballFreqs, bf)
+	}
+
+	return ballFreqs, nil
+}
+
+var (
+	countStarSQL = fmt.Sprintf("SELECT COUNT(*) FROM %[1]s WHERE %[2]s=$1 OR %[3]s=$1;", tblName, star1, star2)
+)
+
+type StarFrequency struct {
+	Star      uint
+	Frequency uint
+}
+
+func CalculateStarFreq(ctx context.Context, db *sql.DB) ([]StarFrequency, error) {
+	starFreqs := []StarFrequency{}
+	star := 0
+	for range 13 {
+		star = star + 1
+		starFreq := StarFrequency{
+			Star: uint(star),
+		}
+		result, err := sqlops.Query(ctx, db, func(r *sql.Rows) (any, error) {
+			var count int
+			if err := r.Scan(&count); err != nil {
+				return nil, fmt.Errorf("%w: %v", sqlops.ErrExecuteQuery, err)
+			}
+			return count, nil
+		}, countStarSQL, starFreq.Star)
+		if err != nil {
+			return nil, err
+		}
+		starFreq.Frequency = uint(result[0].(int))
+		starFreqs = append(starFreqs, starFreq)
+	}
+	return starFreqs, nil
+}
