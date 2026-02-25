@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   Box, 
   Drawer, 
@@ -23,13 +23,14 @@ import {
   IconButton,
   useTheme,
   useMediaQuery,
-  Grid,
   alpha,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  CircularProgress,
+  Stack
 } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
@@ -44,37 +45,107 @@ import CasinoIcon from '@mui/icons-material/Casino';
 const drawerWidth = 240;
 
 const games = [
-  { name: 'Thunderball', icon: <BoltIcon /> },
-  { name: 'EuroMillions', icon: <EuroIcon /> },
-  { name: 'Set For Life', icon: <FavoriteIcon /> },
-  { name: 'Lotto', icon: <CasinoIcon /> }
-];
-
-// Mock data for initial display
-const frequencyData = [
-  { value: 12, label: '1' },
-  { value: 19, label: '2' },
-  { value: 3, label: '3' },
-  { value: 5, label: '4' },
-  { value: 2, label: '5' },
-  { value: 14, label: '6' },
-];
-
-const drawHistory = [
-  { id: 1, n1: 10, n2: 15, n3: 22, cb: 5 },
-  { id: 2, n1: 1, n2: 12, n3: 31, cb: 12 },
-  { id: 3, n1: 5, n2: 9, n3: 14, cb: 3 },
+  { 
+    name: 'Thunderball', 
+    id: 'tball', 
+    icon: <BoltIcon />, 
+    specialLabel: 'Thunderball',
+    endpoints: {
+      upload: '/tball/csv',
+      ballFreq: '/tball/draw/frequency',
+      specialFreq: '/tball/tball/frequency'
+    }
+  },
+  { 
+    name: 'EuroMillions', 
+    id: 'euro', 
+    icon: <EuroIcon />, 
+    specialLabel: 'Lucky Star',
+    endpoints: {
+      upload: '/euro/csv',
+      ballFreq: '/euro/draw/frequency',
+      specialFreq: '/euro/star/frequency'
+    }
+  },
+  { 
+    name: 'Set For Life', 
+    id: 'sflife', 
+    icon: <FavoriteIcon />, 
+    specialLabel: 'Life Ball',
+    endpoints: {
+      upload: '/sflife/csv',
+      ballFreq: '/sflife/draw/frequency',
+      specialFreq: '/sflife/lball/frequency'
+    }
+  },
+  { 
+    name: 'Lotto', 
+    id: 'lotto', 
+    icon: <CasinoIcon />, 
+    specialLabel: 'Bonus Ball',
+    endpoints: {
+      upload: '/lotto/csv',
+      ballFreq: '/lotto/draw/frequency',
+      specialFreq: '/lotto/bonus/frequency'
+    }
+  }
 ];
 
 function App() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isMidSize = useMediaQuery(theme.breakpoints.between('sm', 'lg'));
   
-  // Start closed on mobile, open on larger screens
   const [open, setOpen] = useState(!isMobile);
-  const [selectedGame, setSelectedGame] = useState('Thunderball');
+  const [selectedGame, setSelectedGame] = useState(games[0]);
   const [openUploadDialog, setOpenUploadDialog] = useState(false);
+  const [ballFreqData, setBallFreqData] = useState([]);
+  const [specialFreqData, setSpecialFreqData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const fetchFrequencies = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [ballRes, specialRes] = await Promise.all([
+        fetch(selectedGame.endpoints.ballFreq),
+        fetch(selectedGame.endpoints.specialFreq)
+      ]);
+      
+      if (!ballRes.ok || !specialRes.ok) {
+        throw new Error('Failed to fetch data from server');
+      }
+
+      const balls = await ballRes.json();
+      const specials = await specialRes.json();
+      
+      console.log(`Fetched ${balls.length} balls and ${specials.length} specials for ${selectedGame.name}`);
+
+      const filteredBalls = balls
+        .map(b => ({ value: b.Frequency, label: b.Ball?.toString() }))
+        .filter(b => b.value > 0);
+        
+      const filteredSpecials = specials
+        .map(s => ({ 
+          value: s.Frequency, 
+          label: (s.TBall || s.Star || s.LBall || s.Ball)?.toString() 
+        }))
+        .filter(s => s.value > 0);
+
+      setBallFreqData(filteredBalls);
+      setSpecialFreqData(filteredSpecials);
+    } catch (err) {
+      console.error('Failed to fetch frequencies:', err);
+      setBallFreqData([]);
+      setSpecialFreqData([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedGame]);
+
+  useEffect(() => {
+    fetchFrequencies();
+  }, [fetchFrequencies]);
 
   const handleDrawerToggle = () => {
     setOpen(!open);
@@ -86,6 +157,39 @@ function App() {
 
   const handleUploadClose = () => {
     setOpenUploadDialog(false);
+    setSelectedFile(null);
+  };
+
+  const handleFileChange = (event) => {
+    if (event.target.files && event.target.files[0]) {
+      setSelectedFile(event.target.files[0]);
+    }
+  };
+
+  const handleUploadSubmit = async () => {
+    if (!selectedFile) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      const response = await fetch(selectedGame.endpoints.upload, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        handleUploadClose();
+        fetchFrequencies();
+      } else {
+        console.error('Upload failed');
+      }
+    } catch (err) {
+      console.error('Error uploading file:', err);
+    } finally {
+      setUploading(false);
+    }
   };
 
   const drawerContent = (
@@ -109,9 +213,9 @@ function App() {
         {games.map((game) => (
           <ListItem key={game.name} disablePadding sx={{ mb: 0.5 }}>
             <ListItemButton 
-              selected={selectedGame === game.name}
+              selected={selectedGame.name === game.name}
               onClick={() => {
-                setSelectedGame(game.name);
+                setSelectedGame(game);
                 if (isMobile) setOpen(false);
               }}
               sx={{
@@ -222,7 +326,7 @@ function App() {
         }}
       >
         <Container 
-          maxWidth={isMidSize ? "md" : "lg"} 
+          maxWidth="xl" 
           sx={{ 
             px: { xs: 0, sm: 2 },
             transition: 'max-width 0.3s' 
@@ -237,9 +341,6 @@ function App() {
             gap: 2 
           }}>
             <Box>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                Dashboard / Lottery Stats
-              </Typography>
               <Typography 
                 variant="h4" 
                 sx={{ 
@@ -247,7 +348,7 @@ function App() {
                   fontWeight: 700 
                 }}
               >
-                {selectedGame}
+                {selectedGame.name}
               </Typography>
             </Box>
             <Button
@@ -266,9 +367,13 @@ function App() {
             </Button>
           </Box>
 
-          <Grid container spacing={3}>
-            {/* Chart Section */}
-            <Grid item xs={12}>
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', my: 10 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Stack spacing={4} direction="column">
+              {/* Main Ball Chart Section */}
               <Paper 
                 elevation={0}
                 sx={{ 
@@ -276,39 +381,62 @@ function App() {
                   borderRadius: 3, 
                   border: '1px solid',
                   borderColor: 'divider',
-                  overflow: 'hidden'
+                  overflow: 'hidden',
+                  width: '100%'
                 }}
               >
                 <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                  Frequency Analysis
+                  Main Ball Frequency Analysis
                 </Typography>
-                <Box sx={{ width: '100%', overflowX: 'auto' }}>
-                  <Box sx={{ minWidth: 500 }}>
-                    <BarChart
-                      xAxis={[{ scaleType: 'band', data: frequencyData.map(d => d.label) }]}
-                      series={[{ data: frequencyData.map(d => d.value), color: theme.palette.primary.main }]}
-                      height={300}
-                      margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
-                    />
-                  </Box>
+                <Box sx={{ width: '100%', height: 400 }}>
+                  <BarChart
+                    xAxis={[{ scaleType: 'band', data: ballFreqData.map(d => d.label) }]}
+                    series={[{ data: ballFreqData.map(d => d.value), color: theme.palette.primary.main }]}
+                    height={400}
+                    margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
+                  />
                 </Box>
               </Paper>
-            </Grid>
 
-            {/* Table Section */}
-            <Grid item xs={12}>
+              {/* Special Ball Chart Section */}
+              <Paper 
+                elevation={0}
+                sx={{ 
+                  p: { xs: 2, sm: 3 }, 
+                  borderRadius: 3, 
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  overflow: 'hidden',
+                  width: '100%'
+                }}
+              >
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                  {selectedGame.specialLabel} Frequency Analysis
+                </Typography>
+                <Box sx={{ width: '100%', height: 400 }}>
+                  <BarChart
+                    xAxis={[{ scaleType: 'band', data: specialFreqData.map(d => d.label) }]}
+                    series={[{ data: specialFreqData.map(d => d.value), color: theme.palette.secondary.main }]}
+                    height={400}
+                    margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
+                  />
+                </Box>
+              </Paper>
+
+              {/* Table Section */}
               <Paper 
                 elevation={0}
                 sx={{ 
                   borderRadius: 3, 
                   border: '1px solid',
                   borderColor: 'divider',
-                  overflow: 'hidden'
+                  overflow: 'hidden',
+                  width: '100%'
                 }}
               >
                 <Box sx={{ p: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    Recent Draws
+                    Frequency Analysis Table
                   </Typography>
                   <Button size="small" sx={{ textTransform: 'none' }}>View All</Button>
                 </Box>
@@ -316,65 +444,75 @@ function App() {
                   <Table stickyHeader>
                     <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.02) }}>
                       <TableRow>
-                        <TableCell align="center" sx={{ fontWeight: 700 }}>Number 1</TableCell>
-                        <TableCell align="center" sx={{ fontWeight: 700 }}>Number 2</TableCell>
-                        <TableCell align="center" sx={{ fontWeight: 700 }}>Number 3</TableCell>
-                        <TableCell align="center" sx={{ fontWeight: 700 }}>Bonus (CB)</TableCell>
+                        <TableCell align="center" sx={{ fontWeight: 700 }}>Ball</TableCell>
+                        <TableCell align="center" sx={{ fontWeight: 700 }}>Frequency</TableCell>
+                        <TableCell align="center" sx={{ fontWeight: 700 }}>{selectedGame.specialLabel}</TableCell>
+                        <TableCell align="center" sx={{ fontWeight: 700 }}>Frequency</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {drawHistory.map((row) => (
-                        <TableRow key={row.id} hover>
-                          <TableCell align="center">{row.n1}</TableCell>
-                          <TableCell align="center">{row.n2}</TableCell>
-                          <TableCell align="center">{row.n3}</TableCell>
+                      {Array.from({ length: Math.max(ballFreqData.length, specialFreqData.length) }).map((_, index) => (
+                        <TableRow key={index} hover>
+                          <TableCell align="center">{ballFreqData[index]?.label || '-'}</TableCell>
+                          <TableCell align="center">{ballFreqData[index]?.value ?? '-'}</TableCell>
                           <TableCell align="center">
-                            <Box sx={{ 
-                              display: 'inline-block', 
-                              px: 1.5, 
-                              py: 0.5, 
-                              borderRadius: 1, 
-                              bgcolor: alpha(theme.palette.secondary.main, 0.1),
-                              color: theme.palette.secondary.dark,
-                              fontWeight: 600
-                            }}>
-                              {row.cb}
-                            </Box>
+                            {specialFreqData[index] ? (
+                              <Box sx={{ 
+                                display: 'inline-block', 
+                                px: 1.5, 
+                                py: 0.5, 
+                                borderRadius: 1, 
+                                bgcolor: alpha(theme.palette.secondary.main, 0.1),
+                                color: theme.palette.secondary.dark,
+                                fontWeight: 600
+                              }}>
+                                {specialFreqData[index].label}
+                              </Box>
+                            ) : '-'}
                           </TableCell>
+                          <TableCell align="center">{specialFreqData[index]?.value ?? '-'}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
                 </TableContainer>
               </Paper>
-            </Grid>
-          </Grid>
+            </Stack>
+          )}
         </Container>
       </Box>
       <Dialog open={openUploadDialog} onClose={handleUploadClose} maxWidth="sm" fullWidth>
-        <DialogTitle>Upload Data for {selectedGame}</DialogTitle>
+        <DialogTitle>Upload Data for {selectedGame.name}</DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ mb: 2 }}>
-            Select a CSV file from your local machine to update the draw history for {selectedGame}.
+            Select a CSV file from your local machine to update the draw history for {selectedGame.name}.
           </DialogContentText>
           <Box 
+            component="label"
             sx={{ 
               border: '2px dashed', 
-              borderColor: 'divider', 
+              borderColor: selectedFile ? theme.palette.primary.main : 'divider', 
               borderRadius: 2, 
               p: 4, 
               textAlign: 'center',
               bgcolor: alpha(theme.palette.primary.main, 0.02),
               cursor: 'pointer',
+              display: 'block',
               '&:hover': {
                 bgcolor: alpha(theme.palette.primary.main, 0.05),
                 borderColor: theme.palette.primary.main
               }
             }}
           >
-            <FileUploadIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
+            <input
+              type="file"
+              accept=".csv"
+              hidden
+              onChange={handleFileChange}
+            />
+            <FileUploadIcon sx={{ fontSize: 48, color: selectedFile ? theme.palette.primary.main : 'text.secondary', mb: 1 }} />
             <Typography variant="body1" fontWeight={500}>
-              Click or drag file to this area to upload
+              {selectedFile ? selectedFile.name : 'Click to select a CSV file'}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               Support for single CSV file upload.
@@ -382,9 +520,14 @@ function App() {
           </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button onClick={handleUploadClose} sx={{ textTransform: 'none' }}>Cancel</Button>
-          <Button onClick={handleUploadClose} variant="contained" sx={{ textTransform: 'none', px: 3 }}>
-            Upload
+          <Button onClick={handleUploadClose} disabled={uploading} sx={{ textTransform: 'none' }}>Cancel</Button>
+          <Button 
+            onClick={handleUploadSubmit} 
+            variant="contained" 
+            disabled={!selectedFile || uploading}
+            sx={{ textTransform: 'none', px: 3, minWidth: 100 }}
+          >
+            {uploading ? <CircularProgress size={24} color="inherit" /> : 'Upload'}
           </Button>
         </DialogActions>
       </Dialog>
